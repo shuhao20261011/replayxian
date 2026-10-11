@@ -1,0 +1,6 @@
+.godot/
+/build/
+*.tmp
+__pycache__/
+*.pyc
+export_credentials.cfg
