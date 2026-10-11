@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>重走修仙路 · 试玩版本</title>
+<link rel="icon" href="stage1-2/index.icon.png">
+<style>
+  :root { --paper:#ECE6D6; --paper2:#E2DAC4; --ink:#232C25; --ink2:#2F453C; --gold:#C5B489; --seal:#B8382C; --mist:#6E7A70; }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; color:var(--ink); font-family:"Noto Serif SC","Source Han Serif SC","Songti SC","STSong","SimSun",serif;
+         background: radial-gradient(ellipse at 50% -10%, #F6F2E8 0%, var(--paper) 45%, var(--paper2) 100%); }
+  .mount { position:fixed; inset:auto 0 0 0; height:38vh; pointer-events:none; opacity:.55;
+           background:
+             linear-gradient(160deg, transparent 52%, rgba(47,69,60,.22) 52.3%, transparent 75%),
+             linear-gradient(200deg, transparent 48%, rgba(47,69,60,.30) 48.3%, transparent 80%),
+             linear-gradient(170deg, transparent 60%, rgba(35,44,37,.35) 60.3%); }
+  main { position:relative; max-width:860px; margin:0 auto; padding:9vh 24px 80px; }
+  header { display:flex; align-items:flex-end; gap:18px; border-bottom:1px solid rgba(35,44,37,.25); padding-bottom:18px; }
+  h1 { margin:0; font-size:48px; letter-spacing:.18em; font-weight:700; }
+  .seal { display:inline-flex; align-items:center; justify-content:center; width:46px; height:46px; margin-bottom:8px; border-radius:6px;
+          background:var(--seal); color:#F6EBDD; font-size:15px; line-height:1.05; text-align:center; letter-spacing:0; box-shadow:0 1px 0 rgba(0,0,0,.15); }
+  .sub { margin:14px 0 36px; color:var(--mist); letter-spacing:.12em; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:18px; }
+  .card { position:relative; display:block; padding:22px 22px 20px; border-radius:10px; text-decoration:none; color:inherit;
+          background:rgba(246,242,232,.72); border:1px solid rgba(197,180,137,.9); box-shadow:inset 0 0 0 4px rgba(246,242,232,.6), inset 0 0 0 5px rgba(197,180,137,.55);
+          transition:transform .15s ease, box-shadow .15s ease; }
+  a.card:hover { transform:translateY(-2px); box-shadow:inset 0 0 0 4px rgba(246,242,232,.6), inset 0 0 0 5px rgba(197,180,137,.9), 0 8px 22px rgba(35,44,37,.14); }
+  .card h2 { margin:0 0 6px; font-size:22px; letter-spacing:.1em; }
+  .card p { margin:0 0 14px; color:#4A554C; font-size:14px; line-height:1.7; }
+  .tag { display:inline-block; font-size:12px; padding:2px 10px; border-radius:999px; letter-spacing:.08em; }
+  .on { background:var(--ink2); color:#EAD7A8; }
+  .off { border:1px dashed rgba(35,44,37,.35); color:var(--mist); }
+  .card.soon { opacity:.62; }
+  .play { position:absolute; right:20px; bottom:18px; color:var(--seal); font-size:14px; letter-spacing:.1em; }
+  footer { margin-top:42px; color:var(--mist); font-size:13px; line-height:1.9; }
+  kbd { font-family:inherit; border:1px solid rgba(35,44,37,.3); border-bottom-width:2px; border-radius:4px; padding:0 6px; background:#F6F2E8; }
+</style>
+</head>
+<body>
+<div class="mount"></div>
+<main>
+  <header><h1>重走修仙路</h1><span class="seal">试玩<br>版本</span></header>
+  <p class="sub">国风剪影 · 横版修仙挂机刷宝 · 各开发阶段的网页试玩版</p>
+  <section class="grid">
+    <a class="card" href="stage1-2/">
+      <h2>阶段一 · 二</h2>
+      <p>项目骨架与可操作战斗：刷怪→首领→胜利／失败→挂机循环，首领预警与闪避，自动挂机失败回退。</p>
+      <span class="tag on">可试玩</span>
+      <span class="play">入 局 →</span>
+    </a>
+    <div class="card soon">
+      <h2>阶段三 · 四</h2>
+      <p>功法与技能书、学习／升级／装配、装备生成与词条、分解与重铸、正式美术第一批。</p>
+      <span class="tag off">炼制中</span>
+    </div>
+  </section>
+  <footer>
+    操作：<kbd>A</kbd>/<kbd>D</kbd> 移动 · <kbd>1</kbd>–<kbd>4</kbd> 技能 · <kbd>空格</kbd> 闪避 · <kbd>Q</kbd> 自动战斗<br>
+    建议使用桌面版 Chrome / Edge / Firefox；首次载入约 40 MB。字体：思源黑体（SIL OFL 1.1）。
+  </footer>
+</main>
+</body>
+</html>
