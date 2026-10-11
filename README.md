@@ -26,7 +26,16 @@ godot --path . -- --level=LV_1_3    # 调试：直接挑战某关；可加 --bos
 # 只跑名字包含某串的用例：godot --headless --path . res://tests/test_runner.tscn -- --only=skyfall
 ```
 
-`tests/` 下 54 个用例（以 `./run_tests.sh` 输出为准）：配置加载与数据驱动、技能栏规则与冷却、自动/手动切换、闪避免伤、伤害规则（防御、真实伤害、护盾、反伤、护体反震内置间隔）、首领预警与闪避判定、自动护盾AI、天坠情境引导、刷怪→首领→胜利/失败→挂机循环、v3 自动挂机失败回退、面板暂停、默认配置 10 分钟挂机稳定性，以及 QA 第一轮缺陷回归（`tests/test_regressions.gd`：首领节点释放、天坠引导中途结算复位、标记清除后回到最高关、闪避位移/冷却精确、全场预警铺满视口、坐标归零、底栏不裁切等）。运行期出现任何脚本错误都会判该用例失败。战斗逻辑由 `Battle.tick(delta)` 驱动，测试以固定步长确定性推进。
+`tests/` 下 62 个用例（以 `./run_tests.sh` 输出为准）：配置加载与数据驱动、技能栏规则与冷却、自动/手动切换、闪避免伤、伤害规则（防御、真实伤害、护盾、反伤、护体反震内置间隔）、首领预警与闪避判定、自动护盾AI、天坠情境引导、刷怪→首领→胜利/失败→挂机循环、v3 自动挂机失败回退、面板暂停、默认配置 10 分钟挂机稳定性，以及 QA 第一轮缺陷回归（`tests/test_regressions.gd`：首领节点释放、天坠引导中途结算复位、标记清除后回到最高关、闪避位移/冷却精确、全场预警铺满视口、坐标归零、底栏不裁切等）。运行期出现任何脚本错误都会判该用例失败。战斗逻辑由 `Battle.tick(delta)` 驱动，测试以固定步长确定性推进。
+
+## 文案与配置要点（策划表 v5 / v5.1）
+
+- **上屏文字读表**：横幅、飘字、HUD、按钮、提示文字一律来自 `design/data/ui_texts.csv`（`UiText.t(key, {占位符})`，`scripts/ui/ui_text.gd`）。主表还没有的前端文字暂放 `data/ui_texts_local.csv`（同列结构，待策划收编；主表同名 key 优先，测试会提示重复）。
+- **占位符渲染**与 `design/tools/common.py` 的 `render_tpl()` 逐字一致：`{f}`/`{f:num}` 至多2位小数去尾0，`{f:pct}` ×100 至多1位小数加 %，`{f:int}` 四舍五入（恰好一半取偶，同 Python），大数按 Python `%g`。对照用例由 `python3 tools/gen_render_cases.py` 用策划工具生成到 `tests/fixtures/render_tpl_cases.json`（设计表更新后重跑）。技能说明按当前等级渲染 `desc_tpl`（skill_levels 同名字段覆盖 skills），`orange_effects`/`boss_attacks` 取本行。
+- **引导文字**直接读 `tutorial_steps.hint_text / sub_text / success_text`（自动模式追加 sub_text，并显示空格键图标）。
+- **首领危险招式最小间隔保护**：节拍由 `boss_attacks.csv` 决定；运行时若本招首个判定距上次危险判定 < `DODGE_COOLDOWN + DANGER_MIN_GAP_MARGIN_S`（掌心雷眩晕等会压缩节拍），推迟释放。
+- **预警取色**：`boss_attacks.telegraph_color` → `maps.telegraph_color` → `TELEGRAPH_DEFAULT_COLOR`；玩家设置“统一预警白”（`PlayerState.telegraph_alt`，写存档）时一律 `TELEGRAPH_ALT_COLOR`。区域填充 = 预警色 × `TELEGRAPH_FILL_ALPHA`，描边外侧加 `TELEGRAPH_OUTLINE_PX` 宽、`TELEGRAPH_OUTLINE_COLOR`×`TELEGRAPH_OUTLINE_ALPHA` 的外描边。
+- 颜色分工：`gongfa.color`/`qualities.color` 是文字色，技能特效用 `gongfa.fx_color`，掉落光柱/品质框用 `qualities.beam_color`；图标按各表 `icon` 键加载；`note` 列只给策划看，不上屏。
 
 ## Windows 导出
 
