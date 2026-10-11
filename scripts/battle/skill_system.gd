@@ -56,6 +56,8 @@ func try_cast(slot: int, manual: bool) -> bool:
 	cds[slot] = cooldown_for(s)
 	cd_totals[slot] = cds[slot]
 	cast_log.append({"t": battle.sim_time, "slot": slot, "skill_id": s.id, "manual": manual})
+	if cast_log.size() > 256:   # BUG-009：调试日志只保留最近256条
+		cast_log = cast_log.slice(cast_log.size() - 256)
 	cast.emit(slot, s.id, manual)
 	return true
 

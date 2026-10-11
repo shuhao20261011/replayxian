@@ -147,7 +147,7 @@ func step(delta: float) -> void:
 		_move_dir = 0.0
 		return
 	if dodge_cd > 0.0:
-		dodge_cd = maxf(dodge_cd - delta, 0.0)
+		dodge_cd = _tick_timer(dodge_cd, delta)
 		dodge_state_changed.emit(dodge_cd, dodge_cooldown_total())
 	if dmg_reduce_t > 0.0:
 		dmg_reduce_t -= delta
@@ -158,8 +158,9 @@ func step(delta: float) -> void:
 	attack_cd -= delta
 	if dodge_t > 0.0:
 		var dur := GameData.const_f("DODGE_DURATION", 0.3)
-		position.x += _dodge_dir * GameData.const_f("DODGE_DISTANCE", 160.0) / maxf(dur, 0.01) * delta
-		dodge_t = maxf(dodge_t - delta, 0.0)
+		# BUG-006：按实际剩余时间截断位移，计时用阈值消除浮点残差（位移恰为 DODGE_DISTANCE）
+		position.x += _dodge_dir * GameData.const_f("DODGE_DISTANCE", 160.0) / maxf(dur, 0.01) * minf(delta, dodge_t)
+		dodge_t = _tick_timer(dodge_t, delta)
 	else:
 		position.x += _move_dir * float(stats.get("move_speed", 220.0)) * delta
 		if absf(_move_dir) > 0.01:
@@ -171,6 +172,11 @@ func step(delta: float) -> void:
 	_update_visual(delta)
 
 ## 普攻：敌人进入射程后自动触发（手动/自动模式都一样）
+## 计时器递减；剩余小于 1e-6 视为 0（固定步长 1/60 累减的浮点残差）
+static func _tick_timer(t: float, delta: float) -> float:
+	var r := t - delta
+	return r if r > 1e-6 else 0.0
+
 func _try_normal_attack() -> void:
 	if attack_cd > 0.0 or battle == null:
 		return

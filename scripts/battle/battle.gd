@@ -58,6 +58,8 @@ var slowmo_left := 0.0
 var use_alt_telegraph_color := false
 var _bg_map_id := ""
 var run_auto_at_fail := false
+var retreat_active := false   # 因自动失败回退而挂在较低关卡；标记清除后回到最高已通关关卡（BUG-003）
+var _sky_fill: ColorRect      # 非16:9窗口时补天空（BUG-007）
 var counter_hits := 0     # 调试/测试：护体反震触发次数
 var reflect_hits := 0     # 调试/测试：反伤触发次数
 
@@ -120,7 +122,21 @@ func tick(delta: float) -> void:
 	_process_spawns()
 	_update_phase(d)
 	left_bound = maxf(left_bound, player.position.x - GameData.const_f("PLAYER_BACKTRACK_PX", 600.0))
-	camera.position = Vector2(player.position.x + 200.0, 360.0)
+	_update_camera()
+
+## 镜头：地面线固定在距屏幕底边 GROUND_SCREEN_MARGIN 处（默认135，1280×720 时镜头 y=360），
+## 4:3/5:4 等更高的窗口向上多显示天空，由 _sky_fill 补色（BUG-007）
+func _update_camera() -> void:
+	var vs := get_viewport_rect().size if is_inside_tree() else Vector2(1280, 720)
+	camera.position = Vector2(player.position.x + 200.0, ground_y + GameData.const_f("GROUND_SCREEN_MARGIN", 135.0) - vs.y / 2.0)
+	if _sky_fill:
+		_sky_fill.position = Vector2(camera.position.x - vs.x, camera.position.y - vs.y)
+		_sky_fill.size = Vector2(vs.x * 2.0, vs.y)
+
+## 当前可见世界区域
+func view_rect() -> Rect2:
+	var vs := get_viewport_rect().size if is_inside_tree() else Vector2(1280, 720)
+	return Rect2(camera.position - vs / 2.0, vs)
 
 func start_slowmo(scale: float, duration_game_s: float) -> void:
 	time_scale = clampf(scale, 0.0, 1.0)
@@ -144,6 +160,7 @@ func start_run(l: LevelDef, m: int) -> void:
 	boss = null
 	boss_time_left = 0.0
 	stop_slowmo()
+	player.position.x = 0.0   # BUG-009：每轮把世界原点归零，避免坐标无界增长（浮点精度）
 	player.reset_for_run(PlayerState.combat_stats())
 	skills.reset()
 	left_bound = player.position.x - GameData.const_f("PLAYER_BACKTRACK_PX", 600.0)
@@ -159,9 +176,10 @@ func challenge(level_id: String) -> bool:
 	return true
 
 func _clear_field() -> void:
-	for e in enemies:
-		if is_instance_valid(e):
-			_free_node(e)
+	tutorial.cancel_active()   # BUG-002：战斗被清场时撤销进行中的引导
+	# BUG-001：释放 Enemies 下全部节点（包括已移出 enemies 数组的死亡首领）
+	for e in enemies_root.get_children():
+		_free_node(e)
 	enemies.clear()
 	pending_spawns.clear()
 	for tg in telegraphs:
@@ -262,7 +280,12 @@ func _on_enemy_died(e: Enemy) -> void:
 	if e != boss:
 		_free_node(e)
 	else:
-		e.modulate = Color(1, 1, 1, 0.35)
+		# 首领死亡：结算展示期间淡出，下一轮 _clear_field 释放（BUG-001）
+		if visual_fx and e.is_inside_tree():
+			var tw := e.create_tween()
+			tw.tween_property(e, "modulate:a", 0.0, GameData.const_f("RESULT_SHOW_TIME", 2.0) * 0.8)
+		else:
+			e.modulate = Color(1, 1, 1, 0.0)
 
 func _finish(result: String) -> void:
 	last_result = result
@@ -271,6 +294,7 @@ func _finish(result: String) -> void:
 	if result == "victory":
 		first_clear = PlayerState.mark_cleared(level.id)
 		PlayerState.record_level_success(level.id, mode == RunMode.CHALLENGE)
+	tutorial.cancel_active()   # BUG-002：预警期间结算，收起引导并恢复速度
 	stop_slowmo()
 	for tg in telegraphs:
 		_free_node(tg)
@@ -292,15 +316,26 @@ func _finish(result: String) -> void:
 func _next_run() -> void:
 	match last_result:
 		"victory":
-			start_run(level, RunMode.FARM)
+			# BUG-003：回退挂机中，若标记已被清除（换装/升级/突破等），回到“已通关且未标记”的最高关卡
+			var target := level
+			if retreat_active:
+				var best := PlayerState.auto_retreat_level()
+				if best and best != level:
+					target = best
+					banner.emit("配置已调整，回到%s挂机" % best.name)
+				if PlayerState.unstable_levels.is_empty():
+					retreat_active = false
+			start_run(target, RunMode.FARM)
 		"loop":
 			start_run(level, RunMode.FARM_NORMALS)
 		_:
 			var target: LevelDef = PlayerState.last_cleared_level()
-			if run_auto_at_fail:
+			# BUG-010：未通关时刷普通怪（FARM_NORMALS）阵亡不计自动失败、不打标记
+			if run_auto_at_fail and mode != RunMode.FARM_NORMALS:
 				var failed := level
 				if PlayerState.record_auto_failure(failed.id):
 					target = PlayerState.auto_retreat_level()
+					retreat_active = true
 					var to_name := "%s" % target.name if target else "%s普通怪" % GameData.first_level().name
 					banner.emit("当前配置难以稳定通过%s，已回到%s挂机（调整配置或手动挑战可解除）" % [failed.name, to_name])
 			if target:
@@ -551,10 +586,22 @@ func _setup_background() -> void:
 	_bg_map_id = level.map_id
 	for c in background.get_children():
 		_free_node(c)
+	if _sky_fill == null:
+		_sky_fill = ColorRect.new()
+		_sky_fill.z_index = -100
+		_sky_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		world.add_child(_sky_fill)
 	var m := GameData.get_map(level.map_id)
 	if m == null:
 		return
 	var key := m.art_key()
+	var far_path := "res://art/bg/%s/bg_%s_far.png" % [key, key]
+	if ResourceLoader.exists(far_path):
+		var img := (load(far_path) as Texture2D).get_image()
+		if img:
+			if img.is_compressed():
+				img.decompress()
+			_sky_fill.color = img.get_pixel(img.get_width() / 2, 0)   # 远景最上沿颜色补满高窗口的天空
 	var layers := [["far", 0.15, Vector2(0, 0), 1280.0], ["mid", 0.5, Vector2(0, 0), 2560.0], ["ground", 1.0, Vector2(0, ground_y - 10), 2560.0]]
 	for L in layers:
 		var path := "res://art/bg/%s/bg_%s_%s.png" % [key, key, L[0]]

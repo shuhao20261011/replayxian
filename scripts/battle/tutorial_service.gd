@@ -46,8 +46,37 @@ func on_telegraph_started(tg: Telegraph) -> void:
 		var dur := CsvUtil.f(r, "time_scale_duration_s", 0.0)
 		if scale < 1.0:
 			battle.start_slowmo(scale, dur if dur > 0.0 else tg.warn)
-		hint_shown.emit(sid, hint_text(r))
+		var sub := auto_subtext(r) if PlayerState.auto_battle else ""
+		hint_shown.emit(sid, hint_text(r) + ("\n" + sub if sub != "" else ""))
 		return
+
+## 自动模式附加小字：ui_target 中“小字“……””的内容（文案来自表）
+static func auto_subtext(row: Dictionary) -> String:
+	var ui := CsvUtil.s(row, "ui_target")
+	var k := ui.find("小字“")
+	if k < 0:
+		return ""
+	var a := k + 2
+	var b := ui.find("”", a + 1)
+	return ui.substr(a + 1, b - a - 1) if b > a else ""
+
+## 战斗提前结束/换关时撤销进行中的提示（BUG-002）：收起提示、恢复1倍速、清空状态。
+## 本次提示没有完整看完，不计入 max_show_count（shown 回退1），下一次天坠预警会再提示。
+func cancel_active() -> void:
+	if active_step.is_empty():
+		return
+	var sid := CsvUtil.s(active_step, "step_id")
+	var st := PlayerState.tutorial_state(sid)
+	if not st.get("done", false):
+		st["shown"] = maxi(int(st.get("shown", 0)) - 1, 0)
+		PlayerState.set_tutorial_state(sid, st)
+	battle.stop_slowmo()
+	active_step = {}
+	active_tg = null
+	hint_hidden.emit(sid, false)
+
+func is_active_for(tg: Telegraph) -> bool:
+	return not active_step.is_empty() and active_tg == tg
 
 func on_telegraph_resolved(tg: Telegraph, dodged: bool) -> void:
 	if active_step.is_empty() or tg != active_tg:

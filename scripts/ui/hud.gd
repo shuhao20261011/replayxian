@@ -21,6 +21,8 @@ var boss_name: Label
 var boss_bar: ProgressBar
 var banner_label: Label
 var hint_label: Label
+var hint_sub: Label
+var hint_key: PanelContainer
 var hp_bar: ProgressBar
 var hp_text: Label
 var shield_bar: ProgressBar
@@ -94,24 +96,43 @@ func _build() -> void:
 	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint_label.add_theme_constant_override("outline_size", 8)
 	root.add_child(hint_label)
+	# BUG-004：空格键图标 + 自动模式小字（文案来自 tutorial_steps.ui_target）
+	hint_key = PanelContainer.new()
+	var ksb := UiStyle.panel(6, UiStyle.MIST); ksb.set_border_width_all(2); ksb.border_width_bottom = 5
+	ksb.content_margin_left = 44; ksb.content_margin_right = 44; ksb.content_margin_top = 2; ksb.content_margin_bottom = 2
+	hint_key.add_theme_stylebox_override("panel", ksb)
+	hint_key.add_child(UiStyle.label("空格  Space", 20, UiStyle.MIST))
+	hint_key.set_anchors_preset(Control.PRESET_CENTER)
+	hint_key.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	hint_key.offset_left = 0; hint_key.offset_right = 0; hint_key.offset_top = -54; hint_key.offset_bottom = -54
+	hint_key.visible = false
+	hint_key.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(hint_key)
+	hint_sub = UiStyle.label("", 18, UiStyle.MIST)
+	hint_sub.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	hint_sub.offset_left = -420; hint_sub.offset_right = 420; hint_sub.offset_top = -10; hint_sub.offset_bottom = 18
+	hint_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	root.add_child(hint_sub)
 	# ---- 底部栏 ----
 	var bottom := PanelContainer.new()
 	bottom.add_theme_stylebox_override("panel", UiStyle.panel(0))
 	bottom.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	bottom.offset_top = -136
+	# BUG-008：底栏按内容最小高度向上生长（不再固定 -136 导致溢出）
+	bottom.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	bottom.offset_top = 0; bottom.offset_bottom = 0
 	root.add_child(bottom)
 	var bh := HBoxContainer.new()
-	bh.add_theme_constant_override("separation", 14)
+	bh.add_theme_constant_override("separation", 10)
 	bottom.add_child(bh)
 	var bars := VBoxContainer.new()
 	bars.alignment = BoxContainer.ALIGNMENT_CENTER
 	bh.add_child(bars)
 	var hrow := HBoxContainer.new(); bars.add_child(hrow)
-	hrow.add_child(UiStyle.label("生命", 16)); hp_bar = UiStyle.bar(UiStyle.BLOOD); hrow.add_child(hp_bar)
-	hp_text = UiStyle.label("", 14); hrow.add_child(hp_text)
+	hrow.add_child(UiStyle.label("生命", 16)); hp_bar = UiStyle.bar(UiStyle.BLOOD); hp_bar.custom_minimum_size = Vector2(190, 16); hrow.add_child(hp_bar)
+	hp_text = UiStyle.label("", 13); hp_text.custom_minimum_size = Vector2(112, 0); hp_text.clip_text = true; hrow.add_child(hp_text)
 	var srow := HBoxContainer.new(); bars.add_child(srow)
-	srow.add_child(UiStyle.label("护盾", 16)); shield_bar = UiStyle.bar(UiStyle.SHIELD); srow.add_child(shield_bar)
-	shield_text = UiStyle.label("", 14); srow.add_child(shield_text)
+	srow.add_child(UiStyle.label("护盾", 16)); shield_bar = UiStyle.bar(UiStyle.SHIELD); shield_bar.custom_minimum_size = Vector2(190, 16); srow.add_child(shield_bar)
+	shield_text = UiStyle.label("", 13); shield_text.custom_minimum_size = Vector2(112, 0); shield_text.clip_text = true; srow.add_child(shield_text)
 	bars.add_child(UiStyle.label("A/D 移动 · 1-4 技能 · 空格 闪避 · Q 自动", 13, Color(0.75, 0.75, 0.7)))
 	var sp3 := Control.new(); sp3.size_flags_horizontal = Control.SIZE_EXPAND_FILL; bh.add_child(sp3)
 	for i in PlayerState.slot_count():
@@ -142,7 +163,7 @@ func _build() -> void:
 	for pair in [["装", "装备"], ["功", "功法"], ["图", "地图"], ["破", "突破"]]:
 		var v := VBoxContainer.new(); v.alignment = BoxContainer.ALIGNMENT_CENTER
 		var b := UiStyle.button(pair[0], 26)
-		b.custom_minimum_size = Vector2(60, 60)
+		b.custom_minimum_size = Vector2(56, 56)
 		var title: String = pair[1]
 		b.pressed.connect(func() -> void: open_panel(title))
 		v.add_child(b)
@@ -204,6 +225,8 @@ func close_panel() -> void:
 	get_tree().paused = false
 
 func _on_challenge_next() -> void:
+	if is_panel_open():
+		close_panel()   # QA 观测4：先关面板再开新一局
 	var nxt := PlayerState.next_challenge_level()
 	if nxt and battle:
 		battle.challenge(nxt.id)
@@ -215,6 +238,10 @@ func show_banner(text: String) -> void:
 	_banner_t = 5.0
 
 func _show_hint(text: String) -> void:
+	var parts := text.split("\n", true, 1)
+	text = parts[0]
+	hint_sub.text = parts[1] if parts.size() > 1 else ""
+	hint_key.visible = text != ""
 	hint_label.text = text
 	_hint_pulse = 0.0
 
@@ -262,8 +289,14 @@ func _process(delta: float) -> void:
 		boss_bar.value = battle.boss.hp
 	elif p == Battle.Phase.BOSS_INTRO:
 		wave_label.text = "首领将至"
-	elif battle.mode == Battle.RunMode.FARM_NORMALS or battle.wave_index > 0:
-		wave_label.text = "第 %d / %d 波" % [maxi(battle.wave_index, 1), battle.level.wave_count if battle.level else 4]
+	elif p == Battle.Phase.VICTORY:
+		wave_label.text = "通关"
+	elif p == Battle.Phase.DEFEAT:
+		wave_label.text = "挑战失败"
+	elif battle.level:
+		# BUG-011：新一轮行进阶段（wave_index=0）显示即将到来的第1波，不再残留上一轮的“第4/4波”
+		var wi := battle.wave_index + (1 if p == Battle.Phase.WALK else 0)
+		wave_label.text = "%s第 %d / %d 波" % ["行进中 · " if p == Battle.Phase.WALK else "", clampi(wi, 1, battle.level.wave_count), battle.level.wave_count]
 	boss_box.visible = p == Battle.Phase.BOSS and battle.boss != null
 	for i in slots.size():
 		var cdt := battle.skills.cd_totals[i] if i < battle.skills.cd_totals.size() else 0.0

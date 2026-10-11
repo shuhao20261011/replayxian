@@ -56,12 +56,16 @@ func _lock_area() -> void:
 	if attack.shape == "circle":
 		radius = attack.radius_px
 		x0 = cx - radius; x1 = cx + radius
-	if arena:
-		var half := battle.view_half_width()
-		x0 = battle.camera_center_x() - half; x1 = battle.camera_center_x() + half
-		cx = (x0 + x1) / 2.0
 	position = Vector2(0, battle.ground_y)
+	if arena:
+		_fit_arena()
 	queue_redraw()
+
+## 全场预警每帧按当前镜头与视口铺满（BUG-007：镜头移动/非16:9窗口时也不露边）
+func _fit_arena() -> void:
+	var vr := battle.view_rect().grow(40.0)
+	x0 = vr.position.x; x1 = vr.end.x
+	cx = (x0 + x1) / 2.0
 
 func player_inside() -> bool:
 	if arena:
@@ -82,6 +86,8 @@ func step(delta: float) -> void:
 			_lock_area()
 		return
 	t += delta
+	if arena:
+		_fit_arena()
 	queue_redraw()
 	if t >= warn:
 		done = true
@@ -107,13 +113,16 @@ func _draw() -> void:
 		if progress() > 0.02:
 			draw_colored_polygon(inner, Color(color, 0.35))
 	else:
-		var top := -h if not arena else -battle.ground_y
-		var rect := Rect2(x0, top, x1 - x0, -top + 20)
+		var rect := Rect2(x0, -h, x1 - x0, h + 20)
+		if arena:
+			var vr := battle.view_rect().grow(40.0)
+			rect = Rect2(x0, vr.position.y - position.y, x1 - x0, vr.size.y)
 		draw_rect(rect, fill)
 		var pts := PackedVector2Array([rect.position, rect.position + Vector2(rect.size.x, 0), rect.end, rect.position + Vector2(0, rect.size.y), rect.position])
 		_outline(pts)
 		draw_rect(Rect2(x0, 14, (x1 - x0) * progress(), 6), color)
-	if arena:
+	# BUG-012：引导提示显示期间不画招式名（与屏幕中央“按空格闪避！”重叠）
+	if arena and not battle.tutorial.is_active_for(self):
 		var font := ThemeDB.fallback_font
 		draw_string(font, Vector2(cx - 80, -330), attack.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 40, color)
 
