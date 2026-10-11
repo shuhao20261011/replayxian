@@ -86,3 +86,5 @@ BTN_CHOOSE,择此件,,3,三选一卡片按钮（阶段5 待收编）
 BTN_CHOOSE_LATER,稍后再选,,4,三选一：关闭对话框，可在装备面板继续选择（阶段5 待收编）
 HUD_BUILD_VERSION,阶段{stage:raw}　{commit:raw},stage:raw3;commit:raw8,13,右下角构建版本小字（导出时由 tools/build_web.sh 写入 build_info.json；阶段5 待收编）
 HUD_BUILD_DEV,开发版,,3,未经构建脚本导出时的版本小字（阶段5 待收编）
+BTN_CHOOSE_NOW,现在选择,,4,自动挂机时的三选一提示卡片：打开三选一对话框（暂停；阶段5 待收编）
+HINT_ORANGE_AUTO_LATER,{sec:int}秒后收起，可在【装备】中选择,sec:int,16,自动挂机三选一卡片倒计时；到点按“稍后再选”收起（阶段5 待收编）

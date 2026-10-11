@@ -59,3 +59,4 @@ FAIL_RETURN_POLICY,last_cleared,枚举,失败后返回最近已通关关卡挂�
 AUTO_FAIL_RETREAT_COUNT,1,次,v3：自动模式下同一关连续失败达到该次数，即把该关标记为“当前配置不稳定”，回退到已通关且未被标记的最高关卡继续自动挂机
 AUTO_FAIL_RETREAT_RESET_ON,loadout_change|skill_level_up|realm_up|manual_clear,枚举,v3：清除“不稳定”标记的时机：更换技能栏/被动或装备（含重铸）、任一技能升级、境界突破、manual_clear=玩家点【挑战】按钮发起该关并通关（v4 明确：无论中途是否切过自动）
 BOSS_MIN_SPACING_PX,180,像素,首领与主角的最小中心距离（首领占位图约240px宽）：首领停在max(普攻距离,此值)，主角贴近时首领后退；玩家选敌与普攻按首领体型外沿放宽
+ORANGE_CHOICE_AUTO_LATER_SEC,8,秒,自动战斗时终关首通三选一以非阻塞卡片提示，此秒数后自动“稍后再选”收起（待选保留，【装】红点直到选完）；代码默认 8；手动模式仍弹模态对话框

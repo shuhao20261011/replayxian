@@ -21,8 +21,8 @@ func _ready() -> void:
 	add_child(m)
 	var b: Battle = m.get_node("Battle")
 	var hud: Hud = m.get_node("HUD")
-	if shot_set == "stage5":
-		await _stage5(b, hud)
+	if shot_set == "stage5" or shot_set == "orange_auto":
+		await _stage5(b, hud) if shot_set == "stage5" else await _final_orange(b, hud, true)
 		get_tree().quit(0)
 		return
 	var cases := [["LV_1_3", "qingzhu", "BA_ZHUMEI_THORN"], ["LV_2_3", "leize", "BA_KUINIU_BOLTS"], ["LV_3_4", "xuanyan", "BA_YANMO_SKYFALL"]]
@@ -114,7 +114,16 @@ func _stage5(b: Battle, hud: Hud) -> void:
 	b.start_boss_attack(bs, GameData.get_boss_attack("BA_YANMO_SKYFALL"))
 	await _wait(0.55)
 	await _shot("%s_arena_frame_avoid_hud" % prefix)
-	# 6) 终关首通 → 首通卡片 → 三选一
+	if shot_set == "stage5":
+		await _final_orange(b, hud, false)   # 6) 手动：首通卡片 → 模态三选一
+		hud.close_panel()
+	await _final_orange(b, hud, true)   # 7) 自动挂机：首通卡片收起后非阻塞卡片（不暂停）
+
+## 终关首通 → 首通卡片 → 三选一（manual：模态；auto：非阻塞卡片）
+func _final_orange(b: Battle, hud: Hud, auto: bool) -> void:
+	PlayerState.pending_orange_choices.clear()
+	PlayerState.cleared_levels.erase("LV_3_5")
+	PlayerState.set_auto_battle(auto)
 	for l in GameData.levels_ordered:
 		PlayerState.mark_cleared(l.id) if l.id != "LV_3_5" else null
 	PlayerState.realm_id = "RL_JINDAN"
@@ -122,9 +131,14 @@ func _stage5(b: Battle, hud: Hud) -> void:
 	await _wait(2.0)
 	b._finish("victory")
 	await _wait(0.5)
-	await _shot("%s_first_clear_final" % prefix)
-	await _wait(1.6)
-	await _shot("%s_orange_choice" % prefix)
+	if not auto:
+		await _shot("%s_first_clear_final" % prefix)
+		await _wait(1.6)
+		await _shot("%s_orange_choice" % prefix)
+		return
+	hud.first_clear_card._t = 0.0
+	await _wait(1.0)
+	await _shot("%s_orange_auto_card" % prefix)
 
 func _wait(sec: float) -> void:
 	var t := 0.0

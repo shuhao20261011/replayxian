@@ -193,10 +193,11 @@ func test_orange_choice_dialog() -> void:
 	eq(hud.banner_label.text, UiText.t("TOAST_ORANGE_GOT", {"equip_name": GameData.get_base("EQB_CORE_THUNDER").name}), "获得横幅")
 	_free_main(r[0])
 
-## 终关首通 → 首通卡片 → 1.5 秒后自动弹出三选一
+## 终关首通（手动模式）→ 首通卡片 → 1.5 秒后弹出模态三选一（暂停）
 func test_first_clear_card_then_orange_dialog() -> void:
 	var r := await _main()
 	var hud: Hud = r[1]; var battle: Battle = r[2]
+	PlayerState.set_auto_battle(false)
 	for l in GameData.levels_ordered:
 		if l.id != "LV_3_5":
 			PlayerState.mark_cleared(l.id)
@@ -284,3 +285,74 @@ func test_build_info_label() -> void:
 	check(hud.version_label != null and hud.version_label.is_visible_in_tree() and hud.version_label.text != "", "HUD 显示版本小字")
 	_free_main(r[0])
 
+func _final_first_clear(battle: Battle) -> void:
+	for l in GameData.levels_ordered:
+		if l.id != "LV_3_5":
+			PlayerState.mark_cleared(l.id)
+	PlayerState.set_realm("RL_JINDAN")
+	battle.start_run(GameData.get_level("LV_3_5"), Battle.RunMode.CHALLENGE)
+	battle._finish("victory")
+
+## 制作人决定：自动模式不暂停挂机 —— 首通卡片收起后弹非阻塞卡片，倒计时到点自动“稍后再选”，【装】红点保留到选完
+func test_orange_auto_mode_nonblocking_card() -> void:
+	var r := await _main()
+	var hud: Hud = r[1]; var battle: Battle = r[2]
+	PlayerState.set_auto_battle(true)
+	_final_first_clear(battle)
+	check(hud.first_clear_card.visible and not hud.orange_card.visible, "先亮首通卡片")
+	check(hud.gear_dot.visible, "有待选：【装】红点亮")
+	hud._process(1.6)
+	check(not hud.orange_dialog.visible and not runner.get_tree().paused, "自动模式 1.5 秒后不弹模态、不暂停")
+	hud.first_clear_card._process(10.0)
+	hud._process(0.016)
+	check(hud.orange_card.visible, "首通卡片收起后弹非阻塞三选一卡片")
+	check(not runner.get_tree().paused and not hud.is_panel_open(), "卡片不暂停、不算面板")
+	eq(hud.orange_card.items_box.get_child_count(), 3, "三件核心橙装图标")
+	near(hud.orange_card.time_left, OrangeRewardCard.auto_later_sec(), 0.001, "倒计时 = 常量秒数")
+	check(hud.orange_card.countdown_label.text.contains(str(int(OrangeRewardCard.auto_later_sec()))), "倒计时文案含秒数")
+	check(hud.avoid_rects().size() > 0, "全场预警描边让开卡片")
+	var fired := [false]
+	hud.orange_card.later.connect(func(auto: bool) -> void: fired[0] = auto)
+	hud.orange_card._process(OrangeRewardCard.auto_later_sec() - 0.5)
+	check(hud.orange_card.visible, "倒计时未到仍显示")
+	hud.orange_card._process(0.6)
+	check(not hud.orange_card.visible and fired[0], "到点自动“稍后再选”收起")
+	eq(PlayerState.pending_orange_choices.size(), 1, "待选保留")
+	check(hud.gear_dot.visible, "收起后【装】红点仍亮")
+	check(not runner.get_tree().paused, "全程未暂停")
+	check(hud._banner_queue.has(UiText.t("LOOT_ORANGE_PENDING")) or hud.banner_label.text == UiText.t("LOOT_ORANGE_PENDING"), "提示入【装备】领取")
+	# 稍后在装备里选：红点灭
+	PlayerState.choose_orange(0, "EQB_CORE_SWORD")
+	check(not hud.gear_dot.visible, "选完红点灭")
+	_free_main(r[0])
+
+## 自动模式卡片：“现在选择”打开模态三选一（暂停）；“稍后再选”立即收起
+func test_orange_auto_card_buttons() -> void:
+	var r := await _main()
+	var hud: Hud = r[1]
+	PlayerState.add_orange_choice(["EQB_CORE_SWORD", "EQB_CORE_THUNDER", "EQB_CORE_GANG"])
+	check(hud.orange_card.open(0), "打开卡片")
+	hud.orange_card.now_btn.pressed.emit()
+	check(not hud.orange_card.visible and hud.orange_dialog.visible and runner.get_tree().paused, "现在选择 → 模态三选一（暂停）")
+	hud.close_panel()
+	hud.orange_card.open(0)
+	var fired := [true]
+	hud.orange_card.later.connect(func(auto: bool) -> void: fired[0] = auto)
+	hud.orange_card.later_btn.pressed.emit()
+	check(not hud.orange_card.visible and fired[0] == false, "稍后再选（手点）立即收起")
+	eq(PlayerState.pending_orange_choices.size(), 1, "待选保留")
+	# 打开面板（暂停）时卡片倒计时随之暂停
+	eq(hud.orange_card.process_mode, Node.PROCESS_MODE_PAUSABLE, "卡片倒计时随暂停停止")
+	_free_main(r[0])
+
+## 时长读常量 ORANGE_CHOICE_AUTO_LATER_SEC；缺省用代码默认值
+func test_orange_auto_later_constant() -> void:
+	var had: bool = GameData.constants.has("ORANGE_CHOICE_AUTO_LATER_SEC")
+	var old = GameData.constants.get("ORANGE_CHOICE_AUTO_LATER_SEC")
+	check(had, "常量已在 constants 表（local_constants 追加）")
+	GameData.constants["ORANGE_CHOICE_AUTO_LATER_SEC"] = "3"
+	near(OrangeRewardCard.auto_later_sec(), 3.0, 0.001, "读表")
+	GameData.constants.erase("ORANGE_CHOICE_AUTO_LATER_SEC")
+	near(OrangeRewardCard.auto_later_sec(), OrangeRewardCard.AUTO_LATER_SEC_DEFAULT, 0.001, "缺省用代码默认")
+	if had:
+		GameData.constants["ORANGE_CHOICE_AUTO_LATER_SEC"] = old

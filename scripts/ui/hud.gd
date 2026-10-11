@@ -59,6 +59,9 @@ var gear_panel: GearPanel
 var gongfa_panel: GongfaPanel
 var break_panel: BreakPanel                 # 阶段5：突破面板
 var orange_dialog: OrangeChoiceDialog       # 阶段5：终关首通核心橙装三选一
+var orange_card: OrangeRewardCard          # 阶段5：自动挂机时的非阻塞三选一提示卡片（倒计时自动“稍后再选”）
+var gear_dot: TextureRect                   # 阶段5：有待选核心橙装时【装】按钮红点
+var _orange_card_wait := false              # 自动模式：等首通卡片收起后再弹三选一提示卡片
 var first_clear_card: FirstClearCard        # 阶段5：首通奖励卡片
 var break_dot: TextureRect                  # 阶段5：可突破时“破”入口红点
 var version_label: Label                    # 阶段5：构建版本小字（BuildInfo）
@@ -387,6 +390,11 @@ func _build() -> void:
 			# style_guide 5.4：红点在按钮右上角外 4px（22×22）
 			gongfa_dot.position = Vector2(b.custom_minimum_size.x - 22 + 4, -4); gongfa_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			b.add_child(gongfa_dot)
+		if id == "gear":
+			gear_dot = TextureRect.new(); gear_dot.texture = ArtUi.tex("ui_reddot"); gear_dot.name = "GearDot"
+			gear_dot.position = Vector2(b.custom_minimum_size.x - 22 + 4, -4); gear_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			gear_dot.visible = false
+			b.add_child(gear_dot)
 		if id == "break":
 			break_dot = TextureRect.new(); break_dot.texture = ArtUi.tex("ui_reddot"); break_dot.name = "BreakDot"
 			break_dot.position = Vector2(b.custom_minimum_size.x - 22 + 4, -4); break_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -427,6 +435,11 @@ func _build() -> void:
 	first_clear_card = FirstClearCard.new()
 	_anchored(first_clear_card, Control.PRESET_CENTER_TOP, Vector2(0, 168))
 	root.move_child(first_clear_card, dim.get_index())   # 在面板遮罩之下
+	orange_card = OrangeRewardCard.new()
+	_anchored(orange_card, Control.PRESET_CENTER_TOP, Vector2(0, 168))
+	root.move_child(orange_card, dim.get_index())
+	orange_card.choose_now.connect(func() -> void: open_orange_choice())
+	orange_card.later.connect(func(_auto: bool) -> void: queue_banner(UiText.t("LOOT_ORANGE_PENDING")))
 	orange_dialog = OrangeChoiceDialog.new(); orange_dialog.visible = false; root.add_child(orange_dialog)
 	orange_dialog.closed.connect(close_panel)
 	orange_dialog.chosen.connect(func(bid: String) -> void:
@@ -660,11 +673,16 @@ func _on_first_clear(level_id: String, entries: Array) -> void:
 	var l := GameData.get_level(level_id)
 	first_clear_card.show_rewards(l.name if l else "", entries)
 	if not PlayerState.pending_orange_choices.is_empty():
-		_orange_open_t = 1.5   # 先让首通卡片亮相，再弹三选一
+		if PlayerState.auto_battle:
+			_orange_card_wait = true   # 自动挂机：不暂停，首通卡片收起后弹非阻塞提示卡片（制作人决定）
+		else:
+			_orange_open_t = 1.5   # 手动：先让首通卡片亮相，再弹模态三选一
 
 ## 打开核心橙装三选一（暂停战斗）；没有待选时返回 false
 func open_orange_choice() -> bool:
 	_orange_open_t = -1.0
+	_orange_card_wait = false
+	orange_card.visible = false
 	if PlayerState.pending_orange_choices.is_empty():
 		return false
 	panel.visible = false; gear_panel.visible = false; gongfa_panel.visible = false; break_panel.visible = false
@@ -678,7 +696,7 @@ func open_orange_choice() -> bool:
 ## 全场预警描边需要让开的 HUD 控件（屏幕坐标，仅可见且有内容者）。描边在这些矩形处断开（阶段5 已知问题修复）
 func avoid_rects() -> Array[Rect2]:
 	var out: Array[Rect2] = []
-	var cands: Array = [loot_toast, challenge_btn, mode_label, wave_box, boss_box, banner_label, hint_label, hint_sub, hint_key, first_clear_card]
+	var cands: Array = [loot_toast, challenge_btn, mode_label, wave_box, boss_box, banner_label, hint_label, hint_sub, hint_key, first_clear_card, orange_card]
 	for c in cands:
 		var ctl := c as Control
 		if ctl == null or not ctl.is_visible_in_tree() or ctl.modulate.a <= 0.01:
@@ -744,6 +762,7 @@ func _refresh_top() -> void:
 	(realm_badge.get_node("Glyph") as Label).text = rl.name.left(1) if rl else ""
 	gongfa_dot.visible = has_learnable_book()
 	break_dot.visible = PlayerState.breakthrough_status().ok
+	gear_dot.visible = not PlayerState.pending_orange_choices.is_empty()
 	lingshi_label.text = UiText.t("HUD_LINGSHI", {"value": PlayerState.lingshi})
 	xiuwei_label.text = UiText.t("HUD_XIUWEI", {"value": PlayerState.xiuwei})
 	var nxt := PlayerState.next_challenge_level()
@@ -787,6 +806,9 @@ func _process(delta: float) -> void:
 		_orange_open_t -= delta
 		if _orange_open_t <= 0.0:
 			open_orange_choice()
+	if _orange_card_wait and not first_clear_card.visible and not get_tree().paused:
+		_orange_card_wait = false
+		orange_card.open(0)
 	_key_state(dodge_plaque); _key_state(auto_key)
 	var p := battle.phase
 	if p == Battle.Phase.BOSS and battle.boss:
