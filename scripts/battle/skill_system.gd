@@ -8,6 +8,7 @@ signal cast(slot: int, skill_id: String, manual: bool)
 var battle: Battle
 var cds: Array[float] = []
 var cd_totals: Array[float] = []
+var pending: Array[Dictionary] = []    # 已按下、等待施法动作出手帧的技能 {slot, skill, lv, t}
 var cast_log: Array[Dictionary] = []   # 测试/调试：{t, slot, skill_id, manual}
 
 func _init(b: Battle) -> void:
@@ -15,6 +16,7 @@ func _init(b: Battle) -> void:
 	reset()
 
 func reset() -> void:
+	pending.clear()
 	cds.clear(); cd_totals.clear()
 	for i in PlayerState.slot_count():
 		cds.append(0.0); cd_totals.append(0.0)
@@ -22,6 +24,22 @@ func reset() -> void:
 func step(delta: float) -> void:
 	for i in cds.size():
 		cds[i] = maxf(cds[i] - delta, 0.0)
+	# 施法动作到出手帧（cast 第 HERO_CAST_RELEASE_FRAME 帧）才结算效果
+	for pc in pending.duplicate():
+		pc.t -= delta
+		if pc.t <= 0.0:
+			pending.erase(pc)
+			_release(pc)
+
+func _release(pc: Dictionary) -> void:
+	if not battle.player.alive or not battle.combat_active():
+		return
+	if not _execute(pc.skill, pc.lv):
+		cds[pc.slot] = 0.0   # 出手时目标已消失：不消耗冷却（与九霄神雷“无敌人不消耗冷却”一致）
+
+## 是否有技能处于前摇（按下→出手帧之间）
+func is_casting() -> bool:
+	return not pending.is_empty()
 
 func skill_in_slot(slot: int) -> SkillDef:
 	if slot < 0 or slot >= PlayerState.active_slots.size():
@@ -41,6 +59,13 @@ func cooldown_for(s: SkillDef) -> float:
 	cdr = minf(cdr, GameData.const_f("CDR_CAP", 0.4))
 	return level_of(s).cd_s * (1.0 - cdr)
 
+## 雷核：返还某功法所有主动技能的剩余冷却
+func refund_gongfa_cooldown(gongfa_id: String, seconds: float) -> void:
+	for i in cds.size():
+		var s := skill_in_slot(i)
+		if s and s.gongfa_id == gongfa_id:
+			cds[i] = maxf(cds[i] - seconds, 0.0)
+
 func is_ready(slot: int) -> bool:
 	return skill_in_slot(slot) != null and slot < cds.size() and cds[slot] <= 0.0
 
@@ -51,8 +76,15 @@ func try_cast(slot: int, manual: bool) -> bool:
 	var p := battle.player
 	if not p.alive or p.is_dodging() or not battle.combat_active():
 		return false
-	if not _execute(s, level_of(s)):
+	if not _can_execute(s):
 		return false
+	var delay := p.cast_release_delay()
+	if delay <= 0.0:
+		if not _execute(s, level_of(s)):
+			return false
+	else:
+		pending.append({"slot": slot, "skill": s, "lv": level_of(s), "t": delay})
+	p.play_cast()
 	cds[slot] = cooldown_for(s)
 	cd_totals[slot] = cds[slot]
 	cast_log.append({"t": battle.sim_time, "slot": slot, "skill_id": s.id, "manual": manual})
@@ -109,6 +141,20 @@ func has_valid_target(s: SkillDef) -> bool:
 			return battle.has_engaged_enemies()
 	return false
 
+## 按下时的判定，与 _execute 的失败条件一致（飞剑等投射物无目标也能放）
+func _can_execute(s: SkillDef) -> bool:
+	match s.shape:
+		"chain":
+			return nearest_front(s.range_px) != null
+		"circle":
+			return s.anchor == "self" or nearest_front(s.range_px) != null
+		"rect":
+			var r := front_x_range(s.range_px)
+			return not battle.enemies_in_x_range(r.x, r.y).is_empty()
+		"self_buff":
+			return s.effect_type == "shield_maxhp_pct"
+	return true
+
 func _execute(s: SkillDef, lv: SkillLevelDef) -> bool:
 	var p := battle.player
 	var color := (GameData.gongfa.get(s.gongfa_id) as GongfaDef).fx_color if GameData.gongfa.has(s.gongfa_id) else Color.WHITE
@@ -134,6 +180,9 @@ func _execute(s: SkillDef, lv: SkillLevelDef) -> bool:
 			var pts := PackedVector2Array([Vector2(first.position.x, first.position.y - 500), first.position + Vector2(0, -60)])
 			battle.player_hit_enemy(first, lv.damage_coef, _opts(s, lv))
 			var jumps := lv.chain_count if lv.chain_count > 0 else s.chain_count
+			jumps += int(battle.player.stats.get("chain_count", 0.0))   # 词条：连锁目标
+			if s.gongfa_id == "GF_THUNDER":
+				jumps += int(battle._orange_p("OE_THUNDER_CORE", "chain_count_add"))   # 雷核
 			for k in jumps:
 				var nxt: Enemy = null
 				var bd := INF
@@ -176,8 +225,9 @@ func _execute(s: SkillDef, lv: SkillLevelDef) -> bool:
 		"self_buff":
 			if s.effect_type != "shield_maxhp_pct":
 				return false
+			var amt := p.max_hp * lv.effect_value * (1.0 + float(p.stats.get("shield_pct", 0.0)))   # 词条：护盾强度
 			var data := {
-				"skill_id": s.id, "amount": p.max_hp * lv.effect_value, "max": p.max_hp * lv.effect_value,
+				"skill_id": s.id, "amount": amt, "max": amt,
 				"time": s.duration_s if s.duration_s > 0.0 else s.effect_duration_s,
 			}
 			match s.effect2_type:

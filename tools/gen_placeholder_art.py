@@ -21,7 +21,12 @@ def font(size):
             pass
     return None
 
+# 已有正式资源的目录不再生成占位图（正式资源来自 /workspace/xxhbgj/art/final，见 art/ART_STYLE_GUIDE_final.md）
+FINAL_DIRS = ("bg/qingzhu/",)
+
 def save(img, rel):
+    if rel.startswith(FINAL_DIRS):
+        return
     path = os.path.join(ROOT, rel)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     img.save(path)

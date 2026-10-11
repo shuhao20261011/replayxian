@@ -12,6 +12,7 @@ signal boss_timer_changed(seconds_left: float)
 signal run_finished(result: String, level_id: String, first_clear: bool)
 signal banner(text: String)
 signal telegraph_started(tg: Telegraph)
+signal loot_dropped(entries: Array)   # [{text, color, beam}]
 
 enum Phase { NONE, WALK, WAVE, BOSS_INTRO, BOSS, VICTORY, DEFEAT }
 enum RunMode { CHALLENGE, FARM, FARM_NORMALS }
@@ -61,8 +62,13 @@ var run_auto_at_fail := false
 var last_danger_resolve_t := -1.0   # 上一次危险招式判定的战斗时刻（首领危险招式间隔保护用）
 var retreat_active := false   # 因自动失败回退而挂在较低关卡；标记清除后回到最高已通关关卡（BUG-003）
 var _sky_fill: ColorRect      # 非16:9窗口时补天空（BUG-007）
+var player_initiated := false   # 本轮是否由玩家点【挑战】发起（v4 manual_clear 定义；中途切自动不影响）
 var counter_hits := 0     # 调试/测试：护体反震触发次数
 var reflect_hits := 0     # 调试/测试：反伤触发次数
+var gang_burst_icd := 0.0  # 金刚核心护盾破碎冲击的内置冷却
+var gang_bursts := 0       # 调试/测试：金刚核心冲击次数
+var drops_enabled := true  # 测试可关闭掉落
+var last_loot: Array = []  # 调试/测试：最近一次掉落/首通显示条目
 
 func _ready() -> void:
 	ground_y = GameData.const_f("GROUND_Y", 585.0)
@@ -102,6 +108,7 @@ func tick(delta: float) -> void:
 			time_scale = 1.0
 	sim_time += d
 	reflect_icd = maxf(reflect_icd - d, 0.0)
+	gang_burst_icd = maxf(gang_burst_icd - d, 0.0)
 	controller.update(d)
 	player.step(d)
 	skills.step(d)
@@ -159,6 +166,7 @@ func _free_node(n: Node) -> void:
 # ---------- 关卡流程 ----------
 func start_run(l: LevelDef, m: int) -> void:
 	_clear_field()
+	player_initiated = false
 	level = l
 	mode = m
 	wave_index = 0
@@ -169,16 +177,27 @@ func start_run(l: LevelDef, m: int) -> void:
 	player.position.x = 0.0   # BUG-009：每轮把世界原点归零，避免坐标无界增长（浮点精度）
 	player.reset_for_run(PlayerState.combat_stats())
 	skills.reset()
+	gang_burst_icd = 0.0
 	left_bound = player.position.x - GameData.const_f("PLAYER_BACKTRACK_PX", 600.0)
 	_setup_background()
 	walk_duration = GameData.const_f("RUN_START_WALK_TIME", 1.0)
 	_enter(Phase.WALK)
 	run_started.emit(level, mode)
 
+## 养成变化后刷新本局属性（保持当前生命比例；护盾、冷却不变）
+func refresh_player_stats() -> void:
+	var ratio := player.hp / maxf(player.max_hp, 1.0)
+	player.stats = PlayerState.combat_stats()
+	player.max_hp = float(player.stats.get("max_hp", player.max_hp))
+	if player.alive:
+		player.hp = player.max_hp * ratio
+	player.hp_changed.emit(player.hp, player.max_hp)
+
 func challenge(level_id: String) -> bool:
 	if not PlayerState.can_challenge(level_id):
 		return false
 	start_run(GameData.get_level(level_id), RunMode.CHALLENGE)
+	player_initiated = true
 	return true
 
 func _clear_field() -> void:
@@ -278,11 +297,14 @@ func _spawn_boss() -> void:
 
 func _on_enemy_died(e: Enemy) -> void:
 	enemies.erase(e)
-	var ls := int(round(e.def.lingshi * e.reward_mult))
+	var ls := int(round(e.def.lingshi * e.reward_mult * (1.0 + float(player.stats.get("lingshi_gain_pct", 0.0)))))
 	var xw := int(round(e.def.xiuwei * e.reward_mult))
 	PlayerState.add_rewards(ls, xw)
 	if visual_fx:
 		float_text(e.position + Vector2(0, -170), UiText.t("FLOAT_LINGSHI", {"value": ls}), Color("#D9A441"), 18)
+	_on_kill_orange(e)
+	if drops_enabled and level:
+		_show_loot(LootSystem.apply(LootSystem.roll_kill(level, e.is_boss(), rng)), e.position)
 	if e != boss:
 		_free_node(e)
 	else:
@@ -299,7 +321,9 @@ func _finish(result: String) -> void:
 	var first_clear := false
 	if result == "victory":
 		first_clear = PlayerState.mark_cleared(level.id)
-		PlayerState.record_level_success(level.id, mode == RunMode.CHALLENGE)
+		if first_clear and drops_enabled:
+			_show_loot(LootSystem.apply(LootSystem.roll_first_clear(level, rng)), player.position + Vector2(160, 0))
+		PlayerState.record_level_success(level.id, player_initiated)
 	tutorial.cancel_active()   # BUG-002：预警期间结算，收起引导并恢复速度
 	stop_slowmo()
 	for tg in telegraphs:
@@ -379,6 +403,7 @@ func nearest_enemy(x: float, max_range: float = INF) -> Enemy:
 	for e in enemies:
 		if e.alive:
 			var d := absf(e.position.x - x)
+			d = maxf(d - e.body_extent(), 0.0)
 			if d <= max_range + Player.HALF_WIDTH and d < bd:
 				bd = d; best = e
 	return best
@@ -387,7 +412,8 @@ func nearest_enemy(x: float, max_range: float = INF) -> Enemy:
 func enemies_in_x_range(x0: float, x1: float) -> Array[Enemy]:
 	var out: Array[Enemy] = []
 	for e in enemies:
-		if e.alive and e.position.x + 20.0 >= x0 and e.position.x - 20.0 <= x1:
+		var ext := 20.0 + e.body_extent()
+		if e.alive and e.position.x + ext >= x0 and e.position.x - ext <= x1:
 			out.append(e)
 	var px := player.position.x
 	out.sort_custom(func(a: Enemy, b: Enemy) -> bool: return absf(a.position.x - px) < absf(b.position.x - px))
@@ -406,30 +432,67 @@ func player_hit_enemy(e: Enemy, coef: float, opts: Dictionary = {}) -> float:
 		return 0.0
 	var st := player.stats
 	var raw := float(st.get("atk", 20.0)) * coef
-	if opts.get("gongfa_id", "") == "GF_THUNDER":
+	var gf: String = opts.get("gongfa_id", "")
+	if gf == "GF_THUNDER":
 		raw *= 1.0 + float(st.get("thunder_dmg_pct", 0.0))
+	elif gf == "GF_SWORD":
+		raw *= 1.0 + float(st.get("sword_dmg_pct", 0.0))
 	if e.is_boss():
-		raw *= 1.0 + float(opts.get("boss_bonus", 0.0))
+		raw *= 1.0 + float(opts.get("boss_bonus", 0.0)) + _orange_p("OE_SWORD_CORE", "boss_dmg_pct")
 	var crit := false
 	if opts.get("can_crit", true):
 		crit = rng.randf() < float(st.get("crit_rate", 0.05))
 		if crit:
 			raw *= float(st.get("crit_dmg", 1.5))
+	if gf != "":
+		e.last_hit_gongfa = gf
 	var dealt := e.take_damage(raw, crit)
 	if opts.has("effect") and e.alive:
 		var ef: Array = opts.effect
 		e.apply_effect(ef[0], ef[1], ef[2])
-	# 剑心通明：飞剑诀主动技能命中追加飞剑（追加的不再触发追加）
-	var extra := float(st.get("extra_sword_chance", 0.0))
-	if extra > 0.0 and opts.get("gongfa_id", "") == "GF_SWORD" and opts.get("source", "") == "skill" and not opts.get("is_extra", false):
-		if rng.randf() < extra:
+	# 追加飞剑：剑心通明被动 + 词条 + 剑核（暴击必定追加）。飞剑诀主动技能命中触发，追加的不再触发追加。
+	if gf == "GF_SWORD" and opts.get("source", "") == "skill" and not opts.get("is_extra", false):
+		var extra := float(st.get("extra_sword_chance", 0.0)) + _orange_p("OE_SWORD_CORE", "extra_sword_chance")
+		var forced := crit and has_orange("OE_SWORD_CORE")   # 剑核：暴击必定追加（表中无参数，按 desc 实现）
+		if forced or (extra > 0.0 and rng.randf() < extra):
 			var o := opts.duplicate(); o["is_extra"] = true
-			spawn_projectile(600.0, 40.0, _passive_extra_coef(), o, 0.05, 1, Color("#7FE0FF"))
+			spawn_projectile(600.0, 40.0, _extra_sword_coef(), o, 0.05, 1, Color("#7FE0FF"))
 	return dealt
 
-func _passive_extra_coef() -> float:
+## 追加飞剑系数：被动 damage_coef 与剑核 extra_sword_coef 取大，均无时 0.8
+func _extra_sword_coef() -> float:
+	var c := 0.0
 	var ps := GameData.get_skill(PlayerState.passive_skill)
-	return ps.damage_coef if ps and ps.damage_coef > 0.0 else 0.8
+	if ps and ps.effect_type == "extra_sword_chance" and ps.damage_coef > 0.0:
+		c = ps.damage_coef
+	c = maxf(c, _orange_p("OE_SWORD_CORE", "extra_sword_coef"))
+	return c if c > 0.0 else 0.8
+
+## 已装备核心橙装特效的参数（未装备返回 0）
+func _orange_p(effect_id: String, key: String) -> float:
+	if not (player.stats.get("orange", []) as Array).has(effect_id):
+		return 0.0
+	var oe := GameData.orange_effects.get(effect_id) as OrangeEffectDef
+	return oe.p(key) if oe else 0.0
+
+func has_orange(effect_id: String) -> bool:
+	return (player.stats.get("orange", []) as Array).has(effect_id)
+
+## 雷核：雷法技能击杀返还雷法冷却
+func _on_kill_orange(e: Enemy) -> void:
+	if e.last_hit_gongfa == "GF_THUNDER" and has_orange("OE_THUNDER_CORE"):
+		skills.refund_gongfa_cooldown("GF_THUNDER", _orange_p("OE_THUNDER_CORE", "kill_cd_refund_s"))
+
+func _show_loot(entries: Array, pos: Vector2) -> void:
+	if entries.is_empty():
+		return
+	last_loot = entries
+	loot_dropped.emit(entries)
+	if visual_fx:
+		var i := 0
+		for en in entries:
+			spawn_loot_beam(pos + Vector2(i * 46 - 40, 0), en.color, str(en.beam), str(en.text))
+			i += 1
 
 ## 敌人近战/接触攻击（触发反伤与护体反震）
 func enemy_contact_hit(e: Enemy, raw: float) -> float:
@@ -459,18 +522,31 @@ func damage_player(raw: float, attacker: Enemy, contact: bool, true_damage: bool
 	if visual_fx and dmg > 0.0:
 		float_text(player.position + Vector2(rng.randf_range(-20, 20), -180), "-%d" % int(round(dmg)), Color("#C9433A"), 20)
 	if contact and not true_damage and attacker != null and is_instance_valid(attacker) and attacker.alive:
+		if player.shield_total() > 0.0 or reflect_bonus > 0.0:
+			reflect_bonus += _orange_p("OE_GANG_CORE", "reflect_add_with_shield")
 		var refl := minf(float(player.stats.get("reflect", 0.0)) + reflect_bonus, GameData.const_f("REFLECT_CAP", 0.6))
 		if refl > 0.0:
 			reflect_hits += 1
-			attacker.take_damage(raw * refl, false, "reflect")
+			# REFLECT_IGNORE_DEF：反伤是否无视敌人防御（默认 false = 仍按敌人防御减伤）
+			attacker.take_damage(raw * refl, false, "reflect", GameData.const_b("REFLECT_IGNORE_DEF", false))
 		if counter_coef > 0.0 and reflect_icd <= 0.0 and attacker.alive:
 			reflect_icd = GameData.const_f("REFLECT_COUNTER_ICD", 0.8)
 			counter_hits += 1
-			attacker.take_damage(float(player.stats.get("atk", 20.0)) * counter_coef, false, "counter")
+			attacker.take_damage(float(player.stats.get("atk", 20.0)) * counter_coef, false, "counter", GameData.const_b("COUNTER_IGNORE_DEF", false))
 	return dmg
 
 ## 护盾结束：金刚不坏爆发（攻击×系数 + 已吸收量×burst_absorb_pct，以自身为中心）
-func on_shield_ended(s: Dictionary, _broken: bool) -> void:
+func on_shield_ended(s: Dictionary, broken: bool) -> void:
+	# 金刚核心：护盾破碎时冲击（护盾值×shield_break_burst_pct，内置冷却）
+	if broken and has_orange("OE_GANG_CORE") and gang_burst_icd <= 0.0:
+		var oe := GameData.orange_effects.get("OE_GANG_CORE") as OrangeEffectDef
+		gang_burst_icd = oe.internal_cd_s
+		gang_bursts += 1
+		var rr := oe.p("burst_radius_px")
+		var amt := float(s.get("max", s.get("absorbed", 0.0))) * oe.p("shield_break_burst_pct")   # 护盾上限×80%
+		for e in enemies_in_x_range(player.position.x - rr, player.position.x + rr):
+			e.take_damage(amt, false, "burst")
+		spawn_flash("circle", PackedVector2Array([player.position + Vector2(0, -60)]), Color("#FF9F43"), rr)
 	if s.has("burst_coef"):
 		var r := float(s.get("burst_radius", 200.0))
 		var raw := float(player.stats.get("atk", 20.0)) * float(s.burst_coef) + float(s.absorbed) * float(s.get("burst_absorb_pct", 0.0))
@@ -542,6 +618,15 @@ func show_damage_number(e: Enemy, dmg: float, crit: bool, tag: String) -> void:
 	var h := 120.0 if not e.is_boss() else 280.0
 	float_text(e.position + Vector2(rng.randf_range(-25, 25), -h), UiText.t("FLOAT_CRIT", {"value": round(dmg)}) if crit else "-%d" % int(round(dmg)), col, 30 if crit else 22)
 
+## 掉落光柱 + 名称（颜色/样式来自 qualities.beam）
+func spawn_loot_beam(pos: Vector2, color: Color, beam: String, text: String) -> void:
+	if not visual_fx:
+		return
+	if beam != "" and beam != "none":
+		var h := 260.0 if (beam.begins_with("tall") or beam == "book") else 160.0
+		spawn_flash("line", PackedVector2Array([pos, pos + Vector2(0, -h)]), Color(color, 0.85))
+	float_text(pos + Vector2(0, -120), text, color, 16)
+
 func spawn_flash(kind: String, pts: PackedVector2Array, color: Color, radius: float = 100.0) -> void:
 	if not visual_fx:
 		return
@@ -610,6 +695,16 @@ func _setup_background() -> void:
 			if img.is_compressed():
 				img.decompress()
 			_sky_fill.color = img.get_pixel(img.get_width() / 2, 0)   # 远景最上沿颜色补满高窗口的天空
+	# 正式背景：res://art/bg/<map>/bg_<map>.tscn（Parallax2D 四层，依赖 World/Camera2D）
+	var scene_path := "res://art/bg/%s/bg_%s.tscn" % [key, key]
+	if ResourceLoader.exists(scene_path):
+		var bg: Node = (load(scene_path) as PackedScene).instantiate()
+		var fore := bg.get_node_or_null("Fore") as CanvasItem
+		if fore:
+			# 前景竹在角色之上（z=20），镜头随主角移动时会扫过主角：降低不透明度
+			fore.modulate.a = GameData.const_f("BG_FORE_ALPHA", 0.7)
+		background.add_child(bg)
+		return
 	var layers := [["far", 0.15, Vector2(0, 0), 1280.0], ["mid", 0.5, Vector2(0, 0), 2560.0], ["ground", 1.0, Vector2(0, ground_y - 10), 2560.0]]
 	for L in layers:
 		var path := "res://art/bg/%s/bg_%s_%s.png" % [key, key, L[0]]

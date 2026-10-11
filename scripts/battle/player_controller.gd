@@ -68,7 +68,7 @@ func _auto_move() -> void:
 		var dx := target.position.x - p.position.x
 		p.face(1 if dx > 0 else -1)
 		var engage := GameData.const_f("PLAYER_NORMAL_ATK_RANGE", 150.0) * 0.8
-		if absf(dx) > engage:
+		if absf(dx) - target.body_extent() > engage:
 			p.move(signf(dx))
 	elif battle.should_advance():
 		p.move(1.0)

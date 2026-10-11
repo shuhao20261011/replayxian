@@ -32,6 +32,16 @@ static func success_text(row: Dictionary) -> String:
 	var t := CsvUtil.s(row, "success_text")
 	return UiText.render(t, row) if t != "" else UiText.t("FLOAT_DODGE_OK")
 
+## 自动模式附加小字：ui_target 中“小字“……”” 的内容（v4 文案来自表）
+static func auto_subtext(row: Dictionary) -> String:
+	var ui := CsvUtil.s(row, "ui_target")
+	var k := ui.find("小字“")
+	if k < 0:
+		return ""
+	var a := k + 2
+	var b := ui.find("”", a + 1)
+	return ui.substr(a + 1, b - a - 1) if b > a else ""
+
 func on_telegraph_started(tg: Telegraph) -> void:
 	if not active_step.is_empty():
 		return

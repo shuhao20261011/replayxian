@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://buje27pxttkth"
-path="res://.godot/imported/bg_qingzhu_ground.png-7263675e12d293cfa7a3bdb185b823c4.ctex"
+uid="uid://kwjwrhwx8kuk"
+path="res://.godot/imported/chr_hero_cast_06f.png-773745600930bf9acb98da30ab87accf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/bg/qingzhu/bg_qingzhu_ground.png"
-dest_files=["res://.godot/imported/bg_qingzhu_ground.png-7263675e12d293cfa7a3bdb185b823c4.ctex"]
+source_file="res://art/characters/hero/chr_hero_cast_06f.png"
+dest_files=["res://.godot/imported/chr_hero_cast_06f.png-773745600930bf9acb98da30ab87accf.ctex"]
 
 [params]
 

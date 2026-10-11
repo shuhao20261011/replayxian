@@ -30,6 +30,17 @@ func danger_gap_ok(warn: float, _delta: float = 0.0) -> bool:
 	if battle.last_danger_resolve_t < 0.0:
 		return true
 	return battle.sim_time + warn - battle.last_danger_resolve_t >= min_danger_gap() - 1e-6
+## 首领占位图较宽（≈240px），与主角保持的最小中心距离
+static func min_spacing() -> float:
+	return GameData.const_f("BOSS_MIN_SPACING_PX", 180.0)
+
+func stand_distance() -> float:
+	return maxf(def.attack_range_px, min_spacing())
+
+## 玩家普攻/技能/自动走位按“体型外沿”计算：首领比普通怪多出 (最小间距 − 自动普攻接敌距离)
+func body_extent() -> float:
+	var engage := GameData.const_f("PLAYER_NORMAL_ATK_RANGE", 150.0) * 0.8
+	return maxf(min_spacing() - engage, 0.0)
 
 func has_attack(attack_id: String) -> bool:
 	for a in attacks:
@@ -78,14 +89,16 @@ func _behave(delta: float, p: Player) -> void:
 				busy_t = warn
 				battle.start_boss_attack(self, a)
 				return
-	# 2) 普攻（无预警，近战接触）
+	# 2) 普攻（无预警，近战接触）。站位距离至少 BOSS_MIN_SPACING_PX，普攻判定距离同步放宽到站位距离。
+	var stop := stand_distance()
 	for a in attacks:
-		if not a.is_danger and float(timers[a.id]) <= 0.0 and dist <= def.attack_range_px + Player.HALF_WIDTH:
+		if not a.is_danger and float(timers[a.id]) <= 0.0 and dist <= stop + Player.HALF_WIDTH:
 			timers[a.id] = a.cd_s
-			if dist <= a.width_px + Player.HALF_WIDTH:
+			if dist <= maxf(a.width_px, stop) + Player.HALF_WIDTH:
 				battle.enemy_contact_hit(self, atk * a.damage_coef)
 			return
-	# 3) 走位：靠近到普攻距离
-	var stop := def.attack_range_px   # 首领体型大，停在普攻距离边缘，避免与主角重叠
+	# 3) 走位：靠近到站位距离；玩家贴得比最小间距还近时缓慢后退（不覆盖主角）
 	if dist > stop:
 		position.x += signf(dx) * minf(speed() * delta, dist - stop)
+	elif dist < min_spacing() - 1.0 and stun_t <= 0.0:
+		position.x -= signf(dx if dx != 0.0 else -1.0) * minf(speed() * delta, min_spacing() - dist)

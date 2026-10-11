@@ -22,6 +22,7 @@ var def_down_pct := 0.0
 var knock_left := 0.0
 var stand_offset := 0.0
 var reward_mult := 1.0
+var last_hit_gongfa := ""   # 最近一次技能命中的功法（雷核击杀返还用）
 # 行为状态
 var _charge_state := 0     # 0 无 / 1 蓄力 / 2 冲刺
 var _charge_t := 0.0
@@ -62,10 +63,14 @@ func is_super_armor() -> bool:
 func effective_def() -> float:
 	return defense * (1.0 - (def_down_pct if def_down_t > 0.0 else 0.0))
 
-func take_damage(raw: float, crit: bool, tag: String = "") -> float:
+## 体型外沿：距离判定（玩家普攻/技能选敌、自动走位）减去该值。普通怪 0；首领见 Boss。
+func body_extent() -> float:
+	return 0.0
+
+func take_damage(raw: float, crit: bool, tag: String = "", ignore_def: bool = false) -> float:
 	if not alive:
 		return 0.0
-	var d := effective_def()
+	var d := 0.0 if ignore_def else effective_def()
 	var dmg := raw * (1.0 - d / (d + GameData.const_f("DEF_CONST", 100.0)))
 	dmg = maxf(dmg, 1.0)
 	hp -= dmg
