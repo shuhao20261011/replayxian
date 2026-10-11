@@ -10,15 +10,23 @@ DODGE_COOLDOWN,3.0,秒,闪避冷却（计划已定）
 DODGE_DISTANCE,160,像素,闪避位移距离
 BOSS_WARN_TIME,0.8,秒,首领危险攻击预警时长（计划已定）
 BOSS_TIME_LIMIT,60,秒,首领战限时（计划已定）
-TELEGRAPH_DEFAULT_COLOR,#C8312B,颜色,首领危险攻击预警默认颜色：朱砂（美术建议）
-TELEGRAPH_ALT_COLOR,#FFFFFF,颜色,预警可选颜色：白色（设置项/美术切换用）
+TELEGRAPH_DEFAULT_COLOR,#B8382C,颜色,首领危险攻击预警兜底颜色：朱砂（v5.1 以美术 v2 规范为唯一来源，原 #C8312B）。实际按 boss_attacks.telegraph_color → maps.telegraph_color → 本值 的优先级取色
+TELEGRAPH_ALT_COLOR,#F4F1EA,颜色,预警白（v5.1 以美术 v2 规范为准，原 #FFFFFF）：雷泽谷、玄岩洞的地图预警色；玩家设置“统一用预警白”时所有地图都用本值
 TELEGRAPH_DEFAULT_STYLE,dashed,枚举,预警描边样式：dashed 虚线（默认）/ solid 实线
+TELEGRAPH_OUTLINE_PX,2,像素,v5.1（美术实测）：预警主描边外侧再加一圈暗色外描边的宽度，保证在亮背景与熔岩高光上都能分辨
+TELEGRAPH_OUTLINE_COLOR,#1C1E21,颜色,v5.1（美术实测）：预警外描边颜色
+TELEGRAPH_OUTLINE_ALPHA,0.6,比例,v5.1（美术实测）：预警外描边不透明度
+TELEGRAPH_FILL_ALPHA,0.15,比例,v5.1（美术实测）：预警区域内部填充=预警色×本不透明度
+DANGER_MIN_GAP_MARGIN_S,0.5,秒,v5（BUG-005）：同一首领任意两次危险招式的伤害判定间隔（前者末段判定→后者首段判定）至少为 DODGE_COOLDOWN + 本值，保证完美操作能躲开每一招；validate.py 逐帧模拟60秒检查，前端可用作运行时保护
+BOSS_MULTI_AREA_INTERVAL,0.4,秒,v5：多段危险招式（anchor=player，如天雷三连、地裂）相邻两段预警的出现间隔（与前端代码默认一致；validate.py 排招模拟读取）
 REFLECT_COUNTER_ICD,0.8,秒,护体反震：全局内置触发间隔（每0.8秒最多反震1次）
 WAVES_PER_LEVEL,4,波,每关普通怪波数（计划已定）
 DEF_CONST,100,点,减伤公式常数：减伤率=DEF/(DEF+DEF_CONST)
 CDR_CAP,0.4,比例,冷却缩减上限
 CRIT_RATE_CAP,0.75,比例,暴击率上限
 REFLECT_CAP,0.6,比例,反伤比例上限
+REFLECT_IGNORE_DEF,0,开关,"v4：反伤是否无视被反伤者防御。0=吃防御：反伤伤害=减伤前受到的伤害×min(反伤比例,REFLECT_CAP)×(1−攻击者DEF/(DEF+DEF_CONST))；1=无视防御"
+COUNTER_IGNORE_DEF,0,开关,v4：护体反震是否无视被反震者防御。0=吃防御：反震伤害=玩家攻击×护体damage_coef×(1−攻击者DEF/(DEF+DEF_CONST))；1=无视防御
 SKILL_MAX_LEVEL,10,级,技能等级上限（计划已定）
 ACTIVE_SLOT_COUNT,4,格,主动技能栏格数（计划已定）
 PASSIVE_SLOT_COUNT,1,格,被动技能槽数（计划已定）
@@ -27,7 +35,14 @@ PAGE_EXCHANGE_COST,10,张,兑换1本已解锁区域内指定技能书所需残�
 BAG_EQUIP_CAPACITY,100,件,装备背包容量（计划已定）
 OFFLINE_CAP_MINUTES,480,分钟,离线收益上限8小时（计划已定）
 AUTOSAVE_INTERVAL,10,秒,自动存档间隔（计划已定）
-WAVE_ENTER_WALK_TIME,3.0,秒,两波之间自动前进时间（表现用，估算时长用）
+RUN_START_WALK_TIME,1.0,秒,v4：每轮开局到第1波刷出前的自动前进时间（与前端代码默认一致；balance.py 读取）
+WAVE_ENTER_WALK_TIME,3.0,秒,第N波清空到第N+1波刷出之间的自动前进时间；最后一波清空后直接进入首领登场，不再前进（balance.py 读取）
+SPAWN_DISTANCE_PX,760,像素,v4：普通怪刷在玩家前方的距离（同组每只再往后排45/110像素，逐只间隔0.12秒出场；与前端代码默认一致；balance.py 用于估算接敌时间）
+BOSS_SPAWN_DISTANCE_PX,560,像素,v4：首领刷在玩家前方的距离（与前端代码默认一致；balance.py 用于估算接敌时间）
+AUTO_ENGAGE_RANGE_PX,450,像素,v4：敌人进入该距离视为“已交战”（自动护盾等以此判断；balance.py 把它当作开始稳定输出的距离）
+BOSS_INTRO_TIME,3.0,秒,v4：最后一波清空到首领出现的登场表现时间（与前端代码默认一致；balance.py 读取）
+RESULT_SHOW_TIME,2.0,秒,v4：每轮胜利/失败结算展示时间，之后自动开始下一轮（与前端代码默认一致；balance.py 计入每轮耗时）
+AUTO_SHIELD_RESERVE_CD,12.0,秒,v4：冷却≥该值的护盾技能（金刚不坏）由自动AI为 true_maxhp 危险攻击（玄岩天坠）预留；冷却更短的护盾（护体）按冷却释放（与前端代码默认一致；balance.py 读取）
 FAIL_RETURN_POLICY,last_cleared,枚举,失败后返回最近已通关关卡挂机；未通关时刷第一关普通怪（计划已定）；自动模式另见AUTO_FAIL_RETREAT_*
 AUTO_FAIL_RETREAT_COUNT,1,次,v3：自动模式下同一关连续失败达到该次数，即把该关标记为“当前配置不稳定”，回退到已通关且未被标记的最高关卡继续自动挂机
-AUTO_FAIL_RETREAT_RESET_ON,loadout_change|skill_level_up|realm_up|manual_clear,枚举,v3：清除“不稳定”标记的时机：更换技能栏/被动或装备（含重铸）、任一技能升级、境界突破、玩家手动挑战该关成功
+AUTO_FAIL_RETREAT_RESET_ON,loadout_change|skill_level_up|realm_up|manual_clear,枚举,v3：清除“不稳定”标记的时机：更换技能栏/被动或装备（含重铸）、任一技能升级、境界突破、manual_clear=玩家点【挑战】按钮发起该关并通关（v4 明确：无论中途是否切过自动）

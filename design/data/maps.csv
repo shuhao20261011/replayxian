@@ -1,4 +1,4 @@
-map_id,name,order,realm_required,gear_tier,book_gongfa_id,boss_id,breakthrough_mat_id,normal_enemy_ids,desc
-MAP_QINGZHU,青竹山,1,RL_LIANQI,1,GF_SWORD,BOSS_ZHUMEI,MAT_BT_QINGZHU,EN_BAMBOO_IMP|EN_MOUNTAIN_APE,基础教学与配装入门；技能书方向：飞剑诀
-MAP_LEIZE,雷泽谷,2,RL_ZHUJI,2,GF_THUNDER,BOSS_KUINIU,MAT_BT_LEIZE,EN_MARSH_WISP|EN_THUNDER_TOAD,群体清怪与技能组合；技能书方向：御雷诀
-MAP_XUANYAN,玄岩洞,3,RL_JINDAN,3,GF_GANG,BOSS_YANMO,,EN_CAVE_BAT|EN_ROCK_GOLEM,生存、闪避与首领输出；技能书方向：玄罡诀
+map_id,name,order,realm_required,gear_tier,book_gongfa_id,boss_id,breakthrough_mat_id,normal_enemy_ids,desc,telegraph_color,note
+MAP_QINGZHU,青竹山,1,RL_LIANQI,1,GF_SWORD,BOSS_ZHUMEI,MAT_BT_QINGZHU,EN_BAMBOO_IMP|EN_MOUNTAIN_APE,竹海听涛，初入仙途。此地产出飞剑诀技能书。,#B8382C,基础教学与配装入门；技能书方向：飞剑诀
+MAP_LEIZE,雷泽谷,2,RL_ZHUJI,2,GF_THUNDER,BOSS_KUINIU,MAT_BT_LEIZE,EN_MARSH_WISP|EN_THUNDER_TOAD,雷云压泽，妖群成片。此地产出御雷诀技能书。,#F4F1EA,群体清怪与技能组合；技能书方向：御雷诀
+MAP_XUANYAN,玄岩洞,3,RL_JINDAN,3,GF_GANG,BOSS_YANMO,,EN_CAVE_BAT|EN_ROCK_GOLEM,地火逆照，岩魔盘踞。此地产出玄罡诀技能书。,#F4F1EA,生存、闪避与首领输出；技能书方向：玄罡诀

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """主线时长与三流派差异估算。读取 data/*.csv，输出 balance_report.csv 与控制台摘要。
 运行：python3 tools/balance.py [--md]   （--md 额外输出可粘贴到 balance.md 的表格）
-模型说明见 balance.md。所有“假设”集中在下方 ASSUME 中，可直接改。"""
+模型说明见 balance.md。所有“假设”集中在下方 ASSUME 中，可直接改。
+v4：节奏参数（开局/波间前进、刷怪距离、接敌距离、首领登场、结算展示、护盾预留冷却）和
+反伤/反震是否无视防御，改为从 constants.csv 读取（与前端同名常量一致），不再写在 ASSUME 里。"""
 import os, sys, math, csv
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import load, index, DATA
@@ -12,19 +14,19 @@ ASSUME = dict(
     AOE_EFF=0.85,            # 群伤溢出/残血浪费系数（只作用于多目标部分）
     MAX_CLUSTER=6,           # 同时被范围技能覆盖的敌人上限
     SPREAD_DENSITY=0.5,      # spread 阵型（远程/冲锋/游击）计入密度的权重
-    WALK_PER_WAVE=3.0,       # 每波之间行进秒数
-    SPAWN_STAGGER=1.5,       # 每波刷怪错开秒数
-    BOSS_INTRO=3.0,          # 首领登场表现秒数
     LEVEL_OVERHEAD=60.0,     # 每关结算、看掉落、换装、升级技能、读新书的操作秒数（首通）
     TUTORIAL_OVERHEAD=150.0, # 新手引导阅读/点击额外秒数（1-1）
     BREAK_OVERHEAD=60.0,     # 突破+切换地图操作秒数
     AFFIX_OFF=0.025,         # 每条词条折算的攻击类增益（约半数词条为输出词条，均值约5%）
     AFFIX_DEF=0.025,         # 每条词条折算的生命类增益
     LINGSHI_SPEND=0.85,      # 灵石用于技能升级的比例（其余用于重铸等）
-    FARM_SPEEDUP=0.85,       # 已通关关卡挂机一轮耗时 = 首通战斗耗时×该值
-    DANGER_DODGE_MANUAL=0.8,
-    SHIELD_HOLD_MIN_CD=12.0, # 冷却≥该值的护盾技能，自动AI会为“玄岩天坠”预留 # 手动玩家闪避危险攻击的成功率；自动模式为0（计划：自动不闪避）
+    FARM_SPEEDUP=0.85,       # 已通关关卡挂机一轮：击杀耗时×该值（行进/接敌/登场/结算等固定节奏不缩短）
+    DANGER_DODGE_MANUAL=0.8, # 手动玩家闪避危险攻击的成功率；自动模式为0（计划：自动不闪避）
 )
+# 从 constants.csv 读取的节奏常量（v4）：RUN_START_WALK_TIME / WAVE_ENTER_WALK_TIME / SPAWN_DISTANCE_PX /
+# BOSS_SPAWN_DISTANCE_PX / AUTO_ENGAGE_RANGE_PX / PLAYER_MOVE_SPEED / BOSS_INTRO_TIME / RESULT_SHOW_TIME / AUTO_SHIELD_RESERVE_CD
+PACING_KEYS = ["RUN_START_WALK_TIME", "WAVE_ENTER_WALK_TIME", "SPAWN_DISTANCE_PX", "BOSS_SPAWN_DISTANCE_PX", "AUTO_ENGAGE_RANGE_PX",
+               "PLAYER_MOVE_SPEED", "BOSS_INTRO_TIME", "RESULT_SHOW_TIME", "AUTO_SHIELD_RESERVE_CD", "REFLECT_IGNORE_DEF", "COUNTER_IGNORE_DEF"]
 # 装备进度假设：每关开打时的(等效装备档位, 等效品质序号 1白..5橙)
 GEAR = {1: [(1, 1.3), (1, 2.0), (1, 2.4), (1, 2.7), (1, 3.0)],
         2: [(1.5, 2.8), (1.8, 2.8), (2, 2.9), (2, 3.0), (2, 3.2)],
@@ -39,6 +41,8 @@ Q = sorted(T["qualities"], key=lambda q: q["order"])
 TIER = index(T["gear_tiers"], "gear_tier"); MAPS = index(T["maps"], "map_id")
 BASES = [b for b in T["equip_bases"] if b["is_core"] == "false"]
 DEFK = C["DEF_CONST"]
+_miss = [k for k in PACING_KEYS if k not in C]
+if _miss: sys.exit("constants.csv 缺少节奏常量：" + ",".join(_miss))
 
 def lerp_q(qf, key):
     i = min(int(qf), 5); f = qf - i
@@ -128,14 +132,22 @@ def choose_build(owned, level, st_fn, slv, n, w_boss=0.4):
             if best is None or key > best[0]: best = (key, comb, p)
     return best[1], best[2]
 
+def approach_time(spawn_px, enemy_speed):
+    """接敌时间：敌人刷在 spawn_px 外，玩家（自动前进）与敌人相向而行，直到距离进入 AUTO_ENGAGE_RANGE_PX 开始稳定输出。"""
+    return max(0.0, spawn_px - C["AUTO_ENGAGE_RANGE_PX"]) / (C["PLAYER_MOVE_SPEED"] + enemy_speed)
+
 def wave_info(level):
+    """每波：(等效血量, 密度, 数量, 接敌s, 后续组出场延迟s, 原始血量)。"""
     rows = [w for w in T["waves"] if w["level_id"] == level["level_id"]]
     res = []
-    for wi in (1, 2, 3, 4):
+    for wi in sorted({w["wave_index"] for w in rows}):
         ws = [w for w in rows if w["wave_index"] == wi]
+        hp_raw = sum(EN[w["enemy_id"]]["hp"] * level["enemy_hp_mult"] * w["count"] for w in ws)
         hp_eff = sum(EN[w["enemy_id"]]["hp"] * level["enemy_hp_mult"] / pdr(EN[w["enemy_id"]]["def"]) * w["count"] for w in ws)
         dens = sum(w["count"] * (1 if w["formation"] == "cluster" else ASSUME["SPREAD_DENSITY"]) for w in ws)
-        res.append((hp_eff, min(dens, ASSUME["MAX_CLUSTER"]), sum(w["count"] for w in ws)))
+        appr = approach_time(C["SPAWN_DISTANCE_PX"], max(EN[w["enemy_id"]]["move_speed"] for w in ws))   # 最快的一组先接敌
+        stag = max(w["spawn_delay_s"] for w in ws)   # 后到的一组（waves.spawn_delay_s）按全额计入，偏保守
+        res.append((hp_eff, min(dens, ASSUME["MAX_CLUSTER"]), sum(w["count"] for w in ws), appr, stag, hp_raw))
     return res
 
 def wave_hit_rate(level, wi):
@@ -151,16 +163,30 @@ def boss_hit_rate(level):
     return min(sum(a["count"] / a["cd_s"] for a in T["boss_attacks"] if a["boss_id"] == b["enemy_id"] and a["is_danger"] == "false"),
                1 / C["REFLECT_COUNTER_ICD"])
 
-def level_combat(level, build, passive, slv, st):
-    tw = 0
-    for wi, (hp_eff, n, cnt) in enumerate(wave_info(level), 1):
-        d = dps(build, passive, slv, st, max(n, 1), False, wave_hit_rate(level, wi))[0] * ASSUME["UPTIME_WAVE"]
-        tw += hp_eff / d + ASSUME["WALK_PER_WAVE"] + ASSUME["SPAWN_STAGGER"]
-    b = EN[level["boss_id"]]
-    bhp = b["hp"] * level["boss_hp_mult"] / pdr(b["def"])
-    bd = dps(build, passive, slv, st, 1, True, boss_hit_rate(level))[0] * ASSUME["UPTIME_BOSS"] + reflect_dps(level, st, build, slv)
-    tb = bhp / bd + ASSUME["BOSS_INTRO"]
-    return tw, tb, bd
+def level_combat(level, build, passive, slv, st, detail=False):
+    """返回 (tw 清怪含行进/接敌, tb 首领战=首领出现到倒下（与60秒限时同口径）, bd 首领有效DPS)；
+    detail=True 时另返回 (kill_s 纯击杀耗时, fixed_s 固定节奏耗时：行进+接敌+出场延迟+首领登场+结算)。
+    伤害按“等效血量=血量/(1−减伤率)”结算，即默认所有伤害吃防御；
+    REFLECT_IGNORE_DEF / COUNTER_IGNORE_DEF=1 时，把反伤/反震部分按 1/(1−减伤率) 放大（等价于无视防御）。"""
+    kill = fixed = 0.0
+    waves = wave_info(level)
+    fixed += C["RUN_START_WALK_TIME"] + C["WAVE_ENTER_WALK_TIME"] * (len(waves) - 1)
+    for wi, (hp_eff, n, cnt, appr, stag, hp_raw) in enumerate(waves, 1):
+        tot, parts = dps(build, passive, slv, st, max(n, 1), False, wave_hit_rate(level, wi))
+        if C["COUNTER_IGNORE_DEF"] and "SK_GANG_GUARD" in parts:
+            tot += parts["SK_GANG_GUARD"] * (hp_eff / hp_raw - 1)
+        kill += hp_eff / (tot * ASSUME["UPTIME_WAVE"]); fixed += appr + stag
+    tw = kill + fixed
+    b = EN[level["boss_id"]]; k = 1 / pdr(b["def"])
+    bhp = b["hp"] * level["boss_hp_mult"] * k
+    tot, parts = dps(build, passive, slv, st, 1, True, boss_hit_rate(level))
+    if C["COUNTER_IGNORE_DEF"] and "SK_GANG_GUARD" in parts:
+        tot += parts["SK_GANG_GUARD"] * (k - 1)
+    bd = tot * ASSUME["UPTIME_BOSS"] + reflect_dps(level, st, build, slv) * (k if C["REFLECT_IGNORE_DEF"] else 1)
+    b_appr = approach_time(C["BOSS_SPAWN_DISTANCE_PX"], b["move_speed"])
+    tb = bhp / bd + b_appr
+    kill += bhp / bd; fixed += b_appr + C["BOSS_INTRO_TIME"] + C["RESULT_SHOW_TIME"]
+    return (tw, tb, bd, kill, fixed) if detail else (tw, tb, bd)
 
 def boss_melee_dps(level):
     b = EN[level["boss_id"]]; atk = b["atk"] * level["boss_atk_mult"]
@@ -207,7 +233,7 @@ def survival(level, st, build, slv, detail=False):
             tel = any(n_ - warn - 1e-9 <= t < n_ for n_ in nxt)
             to_next = min([n_ - warn - t for n_ in nxt], default=999)
             for j, (s_, r_) in enumerate(shields):
-                hold = r_["cd_s"] >= ASSUME["SHIELD_HOLD_MIN_CD"]   # 只有长冷却护盾（金刚不坏）会为天坠预留
+                hold = r_["cd_s"] >= C["AUTO_SHIELD_RESERVE_CD"]   # 只有长冷却护盾（金刚不坏）会为天坠预留
                 if t + 1e-9 >= ready[j] and (not hold or tel or to_next >= r_["cd_s"] or to_next < 0):
                     pools[j] = [st["hp"] * r_["effect_value"], t + s_["duration_s"]]; ready[j] = t + r_["cd_s"]
             dmg = rate * dt
@@ -260,10 +286,11 @@ def main(md=False):
         budget = max(0, lingshi - reserve) * ASSUME["LINGSHI_SPEND"]
         left = spend(budget, slv, build, passive); lingshi -= budget - left
         st = st_fn(passive)
-        tw, tb, bd = level_combat(L, build, passive, slv, st)
+        tw, tb, bd, kill_s, fixed_s = level_combat(L, build, passive, slv, st, detail=True)
         ttd_a, ttd_m = survival(L, st, build, slv)
         over = ASSUME["LEVEL_OVERHEAD"] + (ASSUME["TUTORIAL_OVERHEAD"] if L["global_index"] == 1 else 0)
-        t = tw + tb + over
+        show = C["BOSS_INTRO_TIME"] + C["RESULT_SHOW_TIME"]   # 首领登场 + 结算展示
+        t = tw + tb + show + over
         ls, xw = run_rewards(L)
         lingshi += ls; xiuwei += xw
         for r in fcr:
@@ -273,7 +300,7 @@ def main(md=False):
             if r["reward_type"] == "book": owned.add(SK_BY_BOOK[r["ref_id"]])
         grind = 0.0; runs = 0
         if L["index"] == 5 and nxt:
-            run_t = (tw + tb) * ASSUME["FARM_SPEEDUP"]
+            run_t = kill_s * ASSUME["FARM_SPEEDUP"] + fixed_s
             while xiuwei < nxt["xiuwei_cost"] or lingshi < nxt["lingshi_cost"]:
                 runs += 1; grind += run_t; lingshi += ls; xiuwei += xw
             xiuwei -= nxt["xiuwei_cost"]; lingshi -= nxt["lingshi_cost"]; realm_i += 1
@@ -283,7 +310,7 @@ def main(md=False):
         report.append(dict(level_id=L["level_id"], name=L["name"], realm=realm["name"], gear="T%.1f/Q%.1f" % (tf, qf),
                            build="、".join(SK[s]["name"] for s in build) + ("+" + SK[passive]["name"] if passive else ""),
                            skill_lv="/".join(str(slv[s]) for s in build), atk=round(st["atk"]), hp=round(st["hp"]),
-                           wave_s=round(tw, 1), boss_s=round(tb, 1), boss_dps=round(bd), overhead_s=over, grind_runs=runs,
+                           wave_s=round(tw, 1), boss_s=round(tb, 1), show_s=show, boss_dps=round(bd), overhead_s=over, grind_runs=runs,
                            grind_s=round(grind), level_total_s=round(t), cum_min=round(total / 60, 1),
                            ttd_auto=("inf" if ttd_a == float("inf") else round(ttd_a, 1)),
                            ttd_manual=("inf" if ttd_m == float("inf") else round(ttd_m, 1)),
@@ -312,6 +339,7 @@ def main(md=False):
                            ttd_auto=("∞" if ta == float("inf") else round(ta)), ttd_manual=("∞" if tm == float("inf") else round(tm)))
         comp.append(row)
     # 打印
+    print("节奏常量(constants.csv):", {k: C[k] for k in PACING_KEYS})
     print("关卡 | 境界 | 装备 | 配置 | 技能等级 | ATK | HP | 清波s | 首领s | 首领DPS | 突破挂机轮数 | 本关s | 累计min | 首领战存活s(自动/手动)")
     for r in report:
         print("%s %s | %s | %s | %s | %s | %d | %d | %.0f | %.0f | %d | %d | %d | %.1f | %s/%s" % (
@@ -323,10 +351,10 @@ def main(md=False):
         print(r["level_id"], "Lv%d" % r["skill_lv"], " | ".join("%s %s/%s/%s/%s/%s|%s" % (k, v["single"], v["group5"], v["wave"], v["boss"], v["ttd_auto"], v["ttd_manual"]) for k, v in r.items() if isinstance(v, dict)))
     if md:
         print("\n<!--MD-->")
-        print("| 关卡 | 境界 | 等效装备 | 主线配置(4主动+被动) | 技能等级 | 攻击 | 生命 | 4波清怪(s) | 首领(s) | 操作/引导(s) | 突破补刷(s) | 本关合计(s) | 累计(min) | 首领战存活s 自动/手动 |")
-        print("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+        print("| 关卡 | 境界 | 等效装备 | 主线配置(4主动+被动) | 技能等级 | 攻击 | 生命 | 4波清怪(s) | 首领(s) | 登场+结算(s) | 操作/引导(s) | 突破补刷(s) | 本关合计(s) | 累计(min) | 首领战存活s 自动/手动 |")
+        print("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
         for r in report:
-            print("| %s %s | %s | %s | %s | %s | %d | %d | %.0f | %.0f | %.0f | %d | %d | %.1f | %s / %s |" % (r["level_id"], r["name"], r["realm"], r["gear"], r["build"], r["skill_lv"], r["atk"], r["hp"], r["wave_s"], r["boss_s"], r["overhead_s"], r["grind_s"], r["level_total_s"], r["cum_min"], r["ttd_auto"], r["ttd_manual"]))
+            print("| %s %s | %s | %s | %s | %s | %d | %d | %.0f | %.0f | %.0f | %.0f | %d | %d | %.1f | %s / %s |" % (r["level_id"], r["name"], r["realm"], r["gear"], r["build"], r["skill_lv"], r["atk"], r["hp"], r["wave_s"], r["boss_s"], r["show_s"], r["overhead_s"], r["grind_s"], r["level_total_s"], r["cum_min"], r["ttd_auto"], r["ttd_manual"]))
         print("\n| 关卡 | 技能等级 | 飞剑诀 单体/5目标DPS | 御雷诀 单体/5目标DPS | 玄罡诀 单体/5目标DPS | 清怪s 剑/雷/罡 | 首领s 剑/雷/罡 | 首领存活s(自动) 剑/雷/罡 | 首领存活s(手动) 剑/雷/罡 |")
         print("|---|---|---|---|---|---|---|---|---|")
         for r in comp:
@@ -349,7 +377,8 @@ def main(md=False):
             sl2 = {s_: lvv for s_ in SK}; st = player_stats(REALM[2], tf, qf, ps, lvv)
             tb = level_combat(L, b, ps, sl2, st)[1]
             at, mt, alo, mlo = survival(L, st, b, sl2, detail=True)
-            verdict = ("自动可过" if at > tb else ("需手动闪避" if mt > tb else "需提升装备/换配置")) + ("" if tb <= 60 else "（超时）")
+            # v4：首领耗时不再含登场3秒，自动存活只比首领耗时多不到10%的记为“临界”（实战波动足以翻车）
+            verdict = ("自动可过" if at > tb * 1.1 else ("自动临界，建议手动闪避" if at > tb else ("需手动闪避" if mt > tb else "需提升装备/换配置"))) + ("" if tb <= 60 else "（超时）")
             print("| %s | %s | %.0f | %s | %s | %s |" % (L["level_id"], nm, tb, fmt(at, alo), fmt(mt, mlo), verdict))
     return total
 

@@ -12,6 +12,7 @@ extends Resource
 @export var breakthrough_mat_id := ""
 @export var normal_enemy_ids := PackedStringArray()
 @export var desc := ""
+@export var telegraph_color := ""   # v5.1：本图首领预警色（招式色为空时使用）
 
 ## 背景占位图目录名：MAP_QINGZHU -> qingzhu
 func art_key() -> String:
@@ -29,4 +30,5 @@ static func from_row(r: Dictionary) -> MapDef:
 	d.breakthrough_mat_id = CsvUtil.s(r, "breakthrough_mat_id")
 	d.normal_enemy_ids = CsvUtil.list(CsvUtil.s(r, "normal_enemy_ids"))
 	d.desc = CsvUtil.s(r, "desc")
+	d.telegraph_color = CsvUtil.s(r, "telegraph_color")
 	return d

@@ -1,0 +1,2026 @@
+[
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0"
+},
+"out": "a0%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "1"
+},
+"out": "a1b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "1"
+},
+"out": "a1b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "1"
+},
+"out": "a100%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "1"
+},
+"out": "a1b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "-1"
+},
+"out": "a-1b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "-1"
+},
+"out": "a-1b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "-1"
+},
+"out": "a-100%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "-1"
+},
+"out": "a-1b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.5"
+},
+"out": "a0.5b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.5"
+},
+"out": "a0.5b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.5"
+},
+"out": "a50%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.5"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "1.5"
+},
+"out": "a1.5b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "1.5"
+},
+"out": "a1.5b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "1.5"
+},
+"out": "a150%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "1.5"
+},
+"out": "a2b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "2.5"
+},
+"out": "a2.5b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "2.5"
+},
+"out": "a2.5b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "2.5"
+},
+"out": "a250%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "2.5"
+},
+"out": "a2b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "-2.5"
+},
+"out": "a-2.5b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "-2.5"
+},
+"out": "a-2.5b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "-2.5"
+},
+"out": "a-250%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "-2.5"
+},
+"out": "a-2b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.125"
+},
+"out": "a0.12b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.125"
+},
+"out": "a0.12b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.125"
+},
+"out": "a12.5%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.125"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.375"
+},
+"out": "a0.38b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.375"
+},
+"out": "a0.38b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.375"
+},
+"out": "a37.5%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.375"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "2.675"
+},
+"out": "a2.67b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "2.675"
+},
+"out": "a2.67b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "2.675"
+},
+"out": "a267.5%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "2.675"
+},
+"out": "a3b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "1.005"
+},
+"out": "a1b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "1.005"
+},
+"out": "a1b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "1.005"
+},
+"out": "a100.5%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "1.005"
+},
+"out": "a1b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.0125"
+},
+"out": "a0.01b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.0125"
+},
+"out": "a0.01b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.0125"
+},
+"out": "a1.2%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.0125"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.015"
+},
+"out": "a0.01b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.015"
+},
+"out": "a0.01b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.015"
+},
+"out": "a1.5%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.015"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.08"
+},
+"out": "a0.08b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.08"
+},
+"out": "a0.08b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.08"
+},
+"out": "a8%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.08"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.155"
+},
+"out": "a0.15b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.155"
+},
+"out": "a0.15b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.155"
+},
+"out": "a15.5%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.155"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.333333"
+},
+"out": "a0.33b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.333333"
+},
+"out": "a0.33b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.333333"
+},
+"out": "a33.3%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.333333"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "1.6"
+},
+"out": "a1.6b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "1.6"
+},
+"out": "a1.6b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "1.6"
+},
+"out": "a160%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "1.6"
+},
+"out": "a2b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "2.4"
+},
+"out": "a2.4b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "2.4"
+},
+"out": "a2.4b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "2.4"
+},
+"out": "a240%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "2.4"
+},
+"out": "a2b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "3.3"
+},
+"out": "a3.3b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "3.3"
+},
+"out": "a3.3b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "3.3"
+},
+"out": "a330%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "3.3"
+},
+"out": "a3b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "12.0"
+},
+"out": "a12b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "12.0"
+},
+"out": "a12b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "12.0"
+},
+"out": "a1200%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "12.0"
+},
+"out": "a12b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "99.995"
+},
+"out": "a100b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "99.995"
+},
+"out": "a100b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "99.995"
+},
+"out": "a9999.5%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "99.995"
+},
+"out": "a100b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "123456.78"
+},
+"out": "a123457b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "123456.78"
+},
+"out": "a123457b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "123456.78"
+},
+"out": "a12345678%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "123456.78"
+},
+"out": "a123457b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "100000.5"
+},
+"out": "a100000b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "100000.5"
+},
+"out": "a100000b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "100000.5"
+},
+"out": "a10000050%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "100000.5"
+},
+"out": "a100000b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.001"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.001"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.001"
+},
+"out": "a0.1%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.001"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.004"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.004"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.004"
+},
+"out": "a0.4%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.004"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.005"
+},
+"out": "a0.01b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.005"
+},
+"out": "a0.01b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.005"
+},
+"out": "a0.5%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.005"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.006"
+},
+"out": "a0.01b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.006"
+},
+"out": "a0.01b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.006"
+},
+"out": "a0.6%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.006"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "7.25"
+},
+"out": "a7.25b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "7.25"
+},
+"out": "a7.25b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "7.25"
+},
+"out": "a725%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "7.25"
+},
+"out": "a7b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.07"
+},
+"out": "a0.07b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.07"
+},
+"out": "a0.07b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.07"
+},
+"out": "a7%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.07"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.29"
+},
+"out": "a0.29b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.29"
+},
+"out": "a0.29b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.29"
+},
+"out": "a29%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.29"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "0.57"
+},
+"out": "a0.57b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "0.57"
+},
+"out": "a0.57b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "0.57"
+},
+"out": "a57%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "0.57"
+},
+"out": "a1b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "1e-07"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "1e-07"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "1e-07"
+},
+"out": "a0%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "1e-07"
+},
+"out": "a0b"
+},
+{
+"tpl": "a{x}b",
+"row": {
+"x": "1234567.891"
+},
+"out": "a1.23457e+06b"
+},
+{
+"tpl": "a{x:num}b",
+"row": {
+"x": "1234567.891"
+},
+"out": "a1.23457e+06b"
+},
+{
+"tpl": "a{x:pct}b",
+"row": {
+"x": "1234567.891"
+},
+"out": "a1.23457e+08%b"
+},
+{
+"tpl": "a{x:int}b",
+"row": {
+"x": "1234567.891"
+},
+"out": "a1234568b"
+},
+{
+"skill_id": "SK_SWORD_FLYING",
+"level": 1,
+"out": "御剑离手，直取当面之敌，造成攻击160%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_FLYING",
+"level": 2,
+"out": "御剑离手，直取当面之敌，造成攻击176%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_FLYING",
+"level": 3,
+"out": "御剑离手，直取当面之敌，造成攻击192%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_FLYING",
+"level": 4,
+"out": "御剑离手，直取当面之敌，造成攻击208%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_FLYING",
+"level": 5,
+"out": "御剑离手，直取当面之敌，造成攻击224%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_FLYING",
+"level": 6,
+"out": "御剑离手，直取当面之敌，造成攻击240%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_FLYING",
+"level": 7,
+"out": "御剑离手，直取当面之敌，造成攻击256%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_FLYING",
+"level": 8,
+"out": "御剑离手，直取当面之敌，造成攻击272%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_FLYING",
+"level": 9,
+"out": "御剑离手，直取当面之敌，造成攻击288%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_FLYING",
+"level": 10,
+"out": "御剑离手，直取当面之敌，造成攻击304%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_COMBO",
+"level": 1,
+"out": "剑出连珠，向同一敌人连射3剑，每剑造成攻击100%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_COMBO",
+"level": 2,
+"out": "剑出连珠，向同一敌人连射3剑，每剑造成攻击110%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_COMBO",
+"level": 3,
+"out": "剑出连珠，向同一敌人连射3剑，每剑造成攻击120%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_COMBO",
+"level": 4,
+"out": "剑出连珠，向同一敌人连射3剑，每剑造成攻击130%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_COMBO",
+"level": 5,
+"out": "剑出连珠，向同一敌人连射3剑，每剑造成攻击140%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_COMBO",
+"level": 6,
+"out": "剑出连珠，向同一敌人连射3剑，每剑造成攻击150%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_COMBO",
+"level": 7,
+"out": "剑出连珠，向同一敌人连射3剑，每剑造成攻击160%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_COMBO",
+"level": 8,
+"out": "剑出连珠，向同一敌人连射3剑，每剑造成攻击170%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_COMBO",
+"level": 9,
+"out": "剑出连珠，向同一敌人连射3剑，每剑造成攻击180%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_COMBO",
+"level": 10,
+"out": "剑出连珠，向同一敌人连射3剑，每剑造成攻击190%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_PIERCE",
+"level": 1,
+"out": "剑气贯穿一线，造成攻击220%的伤害，并使敌人防御降低30%，持续5秒。"
+},
+{
+"skill_id": "SK_SWORD_PIERCE",
+"level": 2,
+"out": "剑气贯穿一线，造成攻击242%的伤害，并使敌人防御降低31%，持续5秒。"
+},
+{
+"skill_id": "SK_SWORD_PIERCE",
+"level": 3,
+"out": "剑气贯穿一线，造成攻击264%的伤害，并使敌人防御降低32%，持续5秒。"
+},
+{
+"skill_id": "SK_SWORD_PIERCE",
+"level": 4,
+"out": "剑气贯穿一线，造成攻击286%的伤害，并使敌人防御降低33%，持续5秒。"
+},
+{
+"skill_id": "SK_SWORD_PIERCE",
+"level": 5,
+"out": "剑气贯穿一线，造成攻击308%的伤害，并使敌人防御降低34%，持续5秒。"
+},
+{
+"skill_id": "SK_SWORD_PIERCE",
+"level": 6,
+"out": "剑气贯穿一线，造成攻击330%的伤害，并使敌人防御降低35%，持续5秒。"
+},
+{
+"skill_id": "SK_SWORD_PIERCE",
+"level": 7,
+"out": "剑气贯穿一线，造成攻击352%的伤害，并使敌人防御降低36%，持续5秒。"
+},
+{
+"skill_id": "SK_SWORD_PIERCE",
+"level": 8,
+"out": "剑气贯穿一线，造成攻击374%的伤害，并使敌人防御降低37%，持续5秒。"
+},
+{
+"skill_id": "SK_SWORD_PIERCE",
+"level": 9,
+"out": "剑气贯穿一线，造成攻击396%的伤害，并使敌人防御降低38%，持续5秒。"
+},
+{
+"skill_id": "SK_SWORD_PIERCE",
+"level": 10,
+"out": "剑气贯穿一线，造成攻击418%的伤害，并使敌人防御降低39%，持续5秒。"
+},
+{
+"skill_id": "SK_SWORD_EXECUTE",
+"level": 1,
+"out": "蓄势斩出巨剑，对单体造成攻击500%的伤害；对首领伤害再提高50%。"
+},
+{
+"skill_id": "SK_SWORD_EXECUTE",
+"level": 2,
+"out": "蓄势斩出巨剑，对单体造成攻击550%的伤害；对首领伤害再提高55%。"
+},
+{
+"skill_id": "SK_SWORD_EXECUTE",
+"level": 3,
+"out": "蓄势斩出巨剑，对单体造成攻击600%的伤害；对首领伤害再提高60%。"
+},
+{
+"skill_id": "SK_SWORD_EXECUTE",
+"level": 4,
+"out": "蓄势斩出巨剑，对单体造成攻击650%的伤害；对首领伤害再提高65%。"
+},
+{
+"skill_id": "SK_SWORD_EXECUTE",
+"level": 5,
+"out": "蓄势斩出巨剑，对单体造成攻击700%的伤害；对首领伤害再提高70%。"
+},
+{
+"skill_id": "SK_SWORD_EXECUTE",
+"level": 6,
+"out": "蓄势斩出巨剑，对单体造成攻击750%的伤害；对首领伤害再提高75%。"
+},
+{
+"skill_id": "SK_SWORD_EXECUTE",
+"level": 7,
+"out": "蓄势斩出巨剑，对单体造成攻击800%的伤害；对首领伤害再提高80%。"
+},
+{
+"skill_id": "SK_SWORD_EXECUTE",
+"level": 8,
+"out": "蓄势斩出巨剑，对单体造成攻击850%的伤害；对首领伤害再提高85%。"
+},
+{
+"skill_id": "SK_SWORD_EXECUTE",
+"level": 9,
+"out": "蓄势斩出巨剑，对单体造成攻击900%的伤害；对首领伤害再提高90%。"
+},
+{
+"skill_id": "SK_SWORD_EXECUTE",
+"level": 10,
+"out": "蓄势斩出巨剑，对单体造成攻击950%的伤害；对首领伤害再提高95%。"
+},
+{
+"skill_id": "SK_SWORD_PASSIVE",
+"level": 1,
+"out": "剑心澄明，暴击率提高8%；飞剑诀技能命中时有15%概率追加一剑，造成攻击80%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_PASSIVE",
+"level": 2,
+"out": "剑心澄明，暴击率提高9%；飞剑诀技能命中时有16.5%概率追加一剑，造成攻击80%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_PASSIVE",
+"level": 3,
+"out": "剑心澄明，暴击率提高10%；飞剑诀技能命中时有18%概率追加一剑，造成攻击80%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_PASSIVE",
+"level": 4,
+"out": "剑心澄明，暴击率提高11%；飞剑诀技能命中时有19.5%概率追加一剑，造成攻击80%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_PASSIVE",
+"level": 5,
+"out": "剑心澄明，暴击率提高12%；飞剑诀技能命中时有21%概率追加一剑，造成攻击80%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_PASSIVE",
+"level": 6,
+"out": "剑心澄明，暴击率提高13%；飞剑诀技能命中时有22.5%概率追加一剑，造成攻击80%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_PASSIVE",
+"level": 7,
+"out": "剑心澄明，暴击率提高14%；飞剑诀技能命中时有24%概率追加一剑，造成攻击80%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_PASSIVE",
+"level": 8,
+"out": "剑心澄明，暴击率提高15%；飞剑诀技能命中时有25.5%概率追加一剑，造成攻击80%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_PASSIVE",
+"level": 9,
+"out": "剑心澄明，暴击率提高16%；飞剑诀技能命中时有27%概率追加一剑，造成攻击80%的伤害。"
+},
+{
+"skill_id": "SK_SWORD_PASSIVE",
+"level": 10,
+"out": "剑心澄明，暴击率提高17%；飞剑诀技能命中时有28.5%概率追加一剑，造成攻击80%的伤害。"
+},
+{
+"skill_id": "SK_THUNDER_STRIKE",
+"level": 1,
+"out": "掌引天雷劈向前方，造成攻击130%的伤害，再连锁2个目标，每跳衰减15%。"
+},
+{
+"skill_id": "SK_THUNDER_STRIKE",
+"level": 2,
+"out": "掌引天雷劈向前方，造成攻击143%的伤害，再连锁2个目标，每跳衰减15%。"
+},
+{
+"skill_id": "SK_THUNDER_STRIKE",
+"level": 3,
+"out": "掌引天雷劈向前方，造成攻击156%的伤害，再连锁2个目标，每跳衰减15%。"
+},
+{
+"skill_id": "SK_THUNDER_STRIKE",
+"level": 4,
+"out": "掌引天雷劈向前方，造成攻击169%的伤害，再连锁2个目标，每跳衰减15%。"
+},
+{
+"skill_id": "SK_THUNDER_STRIKE",
+"level": 5,
+"out": "掌引天雷劈向前方，造成攻击182%的伤害，再连锁3个目标，每跳衰减15%。"
+},
+{
+"skill_id": "SK_THUNDER_STRIKE",
+"level": 6,
+"out": "掌引天雷劈向前方，造成攻击195%的伤害，再连锁3个目标，每跳衰减15%。"
+},
+{
+"skill_id": "SK_THUNDER_STRIKE",
+"level": 7,
+"out": "掌引天雷劈向前方，造成攻击208%的伤害，再连锁3个目标，每跳衰减15%。"
+},
+{
+"skill_id": "SK_THUNDER_STRIKE",
+"level": 8,
+"out": "掌引天雷劈向前方，造成攻击221%的伤害，再连锁3个目标，每跳衰减15%。"
+},
+{
+"skill_id": "SK_THUNDER_STRIKE",
+"level": 9,
+"out": "掌引天雷劈向前方，造成攻击234%的伤害，再连锁3个目标，每跳衰减15%。"
+},
+{
+"skill_id": "SK_THUNDER_STRIKE",
+"level": 10,
+"out": "掌引天雷劈向前方，造成攻击247%的伤害，再连锁4个目标，每跳衰减15%。"
+},
+{
+"skill_id": "SK_THUNDER_CLOUD",
+"level": 1,
+"out": "召雷云笼罩敌群，3秒内每0.5秒造成攻击55%的伤害，并减速30%。"
+},
+{
+"skill_id": "SK_THUNDER_CLOUD",
+"level": 2,
+"out": "召雷云笼罩敌群，3秒内每0.5秒造成攻击60.5%的伤害，并减速30%。"
+},
+{
+"skill_id": "SK_THUNDER_CLOUD",
+"level": 3,
+"out": "召雷云笼罩敌群，3秒内每0.5秒造成攻击66%的伤害，并减速30%。"
+},
+{
+"skill_id": "SK_THUNDER_CLOUD",
+"level": 4,
+"out": "召雷云笼罩敌群，3秒内每0.5秒造成攻击71.5%的伤害，并减速30%。"
+},
+{
+"skill_id": "SK_THUNDER_CLOUD",
+"level": 5,
+"out": "召雷云笼罩敌群，3秒内每0.5秒造成攻击77%的伤害，并减速30%。"
+},
+{
+"skill_id": "SK_THUNDER_CLOUD",
+"level": 6,
+"out": "召雷云笼罩敌群，3秒内每0.5秒造成攻击82.5%的伤害，并减速30%。"
+},
+{
+"skill_id": "SK_THUNDER_CLOUD",
+"level": 7,
+"out": "召雷云笼罩敌群，3秒内每0.5秒造成攻击88%的伤害，并减速30%。"
+},
+{
+"skill_id": "SK_THUNDER_CLOUD",
+"level": 8,
+"out": "召雷云笼罩敌群，3秒内每0.5秒造成攻击93.5%的伤害，并减速30%。"
+},
+{
+"skill_id": "SK_THUNDER_CLOUD",
+"level": 9,
+"out": "召雷云笼罩敌群，3秒内每0.5秒造成攻击99%的伤害，并减速30%。"
+},
+{
+"skill_id": "SK_THUNDER_CLOUD",
+"level": 10,
+"out": "召雷云笼罩敌群，3秒内每0.5秒造成攻击104.5%的伤害，并减速30%。"
+},
+{
+"skill_id": "SK_THUNDER_PALM",
+"level": 1,
+"out": "掌心炸开雷光，对周身敌人造成攻击220%的伤害，并眩晕0.5秒，首领减半。"
+},
+{
+"skill_id": "SK_THUNDER_PALM",
+"level": 2,
+"out": "掌心炸开雷光，对周身敌人造成攻击242%的伤害，并眩晕0.55秒，首领减半。"
+},
+{
+"skill_id": "SK_THUNDER_PALM",
+"level": 3,
+"out": "掌心炸开雷光，对周身敌人造成攻击264%的伤害，并眩晕0.6秒，首领减半。"
+},
+{
+"skill_id": "SK_THUNDER_PALM",
+"level": 4,
+"out": "掌心炸开雷光，对周身敌人造成攻击286%的伤害，并眩晕0.65秒，首领减半。"
+},
+{
+"skill_id": "SK_THUNDER_PALM",
+"level": 5,
+"out": "掌心炸开雷光，对周身敌人造成攻击308%的伤害，并眩晕0.7秒，首领减半。"
+},
+{
+"skill_id": "SK_THUNDER_PALM",
+"level": 6,
+"out": "掌心炸开雷光，对周身敌人造成攻击330%的伤害，并眩晕0.75秒，首领减半。"
+},
+{
+"skill_id": "SK_THUNDER_PALM",
+"level": 7,
+"out": "掌心炸开雷光，对周身敌人造成攻击352%的伤害，并眩晕0.8秒，首领减半。"
+},
+{
+"skill_id": "SK_THUNDER_PALM",
+"level": 8,
+"out": "掌心炸开雷光，对周身敌人造成攻击374%的伤害，并眩晕0.85秒，首领减半。"
+},
+{
+"skill_id": "SK_THUNDER_PALM",
+"level": 9,
+"out": "掌心炸开雷光，对周身敌人造成攻击396%的伤害，并眩晕0.9秒，首领减半。"
+},
+{
+"skill_id": "SK_THUNDER_PALM",
+"level": 10,
+"out": "掌心炸开雷光，对周身敌人造成攻击418%的伤害，并眩晕0.95秒，首领减半。"
+},
+{
+"skill_id": "SK_THUNDER_NINE",
+"level": 1,
+"out": "九霄之上连降9道神雷，每道造成攻击90%的伤害；前方无敌时不入冷却。"
+},
+{
+"skill_id": "SK_THUNDER_NINE",
+"level": 2,
+"out": "九霄之上连降9道神雷，每道造成攻击99%的伤害；前方无敌时不入冷却。"
+},
+{
+"skill_id": "SK_THUNDER_NINE",
+"level": 3,
+"out": "九霄之上连降9道神雷，每道造成攻击108%的伤害；前方无敌时不入冷却。"
+},
+{
+"skill_id": "SK_THUNDER_NINE",
+"level": 4,
+"out": "九霄之上连降9道神雷，每道造成攻击117%的伤害；前方无敌时不入冷却。"
+},
+{
+"skill_id": "SK_THUNDER_NINE",
+"level": 5,
+"out": "九霄之上连降9道神雷，每道造成攻击126%的伤害；前方无敌时不入冷却。"
+},
+{
+"skill_id": "SK_THUNDER_NINE",
+"level": 6,
+"out": "九霄之上连降9道神雷，每道造成攻击135%的伤害；前方无敌时不入冷却。"
+},
+{
+"skill_id": "SK_THUNDER_NINE",
+"level": 7,
+"out": "九霄之上连降9道神雷，每道造成攻击144%的伤害；前方无敌时不入冷却。"
+},
+{
+"skill_id": "SK_THUNDER_NINE",
+"level": 8,
+"out": "九霄之上连降9道神雷，每道造成攻击153%的伤害；前方无敌时不入冷却。"
+},
+{
+"skill_id": "SK_THUNDER_NINE",
+"level": 9,
+"out": "九霄之上连降9道神雷，每道造成攻击162%的伤害；前方无敌时不入冷却。"
+},
+{
+"skill_id": "SK_THUNDER_NINE",
+"level": 10,
+"out": "九霄之上连降9道神雷，每道造成攻击171%的伤害；前方无敌时不入冷却。"
+},
+{
+"skill_id": "SK_THUNDER_PASSIVE",
+"level": 1,
+"out": "雷气入体，御雷诀伤害提高10%，御雷诀技能冷却缩减5%。"
+},
+{
+"skill_id": "SK_THUNDER_PASSIVE",
+"level": 2,
+"out": "雷气入体，御雷诀伤害提高12%，御雷诀技能冷却缩减5.5%。"
+},
+{
+"skill_id": "SK_THUNDER_PASSIVE",
+"level": 3,
+"out": "雷气入体，御雷诀伤害提高14%，御雷诀技能冷却缩减6%。"
+},
+{
+"skill_id": "SK_THUNDER_PASSIVE",
+"level": 4,
+"out": "雷气入体，御雷诀伤害提高16%，御雷诀技能冷却缩减6.5%。"
+},
+{
+"skill_id": "SK_THUNDER_PASSIVE",
+"level": 5,
+"out": "雷气入体，御雷诀伤害提高18%，御雷诀技能冷却缩减7%。"
+},
+{
+"skill_id": "SK_THUNDER_PASSIVE",
+"level": 6,
+"out": "雷气入体，御雷诀伤害提高20%，御雷诀技能冷却缩减7.5%。"
+},
+{
+"skill_id": "SK_THUNDER_PASSIVE",
+"level": 7,
+"out": "雷气入体，御雷诀伤害提高22%，御雷诀技能冷却缩减8%。"
+},
+{
+"skill_id": "SK_THUNDER_PASSIVE",
+"level": 8,
+"out": "雷气入体，御雷诀伤害提高24%，御雷诀技能冷却缩减8.5%。"
+},
+{
+"skill_id": "SK_THUNDER_PASSIVE",
+"level": 9,
+"out": "雷气入体，御雷诀伤害提高26%，御雷诀技能冷却缩减9%。"
+},
+{
+"skill_id": "SK_THUNDER_PASSIVE",
+"level": 10,
+"out": "雷气入体，御雷诀伤害提高28%，御雷诀技能冷却缩减9.5%。"
+},
+{
+"skill_id": "SK_GANG_GUARD",
+"level": 1,
+"out": "凝罡护体，获得最大生命8%的护盾，持续6秒；其间反伤提高30%，受近身攻击时反震攻击60%的伤害。"
+},
+{
+"skill_id": "SK_GANG_GUARD",
+"level": 2,
+"out": "凝罡护体，获得最大生命8.5%的护盾，持续6秒；其间反伤提高32%，受近身攻击时反震攻击66%的伤害。"
+},
+{
+"skill_id": "SK_GANG_GUARD",
+"level": 3,
+"out": "凝罡护体，获得最大生命9%的护盾，持续6秒；其间反伤提高34%，受近身攻击时反震攻击72%的伤害。"
+},
+{
+"skill_id": "SK_GANG_GUARD",
+"level": 4,
+"out": "凝罡护体，获得最大生命9.5%的护盾，持续6秒；其间反伤提高36%，受近身攻击时反震攻击78%的伤害。"
+},
+{
+"skill_id": "SK_GANG_GUARD",
+"level": 5,
+"out": "凝罡护体，获得最大生命10%的护盾，持续6秒；其间反伤提高38%，受近身攻击时反震攻击84%的伤害。"
+},
+{
+"skill_id": "SK_GANG_GUARD",
+"level": 6,
+"out": "凝罡护体，获得最大生命10.5%的护盾，持续6秒；其间反伤提高40%，受近身攻击时反震攻击90%的伤害。"
+},
+{
+"skill_id": "SK_GANG_GUARD",
+"level": 7,
+"out": "凝罡护体，获得最大生命11%的护盾，持续6秒；其间反伤提高42%，受近身攻击时反震攻击96%的伤害。"
+},
+{
+"skill_id": "SK_GANG_GUARD",
+"level": 8,
+"out": "凝罡护体，获得最大生命11.5%的护盾，持续6秒；其间反伤提高44%，受近身攻击时反震攻击102%的伤害。"
+},
+{
+"skill_id": "SK_GANG_GUARD",
+"level": 9,
+"out": "凝罡护体，获得最大生命12%的护盾，持续6秒；其间反伤提高46%，受近身攻击时反震攻击108%的伤害。"
+},
+{
+"skill_id": "SK_GANG_GUARD",
+"level": 10,
+"out": "凝罡护体，获得最大生命12.5%的护盾，持续6秒；其间反伤提高48%，受近身攻击时反震攻击114%的伤害。"
+},
+{
+"skill_id": "SK_GANG_QUAKE",
+"level": 1,
+"out": "顿足震岳，对周身敌人造成攻击220%的伤害并将其击退，首领不受击退。"
+},
+{
+"skill_id": "SK_GANG_QUAKE",
+"level": 2,
+"out": "顿足震岳，对周身敌人造成攻击242%的伤害并将其击退，首领不受击退。"
+},
+{
+"skill_id": "SK_GANG_QUAKE",
+"level": 3,
+"out": "顿足震岳，对周身敌人造成攻击264%的伤害并将其击退，首领不受击退。"
+},
+{
+"skill_id": "SK_GANG_QUAKE",
+"level": 4,
+"out": "顿足震岳，对周身敌人造成攻击286%的伤害并将其击退，首领不受击退。"
+},
+{
+"skill_id": "SK_GANG_QUAKE",
+"level": 5,
+"out": "顿足震岳，对周身敌人造成攻击308%的伤害并将其击退，首领不受击退。"
+},
+{
+"skill_id": "SK_GANG_QUAKE",
+"level": 6,
+"out": "顿足震岳，对周身敌人造成攻击330%的伤害并将其击退，首领不受击退。"
+},
+{
+"skill_id": "SK_GANG_QUAKE",
+"level": 7,
+"out": "顿足震岳，对周身敌人造成攻击352%的伤害并将其击退，首领不受击退。"
+},
+{
+"skill_id": "SK_GANG_QUAKE",
+"level": 8,
+"out": "顿足震岳，对周身敌人造成攻击374%的伤害并将其击退，首领不受击退。"
+},
+{
+"skill_id": "SK_GANG_QUAKE",
+"level": 9,
+"out": "顿足震岳，对周身敌人造成攻击396%的伤害并将其击退，首领不受击退。"
+},
+{
+"skill_id": "SK_GANG_QUAKE",
+"level": 10,
+"out": "顿足震岳，对周身敌人造成攻击418%的伤害并将其击退，首领不受击退。"
+},
+{
+"skill_id": "SK_GANG_GALE",
+"level": 1,
+"out": "罡风绕身4秒，每0.5秒造成攻击55%的伤害，其间受到伤害降低15%。"
+},
+{
+"skill_id": "SK_GANG_GALE",
+"level": 2,
+"out": "罡风绕身4秒，每0.5秒造成攻击60.5%的伤害，其间受到伤害降低16%。"
+},
+{
+"skill_id": "SK_GANG_GALE",
+"level": 3,
+"out": "罡风绕身4秒，每0.5秒造成攻击66%的伤害，其间受到伤害降低17%。"
+},
+{
+"skill_id": "SK_GANG_GALE",
+"level": 4,
+"out": "罡风绕身4秒，每0.5秒造成攻击71.5%的伤害，其间受到伤害降低18%。"
+},
+{
+"skill_id": "SK_GANG_GALE",
+"level": 5,
+"out": "罡风绕身4秒，每0.5秒造成攻击77%的伤害，其间受到伤害降低19%。"
+},
+{
+"skill_id": "SK_GANG_GALE",
+"level": 6,
+"out": "罡风绕身4秒，每0.5秒造成攻击82.5%的伤害，其间受到伤害降低20%。"
+},
+{
+"skill_id": "SK_GANG_GALE",
+"level": 7,
+"out": "罡风绕身4秒，每0.5秒造成攻击88%的伤害，其间受到伤害降低21%。"
+},
+{
+"skill_id": "SK_GANG_GALE",
+"level": 8,
+"out": "罡风绕身4秒，每0.5秒造成攻击93.5%的伤害，其间受到伤害降低22%。"
+},
+{
+"skill_id": "SK_GANG_GALE",
+"level": 9,
+"out": "罡风绕身4秒，每0.5秒造成攻击99%的伤害，其间受到伤害降低23%。"
+},
+{
+"skill_id": "SK_GANG_GALE",
+"level": 10,
+"out": "罡风绕身4秒，每0.5秒造成攻击104.5%的伤害，其间受到伤害降低24%。"
+},
+{
+"skill_id": "SK_GANG_VAJRA",
+"level": 1,
+"out": "金身不坏，获得最大生命20%的护盾，持续8秒；护盾消散时震爆周身，造成攻击600%加吸收量150%的伤害。"
+},
+{
+"skill_id": "SK_GANG_VAJRA",
+"level": 2,
+"out": "金身不坏，获得最大生命21%的护盾，持续8秒；护盾消散时震爆周身，造成攻击660%加吸收量155%的伤害。"
+},
+{
+"skill_id": "SK_GANG_VAJRA",
+"level": 3,
+"out": "金身不坏，获得最大生命22%的护盾，持续8秒；护盾消散时震爆周身，造成攻击720%加吸收量160%的伤害。"
+},
+{
+"skill_id": "SK_GANG_VAJRA",
+"level": 4,
+"out": "金身不坏，获得最大生命23%的护盾，持续8秒；护盾消散时震爆周身，造成攻击780%加吸收量165%的伤害。"
+},
+{
+"skill_id": "SK_GANG_VAJRA",
+"level": 5,
+"out": "金身不坏，获得最大生命24%的护盾，持续8秒；护盾消散时震爆周身，造成攻击840%加吸收量170%的伤害。"
+},
+{
+"skill_id": "SK_GANG_VAJRA",
+"level": 6,
+"out": "金身不坏，获得最大生命25%的护盾，持续8秒；护盾消散时震爆周身，造成攻击900%加吸收量175%的伤害。"
+},
+{
+"skill_id": "SK_GANG_VAJRA",
+"level": 7,
+"out": "金身不坏，获得最大生命26%的护盾，持续8秒；护盾消散时震爆周身，造成攻击960%加吸收量180%的伤害。"
+},
+{
+"skill_id": "SK_GANG_VAJRA",
+"level": 8,
+"out": "金身不坏，获得最大生命27%的护盾，持续8秒；护盾消散时震爆周身，造成攻击1020%加吸收量185%的伤害。"
+},
+{
+"skill_id": "SK_GANG_VAJRA",
+"level": 9,
+"out": "金身不坏，获得最大生命28%的护盾，持续8秒；护盾消散时震爆周身，造成攻击1080%加吸收量190%的伤害。"
+},
+{
+"skill_id": "SK_GANG_VAJRA",
+"level": 10,
+"out": "金身不坏，获得最大生命29%的护盾，持续8秒；护盾消散时震爆周身，造成攻击1140%加吸收量195%的伤害。"
+},
+{
+"skill_id": "SK_GANG_PASSIVE",
+"level": 1,
+"out": "玄罡贯体，最大生命提高10%；受到近身攻击时反伤25%。"
+},
+{
+"skill_id": "SK_GANG_PASSIVE",
+"level": 2,
+"out": "玄罡贯体，最大生命提高12%；受到近身攻击时反伤27%。"
+},
+{
+"skill_id": "SK_GANG_PASSIVE",
+"level": 3,
+"out": "玄罡贯体，最大生命提高14%；受到近身攻击时反伤29%。"
+},
+{
+"skill_id": "SK_GANG_PASSIVE",
+"level": 4,
+"out": "玄罡贯体，最大生命提高16%；受到近身攻击时反伤31%。"
+},
+{
+"skill_id": "SK_GANG_PASSIVE",
+"level": 5,
+"out": "玄罡贯体，最大生命提高18%；受到近身攻击时反伤33%。"
+},
+{
+"skill_id": "SK_GANG_PASSIVE",
+"level": 6,
+"out": "玄罡贯体，最大生命提高20%；受到近身攻击时反伤35%。"
+},
+{
+"skill_id": "SK_GANG_PASSIVE",
+"level": 7,
+"out": "玄罡贯体，最大生命提高22%；受到近身攻击时反伤37%。"
+},
+{
+"skill_id": "SK_GANG_PASSIVE",
+"level": 8,
+"out": "玄罡贯体，最大生命提高24%；受到近身攻击时反伤39%。"
+},
+{
+"skill_id": "SK_GANG_PASSIVE",
+"level": 9,
+"out": "玄罡贯体，最大生命提高26%；受到近身攻击时反伤41%。"
+},
+{
+"skill_id": "SK_GANG_PASSIVE",
+"level": 10,
+"out": "玄罡贯体，最大生命提高28%；受到近身攻击时反伤43%。"
+},
+{
+"tpl": "飞剑诀技能命中时有{param1:pct}概率追加一剑，造成攻击{param2:pct}的伤害，暴击时必定追加；对首领伤害提高{param3:pct}。",
+"row": {
+"orange_effect_id": "OE_SWORD_CORE",
+"base_id": "EQB_CORE_SWORD",
+"gongfa_id": "GF_SWORD",
+"name": "青冥万剑",
+"param1_key": "extra_sword_chance",
+"param1": "0.3",
+"param2_key": "extra_sword_coef",
+"param2": "0.8",
+"param3_key": "boss_dmg_pct",
+"param3": "0.15",
+"internal_cd_s": "0",
+"desc": "飞剑诀技能命中时有30%概率追加一剑，造成攻击80%的伤害，暴击时必定追加；对首领伤害提高15%。",
+"desc_tpl": "飞剑诀技能命中时有{param1:pct}概率追加一剑，造成攻击{param2:pct}的伤害，暴击时必定追加；对首领伤害提高{param3:pct}。",
+"note": "飞剑诀主动技能每次命中有30%概率追加1把飞剑（攻击×0.8），暴击时必定追加；对首领伤害+15%"
+},
+"out": "飞剑诀技能命中时有30%概率追加一剑，造成攻击80%的伤害，暴击时必定追加；对首领伤害提高15%。"
+},
+{
+"tpl": "御雷诀技能连锁目标增加{param1}个；每击杀一个敌人，御雷诀技能冷却减少{param2}秒。",
+"row": {
+"orange_effect_id": "OE_THUNDER_CORE",
+"base_id": "EQB_CORE_THUNDER",
+"gongfa_id": "GF_THUNDER",
+"name": "雷音震野",
+"param1_key": "chain_count_add",
+"param1": "2",
+"param2_key": "kill_cd_refund_s",
+"param2": "0.5",
+"param3_key": "",
+"param3": "",
+"internal_cd_s": "0",
+"desc": "御雷诀技能连锁目标增加2个；每击杀一个敌人，御雷诀技能冷却减少0.5秒。",
+"desc_tpl": "御雷诀技能连锁目标增加{param1}个；每击杀一个敌人，御雷诀技能冷却减少{param2}秒。",
+"note": "御雷诀技能连锁目标+2；御雷诀技能每击杀1个敌人，所有御雷诀主动技能剩余冷却-0.5秒"
+},
+"out": "御雷诀技能连锁目标增加2个；每击杀一个敌人，御雷诀技能冷却减少0.5秒。"
+},
+{
+"tpl": "护盾存续时反伤提高{param1:pct}；护盾被击破时震爆周身，造成护盾上限{param2:pct}的伤害，每{internal_cd_s}秒至多一次。",
+"row": {
+"orange_effect_id": "OE_GANG_CORE",
+"base_id": "EQB_CORE_GANG",
+"gongfa_id": "GF_GANG",
+"name": "玄罡镇岳",
+"param1_key": "reflect_add_with_shield",
+"param1": "0.25",
+"param2_key": "shield_break_burst_pct",
+"param2": "0.8",
+"param3_key": "burst_radius_px",
+"param3": "220",
+"internal_cd_s": "5",
+"desc": "护盾存续时反伤提高25%；护盾被击破时震爆周身，造成护盾上限80%的伤害，每5秒至多一次。",
+"desc_tpl": "护盾存续时反伤提高{param1:pct}；护盾被击破时震爆周身，造成护盾上限{param2:pct}的伤害，每{internal_cd_s}秒至多一次。",
+"note": "护盾存在时反伤+25%；护盾被击破时以自身为中心半径220爆发，伤害=护盾上限×80%（内置冷却5秒）"
+},
+"out": "护盾存续时反伤提高25%；护盾被击破时震爆周身，造成护盾上限80%的伤害，每5秒至多一次。"
+},
+{
+"tpl": "竹鞭横抽，近身普攻。",
+"row": {
+"attack_id": "BA_ZHUMEI_SLASH",
+"boss_id": "BOSS_ZHUMEI",
+"name": "竹鞭横扫",
+"is_danger": "false",
+"warn_s": "0",
+"shape": "rect",
+"anchor": "facing",
+"offset_x": "0",
+"width_px": "140",
+"height_px": "100",
+"radius_px": "0",
+"count": "1",
+"damage_type": "atk_coef",
+"damage_coef": "1.0",
+"damage_maxhp_pct": "0",
+"cd_s": "1.6",
+"first_cast_s": "0.8",
+"min_level_index": "1",
+"telegraph_color": "",
+"telegraph_style": "",
+"desc": "竹鞭横抽，近身普攻。",
+"desc_tpl": "竹鞭横抽，近身普攻。",
+"note": "普通近战攻击，无预警"
+},
+"out": "竹鞭横抽，近身普攻。"
+},
+{
+"tpl": "身前一线竹刺破土，见朱痕即闪。",
+"row": {
+"attack_id": "BA_ZHUMEI_THORN",
+"boss_id": "BOSS_ZHUMEI",
+"name": "竹刺破土",
+"is_danger": "true",
+"warn_s": "0.8",
+"shape": "rect",
+"anchor": "facing",
+"offset_x": "0",
+"width_px": "520",
+"height_px": "80",
+"radius_px": "0",
+"count": "1",
+"damage_type": "atk_coef",
+"damage_coef": "3.0",
+"damage_maxhp_pct": "0",
+"cd_s": "8.0",
+"first_cast_s": "4.0",
+"min_level_index": "1",
+"telegraph_color": "#C8312B",
+"telegraph_style": "dashed",
+"desc": "身前一线竹刺破土，见朱痕即闪。",
+"desc_tpl": "身前一线竹刺破土，见朱痕即闪。",
+"note": "地面显示前方长条预警0.8秒后竹刺破土，可闪避或走出范围"
+},
+"out": "身前一线竹刺破土，见朱痕即闪。"
+},
+{
+"tpl": "周身卷起竹叶旋风，速离其侧。",
+"row": {
+"attack_id": "BA_ZHUMEI_LEAF",
+"boss_id": "BOSS_ZHUMEI",
+"name": "竹叶旋风",
+"is_danger": "true",
+"warn_s": "0.8",
+"shape": "circle",
+"anchor": "self",
+"offset_x": "0",
+"width_px": "0",
+"height_px": "0",
+"radius_px": "220",
+"count": "1",
+"damage_type": "atk_coef",
+"damage_coef": "3.3",
+"damage_maxhp_pct": "0",
+"cd_s": "16.0",
+"first_cast_s": "8.0",
+"min_level_index": "3",
+"telegraph_color": "#C8312B",
+"telegraph_style": "dashed",
+"desc": "周身卷起竹叶旋风，速离其侧。",
+"desc_tpl": "周身卷起竹叶旋风，速离其侧。",
+"note": "以自身为中心圆形预警0.8秒后旋风爆发；第3关起出现"
+},
+"out": "周身卷起竹叶旋风，速离其侧。"
+},
+{
+"tpl": "低头一顶，近身普攻。",
+"row": {
+"attack_id": "BA_KUINIU_HORN",
+"boss_id": "BOSS_KUINIU",
+"name": "角顶",
+"is_danger": "false",
+"warn_s": "0",
+"shape": "rect",
+"anchor": "facing",
+"offset_x": "0",
+"width_px": "160",
+"height_px": "110",
+"radius_px": "0",
+"count": "1",
+"damage_type": "atk_coef",
+"damage_coef": "1.0",
+"damage_maxhp_pct": "0",
+"cd_s": "1.8",
+"first_cast_s": "0.9",
+"min_level_index": "1",
+"telegraph_color": "",
+"telegraph_style": "",
+"desc": "低头一顶，近身普攻。",
+"desc_tpl": "低头一顶，近身普攻。",
+"note": "普通近战攻击，无预警"
+},
+"out": "低头一顶，近身普攻。"
+},
+{
+"tpl": "重蹄踏地，雷光四溅，远离其身。",
+"row": {
+"attack_id": "BA_KUINIU_STOMP",
+"boss_id": "BOSS_KUINIU",
+"name": "雷霆践踏",
+"is_danger": "true",
+"warn_s": "0.8",
+"shape": "circle",
+"anchor": "self",
+"offset_x": "0",
+"width_px": "0",
+"height_px": "0",
+"radius_px": "260",
+"count": "1",
+"damage_type": "atk_coef",
+"damage_coef": "3.0",
+"damage_maxhp_pct": "0",
+"cd_s": "9.0",
+"first_cast_s": "4.5",
+"min_level_index": "1",
+"telegraph_color": "#C8312B",
+"telegraph_style": "dashed",
+"desc": "重蹄踏地，雷光四溅，远离其身。",
+"desc_tpl": "重蹄踏地，雷光四溅，远离其身。",
+"note": "以自身为中心大圆预警0.8秒后践踏"
+},
+"out": "重蹄踏地，雷光四溅，远离其身。"
+},
+{
+"tpl": "天雷追身连落{count}道，且走且避。",
+"row": {
+"attack_id": "BA_KUINIU_BOLTS",
+"boss_id": "BOSS_KUINIU",
+"name": "天雷三连",
+"is_danger": "true",
+"warn_s": "0.8",
+"shape": "circle",
+"anchor": "player",
+"offset_x": "0",
+"width_px": "0",
+"height_px": "0",
+"radius_px": "90",
+"count": "3",
+"damage_type": "atk_coef",
+"damage_coef": "2.4",
+"damage_maxhp_pct": "0",
+"cd_s": "18.0",
+"first_cast_s": "8.5",
+"min_level_index": "3",
+"telegraph_color": "#C8312B",
+"telegraph_style": "dashed",
+"desc": "天雷追身连落3道，且走且避。",
+"desc_tpl": "天雷追身连落{count}道，且走且避。",
+"note": "在玩家当前位置依次标记3个小圆（间隔0.4秒），各自预警0.8秒后落雷；第3关起出现"
+},
+"out": "天雷追身连落3道，且走且避。"
+},
+{
+"tpl": "岩拳直捣，近身普攻。",
+"row": {
+"attack_id": "BA_YANMO_FIST",
+"boss_id": "BOSS_YANMO",
+"name": "岩拳",
+"is_danger": "false",
+"warn_s": "0",
+"shape": "rect",
+"anchor": "facing",
+"offset_x": "0",
+"width_px": "170",
+"height_px": "120",
+"radius_px": "0",
+"count": "1",
+"damage_type": "atk_coef",
+"damage_coef": "1.0",
+"damage_maxhp_pct": "0",
+"cd_s": "2.0",
+"first_cast_s": "1.0",
+"min_level_index": "1",
+"telegraph_color": "",
+"telegraph_style": "",
+"desc": "岩拳直捣，近身普攻。",
+"desc_tpl": "岩拳直捣，近身普攻。",
+"note": "普通近战攻击，无预警"
+},
+"out": "岩拳直捣，近身普攻。"
+},
+{
+"tpl": "横贯全场的冲撞，唯有闪避可免。",
+"row": {
+"attack_id": "BA_YANMO_CHARGE",
+"boss_id": "BOSS_YANMO",
+"name": "碎岩冲撞",
+"is_danger": "true",
+"warn_s": "0.8",
+"shape": "rect",
+"anchor": "facing",
+"offset_x": "0",
+"width_px": "900",
+"height_px": "120",
+"radius_px": "0",
+"count": "1",
+"damage_type": "atk_coef",
+"damage_coef": "3.5",
+"damage_maxhp_pct": "0",
+"cd_s": "10.0",
+"first_cast_s": "5.0",
+"min_level_index": "1",
+"telegraph_color": "#C8312B",
+"telegraph_style": "dashed",
+"desc": "横贯全场的冲撞，唯有闪避可免。",
+"desc_tpl": "横贯全场的冲撞，唯有闪避可免。",
+"note": "横贯战场的长条预警0.8秒后冲撞，只能靠闪避免伤（宽度覆盖可走动区域）"
+},
+"out": "横贯全场的冲撞，唯有闪避可免。"
+},
+{
+"tpl": "地脉追着脚下连裂{count}处，速速挪步。",
+"row": {
+"attack_id": "BA_YANMO_QUAKE",
+"boss_id": "BOSS_YANMO",
+"name": "地裂",
+"is_danger": "true",
+"warn_s": "0.8",
+"shape": "circle",
+"anchor": "player",
+"offset_x": "0",
+"width_px": "0",
+"height_px": "0",
+"radius_px": "150",
+"count": "2",
+"damage_type": "atk_coef",
+"damage_coef": "3.4",
+"damage_maxhp_pct": "0",
+"cd_s": "20.0",
+"first_cast_s": "10.0",
+"min_level_index": "3",
+"telegraph_color": "#C8312B",
+"telegraph_style": "dashed",
+"desc": "地脉追着脚下连裂2处，速速挪步。",
+"desc_tpl": "地脉追着脚下连裂{count}处，速速挪步。",
+"note": "以玩家当前位置为圆心的圆形预警，0.4秒后在玩家当时位置再落一处，各自0.8秒后地裂；第3关起出现（v5 修正：原写“脚下及其前方”与 offset_x=0 不符）"
+},
+"out": "地脉追着脚下连裂2处，速速挪步。"
+},
+{
+"tpl": "巨岩坠满全场，造成最大生命{damage_maxhp_pct:pct}的真实伤害，唯闪避或护盾可挡。",
+"row": {
+"attack_id": "BA_YANMO_SKYFALL",
+"boss_id": "BOSS_YANMO",
+"name": "玄岩天坠",
+"is_danger": "true",
+"warn_s": "0.8",
+"shape": "rect",
+"anchor": "arena",
+"offset_x": "0",
+"width_px": "1280",
+"height_px": "720",
+"radius_px": "0",
+"count": "1",
+"damage_type": "true_maxhp",
+"damage_coef": "0",
+"damage_maxhp_pct": "0.7",
+"cd_s": "20.0",
+"first_cast_s": "20.0",
+"min_level_index": "4",
+"telegraph_color": "#C8312B",
+"telegraph_style": "dashed",
+"desc": "巨岩坠满全场，造成最大生命70%的真实伤害，唯闪避或护盾可挡。",
+"desc_tpl": "巨岩坠满全场，造成最大生命{damage_maxhp_pct:pct}的真实伤害，唯闪避或护盾可挡。",
+"note": "岩魔举岩蓄力，全场预警0.8秒后巨岩坠落：造成玩家最大生命×（damage_maxhp_pct）的真实伤害（无视防御与减伤，先扣护盾），走位无法躲开，只能闪避免伤或靠护盾硬扛；第4关起出现"
+},
+"out": "巨岩坠满全场，造成最大生命70%的真实伤害，唯闪避或护盾可挡。"
+}
+]

@@ -45,7 +45,7 @@ func _ready() -> void:
 	_cd.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_cd.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_btn.add_child(_cd)
-	_auto = UiStyle.button("自动", 12)
+	_auto = UiStyle.button(UiText.t("SLOT_AUTO"), 12)
 	_auto.custom_minimum_size = Vector2(72, 18)
 	_auto.pressed.connect(func() -> void: auto_toggled.emit(slot))
 	add_child(_auto)
@@ -62,7 +62,7 @@ func refresh(skill: SkillDef, auto_on: bool, cd_left: float, cd_total: float) ->
 	if skill == null:
 		_icon.texture = null
 		_cd.text = "+"
-		_name.text = "空槽"
+		_name.text = UiText.t("LABEL_EMPTY_SLOT")
 		_auto.visible = false
 		_shade.size = Vector2.ZERO
 		return
@@ -70,7 +70,7 @@ func refresh(skill: SkillDef, auto_on: bool, cd_left: float, cd_total: float) ->
 		_icon.texture = load(skill.icon_path()) if ResourceLoader.exists(skill.icon_path()) else null
 	_name.text = skill.name
 	_auto.visible = true
-	_auto.text = "自动" if auto_on else "手动"
+	_auto.text = UiText.t("SLOT_AUTO" if auto_on else "SLOT_MANUAL")
 	_auto.modulate = UiStyle.JADE.lightened(0.3) if auto_on else UiStyle.GOLD
 	_cd.text = ("%.1f" % cd_left) if cd_left > 0.0 else ""
 	var frac := clampf(cd_left / cd_total, 0.0, 1.0) if cd_total > 0.0 else 0.0

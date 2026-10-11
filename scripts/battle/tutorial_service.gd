@@ -20,13 +20,17 @@ func _init(b: Battle) -> void:
 		if CsvUtil.s(r, "category", "main") == "contextual":
 			steps.append(r)
 
+## v5：提示大字/小字/成功飘字直接读 tutorial_steps 的 hint_text / sub_text / success_text 列（按本行字段渲染占位符）
 static func hint_text(row: Dictionary) -> String:
-	var ui := CsvUtil.s(row, "ui_target")
-	var a := ui.find("“")
-	var b := ui.find("”", a + 1)
-	if a >= 0 and b > a:
-		return ui.substr(a + 1, b - a - 1)
-	return CsvUtil.s(row, "name")
+	var t := CsvUtil.s(row, "hint_text")
+	return UiText.render(t, row) if t != "" else CsvUtil.s(row, "name")
+
+static func auto_subtext(row: Dictionary) -> String:
+	return UiText.render(CsvUtil.s(row, "sub_text"), row)
+
+static func success_text(row: Dictionary) -> String:
+	var t := CsvUtil.s(row, "success_text")
+	return UiText.render(t, row) if t != "" else UiText.t("FLOAT_DODGE_OK")
 
 func on_telegraph_started(tg: Telegraph) -> void:
 	if not active_step.is_empty():
@@ -49,16 +53,6 @@ func on_telegraph_started(tg: Telegraph) -> void:
 		var sub := auto_subtext(r) if PlayerState.auto_battle else ""
 		hint_shown.emit(sid, hint_text(r) + ("\n" + sub if sub != "" else ""))
 		return
-
-## 自动模式附加小字：ui_target 中“小字“……””的内容（文案来自表）
-static func auto_subtext(row: Dictionary) -> String:
-	var ui := CsvUtil.s(row, "ui_target")
-	var k := ui.find("小字“")
-	if k < 0:
-		return ""
-	var a := k + 2
-	var b := ui.find("”", a + 1)
-	return ui.substr(a + 1, b - a - 1) if b > a else ""
 
 ## 战斗提前结束/换关时撤销进行中的提示（BUG-002）：收起提示、恢复1倍速、清空状态。
 ## 本次提示没有完整看完，不计入 max_show_count（shown 回退1），下一次天坠预警会再提示。
@@ -87,7 +81,7 @@ func on_telegraph_resolved(tg: Telegraph, dodged: bool) -> void:
 		st["done"] = true
 		PlayerState.set_tutorial_state(sid, st)
 	if dodged:
-		battle.float_text(battle.player.position + Vector2(0, -200), "闪避成功", Color("#3E8E7E"), 30)
+		battle.float_text(battle.player.position + Vector2(0, -200), success_text(active_step), Color("#3E8E7E"), 30)
 	battle.stop_slowmo()
 	active_step = {}
 	active_tg = null

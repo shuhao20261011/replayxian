@@ -111,7 +111,7 @@ func has_valid_target(s: SkillDef) -> bool:
 
 func _execute(s: SkillDef, lv: SkillLevelDef) -> bool:
 	var p := battle.player
-	var color := (GameData.gongfa.get(s.gongfa_id) as GongfaDef).color if GameData.gongfa.has(s.gongfa_id) else Color.WHITE
+	var color := (GameData.gongfa.get(s.gongfa_id) as GongfaDef).fx_color if GameData.gongfa.has(s.gongfa_id) else Color.WHITE
 	match s.shape:
 		"projectile":
 			var interval := 0.4 / float(s.hits) if s.hits > 1 else 0.0

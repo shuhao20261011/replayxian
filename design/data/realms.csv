@@ -1,4 +1,4 @@
-realm_id,name,order,hp,atk,def,crit_rate,crit_dmg,prev_realm_id,xiuwei_cost,lingshi_cost,material_id,material_count,unlock_map_id,desc
-RL_LIANQI,炼气,1,500,20,10,0.05,1.5,,0,0,,0,MAP_QINGZHU,初始境界，开放青竹山
-RL_ZHUJI,筑基,2,1250,50,25,0.05,1.6,RL_LIANQI,2200,1500,MAT_BT_QINGZHU,1,MAP_LEIZE,通关青竹山后突破，开放雷泽谷
-RL_JINDAN,金丹,3,3000,120,55,0.05,1.7,RL_ZHUJI,7500,6000,MAT_BT_LEIZE,1,MAP_XUANYAN,通关雷泽谷后突破，开放玄岩洞
+realm_id,name,order,hp,atk,def,crit_rate,crit_dmg,prev_realm_id,xiuwei_cost,lingshi_cost,material_id,material_count,unlock_map_id,desc,note
+RL_LIANQI,炼气,1,500,20,10,0.05,1.5,,0,0,,0,MAP_QINGZHU,引气入体，仙途伊始。,初始境界，开放青竹山
+RL_ZHUJI,筑基,2,1250,50,25,0.05,1.6,RL_LIANQI,2200,1500,MAT_BT_QINGZHU,1,MAP_LEIZE,筑基成台，可入雷泽谷。,通关青竹山后突破，开放雷泽谷
+RL_JINDAN,金丹,3,3000,120,55,0.05,1.7,RL_ZHUJI,7500,6000,MAT_BT_LEIZE,1,MAP_XUANYAN,丹成一粒，可入玄岩洞。,通关雷泽谷后突破，开放玄岩洞

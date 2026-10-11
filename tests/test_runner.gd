@@ -9,6 +9,7 @@ const SUITES := [
 	"res://tests/test_boss.gd",
 	"res://tests/test_loop.gd",
 	"res://tests/test_regressions.gd",
+	"res://tests/test_ui_text.gd",
 ]
 
 ## 记录运行期脚本错误：测试过程中出现任何 SCRIPT ERROR 都算该测试失败（避免错误被静默吞掉）

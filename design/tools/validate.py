@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """校验 design/data 下所有 CSV：可解析、主键唯一、ID 全局唯一、跨表引用无断链、计划硬性规则。
 运行：python3 tools/validate.py   失败时退出码=1。"""
-import os, sys, csv, glob
+import os, sys, csv, glob, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import load, index, DATA
 
@@ -23,7 +23,7 @@ T = {os.path.basename(p)[:-4]: load(os.path.basename(p)) for p in glob.glob(os.p
 PK = {"gongfa": "gongfa_id", "skills": "skill_id", "skill_books": "book_id", "enemies": "enemy_id", "boss_attacks": "attack_id",
       "maps": "map_id", "levels": "level_id", "realms": "realm_id", "materials": "item_id", "equip_slots": "slot_id",
       "qualities": "quality_id", "equip_bases": "base_id", "affixes": "affix_id", "orange_effects": "orange_effect_id",
-      "quality_weights": "weight_set_id", "offline_rewards": "offline_id", "tutorial_steps": "step_id", "constants": "key"}
+      "quality_weights": "weight_set_id", "offline_rewards": "offline_id", "tutorial_steps": "step_id", "constants": "key", "ui_texts": "key"}
 MULTI = {"drop_tables": "drop_table_id", "first_clear_rewards": "reward_id", "book_pools": "book_pool_id"}
 glob_ids = {}
 for t, k in PK.items():
@@ -242,6 +242,199 @@ basic = [s["book_id"] for s in T["skills"] if s["is_basic"] == "true"]
 tut_books = [b for t in T["tutorial_steps"] if t["reward_type"] == "book" for b in str(t["reward_ref_ids"]).split("|")]
 if sorted(basic) != sorted(tut_books): err("新手赠书应为且仅为3本基础书")
 
+# v4：反伤/反震防御开关与节奏常量（前端同名常量、balance.py 依赖）
+CK = {r["key"]: r["value"] for r in T["constants"]}
+for k in ("REFLECT_IGNORE_DEF", "COUNTER_IGNORE_DEF"):
+    if k not in CK: err("constants 缺少 %s" % k)
+    elif CK[k] not in (0, 1): err("constants.%s 只能是 0 或 1，当前 %s" % (k, CK[k]))
+for k in ("RUN_START_WALK_TIME", "WAVE_ENTER_WALK_TIME", "SPAWN_DISTANCE_PX", "BOSS_SPAWN_DISTANCE_PX", "AUTO_ENGAGE_RANGE_PX",
+          "PLAYER_MOVE_SPEED", "BOSS_INTRO_TIME", "RESULT_SHOW_TIME", "AUTO_SHIELD_RESERVE_CD"):
+    if k not in CK: err("constants 缺少节奏常量 %s" % k)
+    elif not isinstance(CK[k], (int, float)) or CK[k] < 0: err("constants.%s 应为非负数，当前 %s" % (k, CK[k]))
+if all(isinstance(CK.get(k), (int, float)) for k in ("SPAWN_DISTANCE_PX", "BOSS_SPAWN_DISTANCE_PX", "AUTO_ENGAGE_RANGE_PX", "PLAYER_NORMAL_ATK_RANGE")):
+    if CK["AUTO_ENGAGE_RANGE_PX"] < CK["PLAYER_NORMAL_ATK_RANGE"]: err("AUTO_ENGAGE_RANGE_PX 不应小于普攻射程")
+    if CK["SPAWN_DISTANCE_PX"] <= CK["PLAYER_NORMAL_ATK_RANGE"] or CK["BOSS_SPAWN_DISTANCE_PX"] <= CK["PLAYER_NORMAL_ATK_RANGE"]:
+        err("刷怪距离应大于普攻射程，否则敌人刷在脸上")
+
+# ================================================================ v5 文案规范（README「文案规范」）
+from common import render_tpl, PH_RE
+# 渲染后最大字数（按字符计）。依据：1280×720 基准、正文 14–15px，功法详情区 520px≈34字/行、装备提示区 440px≈31字/行
+TEXT_LIMITS = {
+    ("gongfa", "name"): 3, ("gongfa", "role"): 6, ("gongfa", "build_dir"): 16, ("gongfa", "desc"): 24,
+    ("skills", "name"): 4, ("skills", "desc"): 56, ("skill_books", "name"): 6, ("skill_books", "source_desc"): 28,
+    ("enemies", "name"): 4, ("enemies", "desc"): 22, ("boss_attacks", "name"): 4, ("boss_attacks", "desc"): 32,
+    ("maps", "name"): 3, ("maps", "desc"): 22, ("levels", "name"): 4, ("levels", "desc"): 16,
+    ("realms", "name"): 2, ("realms", "desc"): 14, ("materials", "name"): 4, ("materials", "desc"): 20,
+    ("equip_slots", "name"): 2, ("equip_bases", "name"): 4, ("equip_bases", "desc"): 16, ("affixes", "name"): 5,
+    ("orange_effects", "name"): 4, ("orange_effects", "desc"): 56, ("qualities", "name"): 1,
+    ("tutorial_steps", "name"): 4, ("tutorial_steps", "hint_text"): 12, ("tutorial_steps", "sub_text"): 24,
+    ("tutorial_steps", "button_text"): 4, ("tutorial_steps", "success_text"): 16,
+}
+BOSS_NAME_LIMIT = 7          # 首领名形如“青竹山主·竹魅”
+DESC_FIELDS = {"gongfa", "skills", "enemies", "boss_attacks", "maps", "levels", "realms", "materials", "equip_bases", "orange_effects"}
+NO_DIGIT = {("gongfa", "desc"), ("gongfa", "role"), ("gongfa", "build_dir"), ("enemies", "desc"), ("boss_attacks", "desc_tpl"),
+            ("maps", "desc"), ("levels", "desc"), ("realms", "desc"), ("materials", "desc"), ("equip_bases", "desc"),
+            ("skills", "desc_tpl"), ("orange_effects", "desc_tpl")}
+FORBIDDEN = ["Boss", "BOSS", "boss", "CD", "DPS", "HP", "ATK", "DEF", "像素", "效果值", "效果2", "系数", "货币", "金币", "经验",
+             "法力", "怪物", "几率", "攻击力", "近战", "接触", "伤害值", "Buff", "buff", "BUFF", "红色区域",
+             "朱红", "朱痕", "红圈", "白圈", "红框", "白框"]   # v5.1：预警色按地图不同，文案不得用颜色指代预警
+VERBS = ["领取", "打开", "学习", "装配", "按", "换上", "点击", "击败", "闪避", "前往", "选择", "拖动", "升级", "装备", "分解"]
+ASCII_PUNCT = re.compile(r"[,;:()!?\"'\[\]]")
+PANEL_BG = "#232C25"         # 美术 v2 实测 UI 墨底
+def _lum(h):
+    c = [int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+    c = [x / 12.92 if x <= 0.03928 else ((x + 0.055) / 1.055) ** 2.4 for x in c]
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+def contrast(a, b): return (max(_lum(a), _lum(b)) + 0.05) / (min(_lum(a), _lum(b)) + 0.05)
+HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
+
+def check_text(where, txt, limit=None, no_digit=False):
+    txt = str(txt)
+    if limit is not None and len(txt) > limit: err("%s 超长：%d>%d「%s」" % (where, len(txt), limit, txt))
+    bare = PH_RE.sub("", txt)
+    for w in FORBIDDEN:
+        if w in bare: err("%s 含不规范用语「%s」：%s" % (where, w, txt))
+    if ASCII_PUNCT.search(bare): err("%s 含半角标点，应使用全角：%s" % (where, txt))
+    for m in re.finditer(" ", bare):
+        a, b = bare[m.start() - 1:m.start()], bare[m.end():m.end() + 1]
+        if not (re.match(r"[A-Za-z0-9]", a) or re.match(r"[A-Za-z0-9]", b)): err("%s 含多余半角空格（只允许包住按键名，如“按 Q 恢复”）：%s" % (where, txt))
+    if no_digit and re.search(r"[0-9]", bare): err("%s 数值须用占位符（{字段}/{字段:pct}），不能写死数字：%s" % (where, txt))
+    if "{" in bare or "}" in bare: err("%s 占位符格式错误：%s" % (where, txt))
+
+SL1 = {(r["skill_id"], r["level"]): r for r in T["skill_levels"]}
+for t in sorted({k[0] for k in TEXT_LIMITS} | {"ui_texts"}):
+    if t == "ui_texts": continue
+    for r in T[t]:
+        rid = next(iter(r.values()))
+        for (tt, col), lim in TEXT_LIMITS.items():
+            if tt != t or col not in r: continue
+            if t == "enemies" and col == "name" and r["kind"] == "boss": lim = BOSS_NAME_LIMIT
+            val = r[col]
+            if t == "tutorial_steps" and col in ("hint_text", "sub_text", "button_text", "success_text"):
+                try: val = render_tpl(str(val), r)
+                except KeyError as e: err("tutorial_steps %s.%s 占位符 %s 不是本行字段" % (rid, col, e)); continue
+            check_text("%s %s.%s" % (t, rid, col), val, lim, (t, col) in NO_DIGIT)
+        if "desc_tpl" in r:
+            check_text("%s %s.desc_tpl" % (t, rid), str(r["desc_tpl"]), None, (t, "desc_tpl") in NO_DIGIT)
+            ctx_rows = [dict(r)]
+            if t == "skills":
+                ctx_rows = [dict(r, **SL1[(r["skill_id"], 1)]), dict(r, **SL1[(r["skill_id"], 10)])]
+            for i, ctx in enumerate(ctx_rows):
+                try: out = render_tpl(str(r["desc_tpl"]), ctx)
+                except KeyError as e: err("%s %s.desc_tpl 占位符 %s 不是表字段" % (t, rid, e)); break
+                if i == 0 and out != r["desc"]: err("%s %s.desc 与 desc_tpl 的1级渲染不一致，请重新生成" % (t, rid))
+                if i == 1: check_text("%s %s.desc(Lv10)" % (t, rid), out, TEXT_LIMITS[(t, "desc")])
+        if t in DESC_FIELDS and "desc" in r and not str(r["desc"]).endswith("。"): err("%s %s.desc 应以句号结尾" % (t, rid))
+        if "icon" in r and not re.match(r"^ui_icon_[a-z0-9_]+$", str(r["icon"])): err("%s %s.icon 命名不规范：%s" % (t, rid, r["icon"]))
+# 术语一致：功法培养方向必须是词条原名
+aff_names = {a["name"] for a in T["affixes"]}
+for g in T["gongfa"]:
+    for x in str(g["build_dir"]).split("、"):
+        if x not in aff_names: err("gongfa %s.build_dir「%s」不是词条名（术语须与 affixes.name 一致）" % (g["gongfa_id"], x))
+# 名称唯一（玩家看到的同类名称不能重名）
+for t in ("skills", "enemies", "levels", "maps", "equip_bases", "affixes", "orange_effects", "materials", "boss_attacks"):
+    ns = [r["name"] for r in T[t]]
+    for n in {x for x in ns if ns.count(x) > 1}: err("%s 玩家可见名称重复：%s" % (t, n))
+# 引导文案
+for r in T["tutorial_steps"]:
+    sid = r["step_id"]
+    if not any(str(r["hint_text"]).startswith(v) for v in VERBS): err("tutorial_steps %s.hint_text 应以动词开头：%s" % (sid, r["hint_text"]))
+    m = re.search("“([^”]*)”", str(r["ui_target"]))
+    if not m or m.group(1) != r["hint_text"]: err("tutorial_steps %s.ui_target 中第一个“……”须与 hint_text 一致（前端兼容解析）" % sid)
+    if r["category"] == "contextual":
+        m2 = re.search("小字“([^”]*)”", str(r["ui_target"]))
+        if m2 and m2.group(1) != r["sub_text"]: err("tutorial_steps %s.ui_target 小字“……”须与 sub_text 一致" % sid)
+# ui_texts：占位符声明、来源、渲染长度
+for r in T["ui_texts"]:
+    k = r["key"]; decl = {}
+    for d in [x for x in str(r["placeholders"]).split(";") if x]:
+        n, _, psrc = d.partition(":")
+        decl[n] = psrc
+        if re.match(r"^int\d$", psrc): continue
+        tb, _, fd = psrc.partition(".")
+        if tb not in T or not T[tb] or fd not in T[tb][0]: err("ui_texts %s 占位符 %s 来源 %s 不存在" % (k, n, psrc))
+    used = [m.group(1) for m in PH_RE.finditer(str(r["text"]))]
+    for n in used:
+        if n not in decl: err("ui_texts %s 使用了未声明的占位符 {%s}" % (k, n))
+    for n in decl:
+        if n not in used: err("ui_texts %s 声明了未使用的占位符 %s" % (k, n))
+    def longest(src):
+        if re.match(r"^int\d$", src): return "9" * int(src[3])
+        tb, _, fd = src.partition(".")
+        return max((str(x[fd]) for x in T.get(tb, []) if fd in x), key=len, default="")
+    try: out = PH_RE.sub(lambda m: longest(decl[m.group(1)]), str(r["text"]))
+    except KeyError: continue
+    check_text("ui_texts %s" % k, out, r["max_chars"])
+# 颜色：文字色在 UI 墨底上对比度≥4.5；表现色为合法 HEX
+for t, col, rid in (("qualities", "color", "quality_id"), ("gongfa", "color", "gongfa_id")):
+    for r in T[t]:
+        if not HEX.match(str(r[col])): err("%s %s.%s 不是 #RRGGBB" % (t, r[rid], col)); continue
+        c = contrast(str(r[col]), PANEL_BG)
+        if c < 4.5: err("%s %s.%s=%s 在面板底色 %s 上对比度 %.2f<4.5，文字看不清" % (t, r[rid], col, r[col], PANEL_BG, c))
+for t, col, rid in (("qualities", "beam_color", "quality_id"), ("gongfa", "fx_color", "gongfa_id")):
+    for r in T[t]:
+        if not HEX.match(str(r.get(col, ""))): err("%s %s.%s 不是 #RRGGBB" % (t, r[rid], col))
+
+# v5 BUG-005：危险招式间隔 ≥ 闪避冷却 + 余量（逐帧复刻 boss.gd 排招，模拟每关首领出现后60秒）
+from common import danger_gap_violations
+_min_gap = CK.get("DODGE_COOLDOWN", 3.0) + CK.get("DANGER_MIN_GAP_MARGIN_S", 0.5)
+for lv, a1, a2, gap, t1, t2, order in danger_gap_violations(T, _min_gap):
+    err("%s 首领危险招式间隔不足：%s（末段判定 %.2f 秒）→ %s（判定 %.2f 秒）只隔 %.2f 秒 < 闪避冷却+余量 %.1f 秒（优先顺序：%s）"
+        % (lv, a1, t1, a2, t2, gap, _min_gap, order))
+# v5.1 预警色：以美术 v2 规范为唯一来源，按地图配置
+ART_TELEGRAPH = {"#B8382C", "#F4F1EA"}          # style_guide：朱砂 / 预警白
+_tdef, _talt = str(CK.get("TELEGRAPH_DEFAULT_COLOR", "")).upper(), str(CK.get("TELEGRAPH_ALT_COLOR", "")).upper()
+if _tdef != "#B8382C": err("constants.TELEGRAPH_DEFAULT_COLOR 应为美术规范朱砂 #B8382C，现为 %s" % _tdef)
+if _talt != "#F4F1EA": err("constants.TELEGRAPH_ALT_COLOR 应为美术规范预警白 #F4F1EA，现为 %s" % _talt)
+for k in ("TELEGRAPH_OUTLINE_PX", "TELEGRAPH_OUTLINE_COLOR", "TELEGRAPH_OUTLINE_ALPHA", "TELEGRAPH_FILL_ALPHA"):
+    if k not in CK: err("constants 缺少 %s" % k)
+if not HEX.match(str(CK.get("TELEGRAPH_OUTLINE_COLOR", ""))): err("constants.TELEGRAPH_OUTLINE_COLOR 不是 #RRGGBB")
+if not (isinstance(CK.get("TELEGRAPH_OUTLINE_PX"), (int, float)) and CK.get("TELEGRAPH_OUTLINE_PX") > 0): err("TELEGRAPH_OUTLINE_PX 须 >0")
+for k in ("TELEGRAPH_OUTLINE_ALPHA", "TELEGRAPH_FILL_ALPHA"):
+    if not (isinstance(CK.get(k), (int, float)) and 0 <= CK.get(k) <= 1): err("%s 须在 0~1" % k)
+_mapcol = {}
+for m in T["maps"]:
+    c = str(m.get("telegraph_color", "")).upper()
+    if c not in (_tdef, _talt): err("maps %s.telegraph_color=%s 只能取 TELEGRAPH_DEFAULT_COLOR 或 TELEGRAPH_ALT_COLOR" % (m["map_id"], c))
+    _mapcol[m["map_id"]] = c
+_EN = {e["enemy_id"]: e for e in T["enemies"]}
+for a in T["boss_attacks"]:
+    c = str(a["telegraph_color"]).upper()
+    if str(a["is_danger"]) != "true":
+        if c: err("boss_attacks %s 非危险招式不应有 telegraph_color" % a["attack_id"])
+        continue
+    mc = _mapcol.get(_EN[a["boss_id"]]["map_id"])
+    if c and c != mc: err("boss_attacks %s.telegraph_color=%s 与所属地图预警色 %s 不一致（留空=取地图值）" % (a["attack_id"], c, mc))
+    if c and c not in ART_TELEGRAPH: err("boss_attacks %s.telegraph_color 不是美术规范色" % a["attack_id"])
+
+# v5.1 图标清单：design/icon_list.csv 必须与各表 icon 列 + 按键图标完全一致
+_ip = os.path.join(os.path.dirname(DATA), "icon_list.csv")
+KEY_ICONS = {"ui_icon_key_space", "ui_icon_key_q", "ui_icon_key_1", "ui_icon_key_2", "ui_icon_key_3", "ui_icon_key_4"}
+ICON_TABLES = {"gongfa": "gongfa_id", "skills": "skill_id", "skill_books": "book_id", "materials": "item_id", "equip_bases": "base_id"}
+if not os.path.exists(_ip): err("缺少 icon_list.csv（由 gen_tables.py 生成）")
+else:
+    with open(_ip, encoding="utf-8", newline="") as f: IL = list(csv.DictReader(f))
+    need = {}
+    for t, k in ICON_TABLES.items():
+        for r in T[t]:
+            if not r.get("icon"): err("%s %s 缺少 icon" % (t, r[k])); continue
+            need.setdefault(r["icon"], set()).add("%s:%s" % (t, r[k]))
+    keys = [r["icon_key"] for r in IL]
+    if len(keys) != len(set(keys)): err("icon_list.csv icon_key 有重复")
+    for r in IL:
+        for c in ("icon_key", "category", "refs", "name", "prompt", "size"):
+            if not str(r.get(c, "")).strip(): err("icon_list %s.%s 为空" % (r.get("icon_key"), c))
+        if not re.match(r"^ui_icon_[a-z0-9_]+$", r["icon_key"]): err("icon_list %s 命名不规范" % r["icon_key"])
+        refs = {x for x in r["refs"].split("|") if not x.startswith(("key:", "tutorial_steps:"))}
+        if r["icon_key"] in KEY_ICONS:
+            if r["category"] != "按键": err("icon_list %s 类别应为 按键" % r["icon_key"])
+            for x in r["refs"].split("|"):
+                if x.startswith("tutorial_steps:") and x.split(":")[1] not in {s_["step_id"] for s_ in T["tutorial_steps"]}:
+                    err("icon_list %s 引用了不存在的引导步骤 %s" % (r["icon_key"], x))
+        elif r["icon_key"] not in need: err("icon_list %s 在各表 icon 列中不存在（多余）" % r["icon_key"])
+        elif refs != need[r["icon_key"]]: err("icon_list %s 的 refs 与表不一致：%s ≠ %s" % (r["icon_key"], sorted(refs), sorted(need[r["icon_key"]])))
+    for k in set(need) | KEY_ICONS:
+        if k not in keys: err("icon_list.csv 缺少 %s" % k)
 print("表数量:", len(T), " 行数:", sum(len(v) for v in T.values()))
 print("技能书获取途径:")
 for b in T["skill_books"]:

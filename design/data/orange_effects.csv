@@ -1,4 +1,4 @@
-orange_effect_id,base_id,gongfa_id,name,param1_key,param1,param2_key,param2,param3_key,param3,internal_cd_s,desc
-OE_SWORD_CORE,EQB_CORE_SWORD,GF_SWORD,青冥万剑,extra_sword_chance,0.3,extra_sword_coef,0.8,boss_dmg_pct,0.15,0,飞剑诀主动技能每次命中有30%概率追加1把飞剑（攻击×0.8），暴击时必定追加；对首领伤害+15%
-OE_THUNDER_CORE,EQB_CORE_THUNDER,GF_THUNDER,雷音震野,chain_count_add,2,kill_cd_refund_s,0.5,,,0,御雷诀技能连锁目标+2；御雷诀技能每击杀1个敌人，所有御雷诀主动技能剩余冷却-0.5秒
-OE_GANG_CORE,EQB_CORE_GANG,GF_GANG,玄罡镇岳,reflect_add_with_shield,0.25,shield_break_burst_pct,0.8,burst_radius_px,220,5,护盾存在时反伤+25%；护盾被击破时以自身为中心半径220爆发，伤害=护盾上限×80%（内置冷却5秒）
+orange_effect_id,base_id,gongfa_id,name,param1_key,param1,param2_key,param2,param3_key,param3,internal_cd_s,desc,desc_tpl,note
+OE_SWORD_CORE,EQB_CORE_SWORD,GF_SWORD,青冥万剑,extra_sword_chance,0.3,extra_sword_coef,0.8,boss_dmg_pct,0.15,0,飞剑诀技能命中时有30%概率追加一剑，造成攻击80%的伤害，暴击时必定追加；对首领伤害提高15%。,飞剑诀技能命中时有{param1:pct}概率追加一剑，造成攻击{param2:pct}的伤害，暴击时必定追加；对首领伤害提高{param3:pct}。,飞剑诀主动技能每次命中有30%概率追加1把飞剑（攻击×0.8），暴击时必定追加；对首领伤害+15%
+OE_THUNDER_CORE,EQB_CORE_THUNDER,GF_THUNDER,雷音震野,chain_count_add,2,kill_cd_refund_s,0.5,,,0,御雷诀技能连锁目标增加2个；每击杀一个敌人，御雷诀技能冷却减少0.5秒。,御雷诀技能连锁目标增加{param1}个；每击杀一个敌人，御雷诀技能冷却减少{param2}秒。,御雷诀技能连锁目标+2；御雷诀技能每击杀1个敌人，所有御雷诀主动技能剩余冷却-0.5秒
+OE_GANG_CORE,EQB_CORE_GANG,GF_GANG,玄罡镇岳,reflect_add_with_shield,0.25,shield_break_burst_pct,0.8,burst_radius_px,220,5,护盾存续时反伤提高25%；护盾被击破时震爆周身，造成护盾上限80%的伤害，每5秒至多一次。,护盾存续时反伤提高{param1:pct}；护盾被击破时震爆周身，造成护盾上限{param2:pct}的伤害，每{internal_cd_s}秒至多一次。,护盾存在时反伤+25%；护盾被击破时以自身为中心半径220爆发，伤害=护盾上限×80%（内置冷却5秒）

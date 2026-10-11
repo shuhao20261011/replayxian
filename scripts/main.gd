@@ -11,7 +11,7 @@ extends Node
 @onready var hud: Hud = $HUD
 
 func _ready() -> void:
-	get_window().title = "重走修仙路"
+	get_window().title = UiText.t("GAME_TITLE")
 	hud.bind(battle)
 	var args := {}
 	for a in OS.get_cmdline_user_args():

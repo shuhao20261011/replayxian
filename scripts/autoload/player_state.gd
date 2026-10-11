@@ -18,6 +18,7 @@ var passive_skill := ""
 var equipped := {}                   # slot_id -> {base_id, quality_id}
 var cleared_levels := {}             # level_id -> true
 var auto_battle := true
+var telegraph_alt := false   # 设置：统一预警白（所有地图首领预警都用 TELEGRAPH_ALT_COLOR）
 ## v3 自动挂机失败回退：level_id -> true（不稳定）；level_id -> 连续自动失败次数
 var unstable_levels := {}
 var auto_fail_counts := {}
@@ -45,6 +46,7 @@ func reset_new_game() -> void:
 	auto_fail_counts.clear()
 	tutorial.clear()
 	auto_battle = true
+	telegraph_alt = false
 	debug_atk_mult = 1.0
 	debug_hp_mult = 1.0
 	active_slots.clear(); slot_auto.clear()
@@ -274,7 +276,7 @@ func to_dict() -> Dictionary:
 		"active_slots": active_slots.duplicate(), "slot_auto": slot_auto.duplicate(), "passive_skill": passive_skill,
 		"equipped": equipped.duplicate(true), "cleared_levels": cleared_levels.keys(), "auto_battle": auto_battle,
 		"unstable_levels": unstable_levels.keys(), "auto_fail_counts": auto_fail_counts.duplicate(),
-		"tutorial": tutorial.duplicate(true),
+		"tutorial": tutorial.duplicate(true), "telegraph_alt": telegraph_alt,
 	}
 
 func from_dict(d: Dictionary) -> void:
@@ -294,4 +296,5 @@ func from_dict(d: Dictionary) -> void:
 		unstable_levels[str(id)] = true
 	auto_fail_counts = (d.get("auto_fail_counts", {}) as Dictionary).duplicate()
 	tutorial = (d.get("tutorial", {}) as Dictionary).duplicate(true)
+	telegraph_alt = bool(d.get("telegraph_alt", false))
 	currencies_changed.emit(); skill_bar_changed.emit(); progress_changed.emit()

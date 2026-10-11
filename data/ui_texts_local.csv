@@ -1,0 +1,39 @@
+key,text,placeholders,max_chars,context
+GAME_TITLE,重走修仙路,,6,窗口标题（前端补充，待策划收编）
+BANNER_RETREAT_RETURN,配置已调，重返{level_name},level_name:levels.name,14,回退挂机期间标记被清除后回到最高已通关关卡（前端补充，BUG-003）
+BANNER_NO_NEW_LEVEL,暂无新关可挑战,,8,点挑战但没有可挑战关卡（前端补充）
+HUD_LINGSHI,灵石 {value:int},value:int,10,顶栏灵石（前端补充）
+HUD_XIUWEI,修为 {value:int},value:int,10,顶栏修为（前端补充）
+HUD_HP,生命,,2,底栏生命条标签（前端补充）
+HUD_SHIELD,护盾,,2,底栏护盾条标签（前端补充）
+HUD_CONTROLS,A/D 移动 · 1-4 技能 · 空格 闪避 · Q 自动,,30,底栏操作提示（前端补充）
+HUD_SAVE_PENDING,存档：未接入（阶段6）,,12,顶栏存档状态占位（前端补充，阶段6替换）
+HUD_MODE_CHALLENGE,挑战中,,4,当前模式（前端补充）
+HUD_MODE_FARM,挂机中,,4,当前模式（前端补充）
+HUD_MODE_FARM_NORMALS,挂机·外围,,6,当前模式：未通关时刷第一关普通怪（前端补充）
+HUD_BOSS_INCOMING,首领将至,,4,首领登场阶段（前端补充）
+HUD_BOSS_FIGHT,首领战 · 余{timer},timer:ui_texts.HUD_BOSS_TIMER,10,首领战倒计时（前端补充）
+HUD_RESULT_CLEAR,通关,,2,结算阶段波次位置（前端补充，BUG-011）
+HUD_RESULT_FAIL,败退,,2,结算阶段波次位置（前端补充，BUG-011）
+HUD_WAVE_WALK,行进中 · {wave_text},wave_text:ui_texts.HUD_WAVE,12,行进阶段显示即将到来的波次（前端补充，BUG-011）
+HUD_KEY_SPACE,空格,,2,按键名（前端补充）
+HINT_KEY_SPACE,空格  Space,,12,引导提示下的空格键图标（前端补充，BUG-004）
+BTN_CLOSE,关闭,,2,面板关闭按钮（前端补充）
+PANEL_TITLE_PAUSED,{title}（战斗已暂停）,title:ui_texts.NAV_*,10,养成面板标题（前端补充）
+NAV_GEAR,装备,,2,右下入口（前端补充）
+NAV_GEAR_SHORT,装,,1,右下入口单字（前端补充）
+NAV_GONGFA,功法,,2,右下入口（前端补充）
+NAV_GONGFA_SHORT,功,,1,右下入口单字（前端补充）
+NAV_MAP,地图,,2,右下入口（前端补充）
+NAV_MAP_SHORT,图,,1,右下入口单字（前端补充）
+NAV_BREAK,突破,,2,右下入口（前端补充）
+NAV_BREAK_SHORT,破,,1,右下入口单字（前端补充）
+MAP_TAG_CLEARED,已通关,,3,地图面板关卡状态（前端补充）
+MAP_TAG_OPEN,可挑战,,3,地图面板关卡状态（前端补充）
+MAP_TAG_LOCKED,未解锁,,3,地图面板关卡状态（前端补充）
+MAP_TAG_UNSTABLE,暂难稳过,,4,地图面板：被自动失败回退标记（前端补充）
+SLOT_AUTO,自动,,2,技能格自动释放标签（前端补充）
+SLOT_MANUAL,手动,,2,技能格手动标签（前端补充）
+FLOAT_LINGSHI,+{value:int} 灵石,value:int,8,击杀掉落灵石飘字（前端补充）
+FLOAT_CRIT,暴击 {value:int},value:int,8,暴击伤害飘字（前端补充）
+FLOAT_STUN,晕,,1,敌人眩晕标记（前端补充）

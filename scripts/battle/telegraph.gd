@@ -1,7 +1,8 @@
 class_name Telegraph
 extends Node2D
 ## 首领危险攻击预警区域（预警区 = 判定区）。预警结束瞬间判定：玩家处于闪避免伤或不在区域内 = 无伤。
-## 颜色/样式读 boss_attacks.telegraph_color / telegraph_style，空则用 constants 默认（朱砂虚线）。
+## 颜色：招式色 → 地图色 → TELEGRAPH_DEFAULT_COLOR（玩家设置统一预警白时用 ALT）；样式 telegraph_style，空则 constants 默认（虚线）。
+## v5.1 美术实测：区域内填充 = 预警色 × TELEGRAPH_FILL_ALPHA；描边外侧再加 TELEGRAPH_OUTLINE_PX 宽的暗色外描边。
 
 var battle: Battle
 var boss: Boss
@@ -15,7 +16,7 @@ var arena := false
 var delay := 0.0         # 多段（天雷三连）依次出现
 var warn := 0.8
 var t := 0.0
-var color := Color("#C8312B")
+var color := Color(GameData.FALLBACK_TELEGRAPH)
 var style := "dashed"
 var done := false
 var resolved_hit := false
@@ -28,9 +29,7 @@ func setup(b: Battle, bs: Boss, a: BossAttackDef, index: int) -> void:
 	shape = a.shape
 	warn = a.warn_s if a.warn_s > 0.0 else GameData.const_f("BOSS_WARN_TIME", 0.8)
 	delay = index * GameData.const_f("BOSS_MULTI_AREA_INTERVAL", 0.4) if a.anchor == "player" else 0.0
-	color = GameData.telegraph_color(a)
-	if battle.use_alt_telegraph_color:
-		color = Color.from_string(GameData.const_s("TELEGRAPH_ALT_COLOR", "#FFFFFF"), Color.WHITE)
+	color = GameData.telegraph_color(a, battle.level.map_id if battle.level else "", battle.use_alt_telegraph_color or PlayerState.telegraph_alt)
 	style = GameData.telegraph_style(a)
 	arena = a.anchor == "arena"
 	visible = delay <= 0.0
@@ -97,7 +96,7 @@ func _draw() -> void:
 	if not _locked:
 		return
 	var h := attack.height_px if attack.height_px > 0.0 else 120.0
-	var fill := Color(color, 0.18 + 0.25 * progress())
+	var fill := Color(color, GameData.const_f("TELEGRAPH_FILL_ALPHA", 0.15))
 	if shape == "circle" and not arena:
 		var r := radius
 		var pts := PackedVector2Array()
@@ -111,7 +110,7 @@ func _draw() -> void:
 			var ang := TAU * i / 48.0
 			inner.append(Vector2(cx + cos(ang) * r * progress(), sin(ang) * r * 0.25 * progress() - 4))
 		if progress() > 0.02:
-			draw_colored_polygon(inner, Color(color, 0.35))
+			draw_colored_polygon(inner, Color(color, minf(fill.a * 2.0, 1.0)))   # 进度：内圈随预警时间扩大
 	else:
 		var rect := Rect2(x0, -h, x1 - x0, h + 20)
 		if arena:
@@ -120,15 +119,28 @@ func _draw() -> void:
 		draw_rect(rect, fill)
 		var pts := PackedVector2Array([rect.position, rect.position + Vector2(rect.size.x, 0), rect.end, rect.position + Vector2(0, rect.size.y), rect.position])
 		_outline(pts)
-		draw_rect(Rect2(x0, 14, (x1 - x0) * progress(), 6), color)
+		var bar := Rect2(x0, 14, (x1 - x0) * progress(), 6)
+		draw_rect(bar.grow(GameData.const_f("TELEGRAPH_OUTLINE_PX", 2.0)), outline_color())
+		draw_rect(bar, color)
 	# BUG-012：引导提示显示期间不画招式名（与屏幕中央“按空格闪避！”重叠）
 	if arena and not battle.tutorial.is_active_for(self):
 		var font := ThemeDB.fallback_font
+		draw_string_outline(font, Vector2(cx - 80, -330), attack.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 40, int(GameData.const_f("TELEGRAPH_OUTLINE_PX", 2.0)) * 2, outline_color())
 		draw_string(font, Vector2(cx - 80, -330), attack.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 40, color)
 
+const LINE_PX := 3.0
+
+## v5.1 外描边：TELEGRAPH_OUTLINE_COLOR × TELEGRAPH_OUTLINE_ALPHA
+static func outline_color() -> Color:
+	var c := Color.from_string(GameData.const_s("TELEGRAPH_OUTLINE_COLOR", "#1C1E21"), Color("#1C1E21"))
+	return Color(c, GameData.const_f("TELEGRAPH_OUTLINE_ALPHA", 0.6))
+
+## 主描边（预警色，虚线/实线）外侧加一圈 TELEGRAPH_OUTLINE_PX 宽的暗色外描边（连续实线，亮背景与熔岩高光上也能分辨）
 func _outline(pts: PackedVector2Array) -> void:
+	var ow := LINE_PX + 2.0 * GameData.const_f("TELEGRAPH_OUTLINE_PX", 2.0)
+	draw_polyline(pts, outline_color(), ow, true)
 	for i in pts.size() - 1:
 		if style == "dashed":
-			draw_dashed_line(pts[i], pts[i + 1], color, 3.0, 12.0)
+			draw_dashed_line(pts[i], pts[i + 1], color, LINE_PX, 12.0)
 		else:
-			draw_line(pts[i], pts[i + 1], color, 3.0)
+			draw_line(pts[i], pts[i + 1], color, LINE_PX)

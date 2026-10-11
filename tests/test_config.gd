@@ -2,7 +2,7 @@ extends TestCase
 ## 配置表加载与数据驱动
 
 func test_all_tables_loaded() -> void:
-	eq(GameData.TABLE_NAMES.size(), 25, "25张配置表")
+	eq(GameData.TABLE_NAMES.size(), 26, "26张配置表（v5 新增 ui_texts）")
 	for t in GameData.TABLE_NAMES:
 		check((GameData.tables.get(t, []) as Array).size() > 0, "表 %s 有数据" % t)
 	check(GameData.errors.is_empty(), "引用校验无错误: %s" % ", ".join(GameData.errors))
@@ -41,7 +41,7 @@ func test_v2_boss_attack_columns() -> void:
 	eq(sky.damage_type, "true_maxhp", "真实伤害类型")
 	check(sky.damage_maxhp_pct > 0.0, "damage_maxhp_pct > 0")
 	check(GameData.get_enemy("BOSS_YANMO").attack_ids.has("BA_YANMO_SKYFALL"), "岩魔招式包含天坠")
-	eq(GameData.telegraph_color(sky), Color(GameData.const_s("TELEGRAPH_DEFAULT_COLOR")), "预警颜色")
+	eq(GameData.telegraph_color(sky), Color(sky.telegraph_color if sky.telegraph_color != "" else GameData.const_s("TELEGRAPH_DEFAULT_COLOR")), "预警颜色（v5.1 天坠为预警白）")
 	eq(GameData.telegraph_style(sky), "dashed", "预警样式")
 	var slash := GameData.get_boss_attack("BA_ZHUMEI_SLASH")
 	eq(GameData.telegraph_style(slash), GameData.const_s("TELEGRAPH_DEFAULT_STYLE", "dashed"), "空样式回落到常量默认")

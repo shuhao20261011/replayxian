@@ -10,7 +10,7 @@ const TABLE_NAMES: PackedStringArray = [
 	"affixes", "book_pools", "boss_attacks", "constants", "drop_tables", "enemies", "equip_bases",
 	"equip_slots", "first_clear_rewards", "gear_tiers", "gongfa", "levels", "maps", "materials",
 	"offline_rewards", "orange_effects", "qualities", "quality_weights", "realms", "skill_books",
-	"skill_levels", "skills", "start_kit", "tutorial_steps", "waves",
+	"skill_levels", "skills", "start_kit", "tutorial_steps", "ui_texts", "waves",
 ]
 
 var data_dir := DEFAULT_DATA_DIR
@@ -178,9 +178,20 @@ func basic_skill_ids() -> PackedStringArray:
 			out.append(s.id)
 	return out
 
-func telegraph_color(attack: BossAttackDef) -> Color:
-	var c := attack.telegraph_color if attack.telegraph_color != "" else const_s("TELEGRAPH_DEFAULT_COLOR", "#C8312B")
-	return Color.from_string(c, Color("#C8312B"))
+## v5.1 预警取色：boss_attacks.telegraph_color（非空）→ maps.telegraph_color → TELEGRAPH_DEFAULT_COLOR；
+## 玩家设置“统一预警白”时一律 TELEGRAPH_ALT_COLOR。兜底色与美术 v2 规范一致（朱砂 #B8382C / 预警白 #F4F1EA）
+const FALLBACK_TELEGRAPH := "#B8382C"
+const FALLBACK_TELEGRAPH_ALT := "#F4F1EA"
+
+func telegraph_color(attack: BossAttackDef, map_id: String = "", unified_alt: bool = false) -> Color:
+	if unified_alt:
+		return Color.from_string(const_s("TELEGRAPH_ALT_COLOR", FALLBACK_TELEGRAPH_ALT), Color(FALLBACK_TELEGRAPH_ALT))
+	var c := attack.telegraph_color
+	if c == "" and map_id != "" and maps.has(map_id):
+		c = (maps[map_id] as MapDef).telegraph_color
+	if c == "":
+		c = const_s("TELEGRAPH_DEFAULT_COLOR", FALLBACK_TELEGRAPH)
+	return Color.from_string(c, Color(FALLBACK_TELEGRAPH))
 
 func telegraph_style(attack: BossAttackDef) -> String:
 	return attack.telegraph_style if attack.telegraph_style != "" else const_s("TELEGRAPH_DEFAULT_STYLE", "dashed")

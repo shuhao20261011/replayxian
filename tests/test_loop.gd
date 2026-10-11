@@ -107,7 +107,7 @@ func test_auto_fail_retreat_marks_and_banner() -> void:
 	eq(b.mode, Battle.RunMode.FARM, "继续自动挂机")
 	var found := false
 	for t in banners:
-		if t.contains("难以稳定通过") and t.contains(GameData.get_level("LV_1_3").name) and t.contains(GameData.get_level("LV_1_2").name):
+		if t.contains("暂难稳过") and t.contains(GameData.get_level("LV_1_3").name) and t.contains(GameData.get_level("LV_1_2").name):
 			found = true
 	check(found, "顶部提示一行回退信息: %s" % str(banners))
 	# 再失败：1-2 也被标记，回退到 1-1

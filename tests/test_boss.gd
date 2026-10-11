@@ -124,17 +124,19 @@ func test_auto_shield_cast_during_skyfall_integration() -> void:
 	b.player.god_mode = true
 	var sky_t := -1.0
 	var vajra_t := -1.0
-	for i in int(25.0 / DT):
+	# v5：天坠首放 20 秒（> 金刚不坏冷却），开局先放一次，冷却好后为天坠预留；检查预警期间有一次释放
+	for i in int(30.0 / DT):
 		b.tick(DT)
 		if sky_t < 0.0 and b.is_true_damage_telegraph_active():
 			sky_t = b.sim_time
-		for c in b.skills.cast_log:
-			if c.skill_id == "SK_GANG_VAJRA" and vajra_t < 0.0:
-				vajra_t = c.t
-		if sky_t > 0.0 and vajra_t > 0.0:
+		if sky_t > 0.0 and b.sim_time > sky_t + 1.0:
 			break
+	for c in b.skills.cast_log:
+		if c.skill_id == "SK_GANG_VAJRA" and sky_t > 0.0 and c.t >= sky_t and c.t <= sky_t + GameData.const_f("BOSS_WARN_TIME", 0.8):
+			vajra_t = c.t
 	check(sky_t > 0.0, "天坠出现")
 	check(vajra_t >= sky_t and vajra_t <= sky_t + GameData.const_f("BOSS_WARN_TIME"), "金刚不坏在天坠预警期间释放 (sky=%.2f vajra=%.2f)" % [sky_t, vajra_t])
+	near(sky_t, 20.0, 0.1, "v5 天坠首放 20 秒（first_cast_s 来自表）")
 	free_battle(b)
 
 func test_skyfall_tutorial_slowmo_and_completion() -> void:

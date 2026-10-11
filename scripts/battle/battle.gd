@@ -58,6 +58,7 @@ var slowmo_left := 0.0
 var use_alt_telegraph_color := false
 var _bg_map_id := ""
 var run_auto_at_fail := false
+var last_danger_resolve_t := -1.0   # 上一次危险招式判定的战斗时刻（首领危险招式间隔保护用）
 var retreat_active := false   # 因自动失败回退而挂在较低关卡；标记清除后回到最高已通关关卡（BUG-003）
 var _sky_fill: ColorRect      # 非16:9窗口时补天空（BUG-007）
 var counter_hits := 0     # 调试/测试：护体反震触发次数
@@ -159,6 +160,7 @@ func start_run(l: LevelDef, m: int) -> void:
 	wave_index = 0
 	boss = null
 	boss_time_left = 0.0
+	last_danger_resolve_t = -1.0
 	stop_slowmo()
 	player.position.x = 0.0   # BUG-009：每轮把世界原点归零，避免坐标无界增长（浮点精度）
 	player.reset_for_run(PlayerState.combat_stats())
@@ -276,7 +278,7 @@ func _on_enemy_died(e: Enemy) -> void:
 	var xw := int(round(e.def.xiuwei * e.reward_mult))
 	PlayerState.add_rewards(ls, xw)
 	if visual_fx:
-		float_text(e.position + Vector2(0, -170), "+%d 灵石" % ls, Color("#D9A441"), 18)
+		float_text(e.position + Vector2(0, -170), UiText.t("FLOAT_LINGSHI", {"value": ls}), Color("#D9A441"), 18)
 	if e != boss:
 		_free_node(e)
 	else:
@@ -303,12 +305,12 @@ func _finish(result: String) -> void:
 	run_finished.emit(result, level.id, first_clear)
 	match result:
 		"victory":
-			banner.emit("通关 %s%s" % [level.name, "（首通）" if first_clear else ""])
+			banner.emit(UiText.t("BANNER_FIRST_CLEAR" if first_clear else "BANNER_CLEAR", {"level_name": level.name}))
 			_enter(Phase.VICTORY)
 		"loop":
 			_next_run()
 		_:
-			banner.emit("挑战失败（%s），不扣资源" % ("限时已到" if result == "timeout" else "阵亡"))
+			banner.emit(UiText.t("BANNER_TIMEOUT" if result == "timeout" else "BANNER_DEFEAT"))
 			_enter(Phase.DEFEAT)
 
 ## 胜利 → 继续挂机刷本关；普通怪循环 → 继续循环；失败 → 计划3.1：返回最近已通关关卡挂机，未通关时刷第一关普通怪。
@@ -322,7 +324,7 @@ func _next_run() -> void:
 				var best := PlayerState.auto_retreat_level()
 				if best and best != level:
 					target = best
-					banner.emit("配置已调整，回到%s挂机" % best.name)
+					banner.emit(UiText.t("BANNER_RETREAT_RETURN", {"level_name": best.name}))
 				if PlayerState.unstable_levels.is_empty():
 					retreat_active = false
 			start_run(target, RunMode.FARM)
@@ -336,8 +338,8 @@ func _next_run() -> void:
 				if PlayerState.record_auto_failure(failed.id):
 					target = PlayerState.auto_retreat_level()
 					retreat_active = true
-					var to_name := "%s" % target.name if target else "%s普通怪" % GameData.first_level().name
-					banner.emit("当前配置难以稳定通过%s，已回到%s挂机（调整配置或手动挑战可解除）" % [failed.name, to_name])
+					var to_name := target.name if target else UiText.t("TEXT_FALLBACK_FARM", {"level_name": GameData.first_level().name})
+					banner.emit(UiText.t("BANNER_RETREAT", {"failed_level_name": failed.name, "to_level_name": to_name}) + "\n" + UiText.t("BANNER_RETREAT_TIP"))
 			if target:
 				start_run(target, RunMode.FARM)
 			else:
@@ -439,7 +441,7 @@ func damage_player(raw: float, attacker: Enemy, contact: bool, true_damage: bool
 		return 0.0
 	if player.is_invulnerable():
 		if visual_fx:
-			float_text(player.position + Vector2(0, -190), "闪避", Color("#F6F2E8"), 20)
+			float_text(player.position + Vector2(0, -190), UiText.t("FLOAT_DODGE"), Color("#F6F2E8"), 20)
 		return 0.0
 	var dmg := raw
 	if not true_damage:
@@ -503,6 +505,8 @@ func time_until_next_true_damage_attack() -> float:
 
 ## 预警结束判定：返回是否命中玩家
 func resolve_telegraph(tg: Telegraph) -> bool:
+	if tg.attack.is_danger:
+		last_danger_resolve_t = sim_time
 	var dodged := player.in_dodge_iframes()
 	var inside := tg.player_inside()
 	var hit := inside and not player.is_invulnerable()
@@ -513,7 +517,7 @@ func resolve_telegraph(tg: Telegraph) -> bool:
 		else:
 			damage_player(tg.boss.atk * a.damage_coef, tg.boss, false, false)
 	elif inside and dodged and visual_fx:
-		float_text(player.position + Vector2(0, -190), "闪避", Color("#F6F2E8"), 22)
+		float_text(player.position + Vector2(0, -190), UiText.t("FLOAT_DODGE"), Color("#F6F2E8"), 22)
 	tutorial.on_telegraph_resolved(tg, inside and dodged)
 	return hit
 
@@ -532,7 +536,7 @@ func show_damage_number(e: Enemy, dmg: float, crit: bool, tag: String) -> void:
 		return
 	var col := Color("#FFD36B") if crit else (Color("#F2C14E") if tag != "" else Color.WHITE)
 	var h := 120.0 if not e.is_boss() else 280.0
-	float_text(e.position + Vector2(rng.randf_range(-25, 25), -h), ("暴击 -%d" if crit else "-%d") % int(round(dmg)), col, 30 if crit else 22)
+	float_text(e.position + Vector2(rng.randf_range(-25, 25), -h), UiText.t("FLOAT_CRIT", {"value": round(dmg)}) if crit else "-%d" % int(round(dmg)), col, 30 if crit else 22)
 
 func spawn_flash(kind: String, pts: PackedVector2Array, color: Color, radius: float = 100.0) -> void:
 	if not visual_fx:

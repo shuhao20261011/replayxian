@@ -186,7 +186,7 @@ func test_bug010_farm_normals_death_not_marked() -> void:
 	sim(b, GameData.const_f("RESULT_SHOW_TIME", 2.0) + 0.1)
 	check(PlayerState.unstable_levels.is_empty(), "未通关刷普通怪阵亡不打标记")
 	for t in banners:
-		check(not t.contains("难以稳定"), "不弹回退提示")
+		check(not t.contains("暂难稳过"), "不弹回退提示")
 	eq(b.mode, Battle.RunMode.FARM_NORMALS, "继续刷1-1普通怪")
 	free_battle(b)
 
@@ -203,7 +203,7 @@ func test_bug008_011_012_hud_layout() -> void:
 	battle.start_run(GameData.get_level("LV_1_1"), Battle.RunMode.FARM_NORMALS)
 	battle.wave_index = 0
 	hud._process(0.0)
-	check(hud.wave_label.text.contains("第 1 / "), "新一轮开局显示第1波（%s）" % hud.wave_label.text)
+	check(hud.wave_label.text.contains(UiText.t("HUD_WAVE", {"wave": 1, "wave_total": battle.level.wave_count})), "新一轮开局显示第1波（%s）" % hud.wave_label.text)
 	# BUG-008：生命5位数时底栏仍在 1280×720 内
 	battle.player.max_hp = 99999; battle.player.hp = 99999
 	hud._on_hp(99999, 99999)
@@ -220,3 +220,34 @@ func test_bug008_011_012_hud_layout() -> void:
 	hud._show_hint("")
 	check(not hud.hint_key.visible and hud.hint_sub.text == "", "收起")
 	runner.remove_child(m); m.queue_free()
+
+## BUG-005 运行时保护：眩晕压缩节拍后，相邻危险判定间隔仍 ≥ DODGE_COOLDOWN + DANGER_MIN_GAP_MARGIN_S
+func test_bug005_danger_gap_guard_after_stun() -> void:
+	for lid in ["LV_1_5", "LV_2_5", "LV_3_5"]:
+		var b := make_battle()
+		b.start_run(GameData.get_level(lid), Battle.RunMode.CHALLENGE)
+		b.debug_force_boss()
+		b.player.god_mode = true
+		PlayerState.set_auto_battle(false)
+		b.boss.stun_t = 25.0   # 长时间眩晕：所有危险招式计时器都已就绪
+		var resolves: Array[float] = []
+		var last := b.last_danger_resolve_t
+		for i in int(50.0 / DT):
+			b.tick(DT)
+			b.boss_time_left = 60.0
+			if b.last_danger_resolve_t != last:
+				last = b.last_danger_resolve_t
+				resolves.append(last)
+		# 只按“不同招式之间”的间隔检查：同一招多段（天雷三连）各段间隔 BOSS_MULTI_AREA_INTERVAL
+		var gaps: Array[float] = []
+		for j in range(1, resolves.size()):
+			var g := resolves[j] - resolves[j - 1]
+			if g > GameData.const_f("BOSS_MULTI_AREA_INTERVAL", 0.4) + 0.05:
+				gaps.append(g)
+		check(gaps.size() >= 3, "%s 眩晕后连续释放多次危险招式（%d）" % [lid, gaps.size()])
+		var mn := 999.0
+		for g in gaps:
+			mn = minf(mn, g)
+		check(mn >= Boss.min_danger_gap() - 2.0 * DT, "%s 最小间隔 %.2f ≥ %.2f" % [lid, mn, Boss.min_danger_gap()])
+		check(b.boss.guard_delays > 0, "%s 保护确实推迟过释放" % lid)
+		free_battle(b)

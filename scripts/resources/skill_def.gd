@@ -36,12 +36,15 @@ extends Resource
 @export var book_id := ""
 @export var default_auto := true
 @export var desc := ""
+@export var icon := ""   # v5：图标键（ui_icon_*）
 @export var levels: Array[SkillLevelDef] = []
 
 func is_active() -> bool:
 	return slot_type == "active"
 
 func icon_path() -> String:
+	if icon != "":
+		return "res://art/ui/%s.png" % icon
 	return "res://art/ui/ui_icon_skill_%s.png" % id.to_lower().trim_prefix("sk_")
 
 ## 取某等级数值；表中缺行时按成长字段推算，保证改表不崩
@@ -94,4 +97,5 @@ static func from_row(r: Dictionary) -> SkillDef:
 	d.book_id = CsvUtil.s(r, "book_id")
 	d.default_auto = CsvUtil.b(r, "default_auto", true)
 	d.desc = CsvUtil.s(r, "desc")
+	d.icon = CsvUtil.s(r, "icon")
 	return d

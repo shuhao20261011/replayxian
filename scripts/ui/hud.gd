@@ -1,5 +1,7 @@
 class_name Hud
 extends CanvasLayer
+
+const NAV := [["装备", "NAV_GEAR"], ["功法", "NAV_GONGFA"], ["地图", "NAV_MAP"], ["突破", "NAV_BREAK"]]
 ## 战斗界面（CanvasLayer + Control，随窗口缩放）。布局参考 docs/07_battle_ui_mockup.png：
 ## 顶部：境界/灵石/修为/区域关卡/存档状态；中上：波次、首领血条与限时、提示横幅；
 ## 底部：生命/护盾、4格技能栏、闪避、自动开关、挑战按钮、装备/功法/地图/突破入口。
@@ -74,7 +76,7 @@ func _build() -> void:
 	var sp := Control.new(); sp.size_flags_horizontal = Control.SIZE_EXPAND_FILL; th.add_child(sp)
 	level_label = UiStyle.label("", 20); th.add_child(level_label)
 	var sp2 := Control.new(); sp2.size_flags_horizontal = Control.SIZE_EXPAND_FILL; th.add_child(sp2)
-	save_label = UiStyle.label("存档：未接入（阶段6）", 14, Color(0.7, 0.7, 0.7)); th.add_child(save_label)
+	save_label = UiStyle.label(UiText.t("HUD_SAVE_PENDING"), 14, Color(0.7, 0.7, 0.7)); th.add_child(save_label)
 	# ---- 中上：波次/首领 ----
 	var mid := VBoxContainer.new()
 	mid.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
@@ -101,7 +103,7 @@ func _build() -> void:
 	var ksb := UiStyle.panel(6, UiStyle.MIST); ksb.set_border_width_all(2); ksb.border_width_bottom = 5
 	ksb.content_margin_left = 44; ksb.content_margin_right = 44; ksb.content_margin_top = 2; ksb.content_margin_bottom = 2
 	hint_key.add_theme_stylebox_override("panel", ksb)
-	hint_key.add_child(UiStyle.label("空格  Space", 20, UiStyle.MIST))
+	hint_key.add_child(UiStyle.label(UiText.t("HINT_KEY_SPACE"), 20, UiStyle.MIST))
 	hint_key.set_anchors_preset(Control.PRESET_CENTER)
 	hint_key.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	hint_key.offset_left = 0; hint_key.offset_right = 0; hint_key.offset_top = -54; hint_key.offset_bottom = -54
@@ -128,12 +130,12 @@ func _build() -> void:
 	bars.alignment = BoxContainer.ALIGNMENT_CENTER
 	bh.add_child(bars)
 	var hrow := HBoxContainer.new(); bars.add_child(hrow)
-	hrow.add_child(UiStyle.label("生命", 16)); hp_bar = UiStyle.bar(UiStyle.BLOOD); hp_bar.custom_minimum_size = Vector2(190, 16); hrow.add_child(hp_bar)
+	hrow.add_child(UiStyle.label(UiText.t("HUD_HP"), 16)); hp_bar = UiStyle.bar(UiStyle.BLOOD); hp_bar.custom_minimum_size = Vector2(190, 16); hrow.add_child(hp_bar)
 	hp_text = UiStyle.label("", 13); hp_text.custom_minimum_size = Vector2(112, 0); hp_text.clip_text = true; hrow.add_child(hp_text)
 	var srow := HBoxContainer.new(); bars.add_child(srow)
-	srow.add_child(UiStyle.label("护盾", 16)); shield_bar = UiStyle.bar(UiStyle.SHIELD); shield_bar.custom_minimum_size = Vector2(190, 16); srow.add_child(shield_bar)
+	srow.add_child(UiStyle.label(UiText.t("HUD_SHIELD"), 16)); shield_bar = UiStyle.bar(UiStyle.SHIELD); shield_bar.custom_minimum_size = Vector2(190, 16); srow.add_child(shield_bar)
 	shield_text = UiStyle.label("", 13); shield_text.custom_minimum_size = Vector2(112, 0); shield_text.clip_text = true; srow.add_child(shield_text)
-	bars.add_child(UiStyle.label("A/D 移动 · 1-4 技能 · 空格 闪避 · Q 自动", 13, Color(0.75, 0.75, 0.7)))
+	bars.add_child(UiStyle.label(UiText.t("HUD_CONTROLS"), 13, Color(0.75, 0.75, 0.7)))
 	var sp3 := Control.new(); sp3.size_flags_horizontal = Control.SIZE_EXPAND_FILL; bh.add_child(sp3)
 	for i in PlayerState.slot_count():
 		var s: SkillSlotUI = SLOT_SCENE.instantiate()
@@ -144,30 +146,31 @@ func _build() -> void:
 				battle.controller.request_skill(slot))
 		s.auto_toggled.connect(func(slot: int) -> void: PlayerState.set_slot_auto(slot, not PlayerState.slot_auto[slot]))
 		slots.append(s)
-	dodge_btn = UiStyle.button("闪避\n空格", 18)
+	dodge_btn = UiStyle.button(_dodge_idle_text(), 18)
 	dodge_btn.custom_minimum_size = Vector2(84, 84)
 	dodge_btn.pressed.connect(func() -> void:
 		if battle and not get_tree().paused:
 			battle.controller.request_dodge())
 	bh.add_child(dodge_btn)
 	var av := VBoxContainer.new(); av.alignment = BoxContainer.ALIGNMENT_CENTER; bh.add_child(av)
-	auto_btn = UiStyle.button("自动战斗：开", 16)
+	auto_btn = UiStyle.button(UiText.t("BTN_AUTO_ON"), 16)
 	auto_btn.custom_minimum_size = Vector2(130, 40)
 	auto_btn.pressed.connect(func() -> void: PlayerState.set_auto_battle(not PlayerState.auto_battle))
 	av.add_child(auto_btn)
-	challenge_btn = UiStyle.button("挑战下一关", 16)
+	challenge_btn = UiStyle.button(UiText.t("BTN_CHALLENGE_NONE"), 16)
 	challenge_btn.custom_minimum_size = Vector2(130, 36)
 	challenge_btn.pressed.connect(_on_challenge_next)
 	av.add_child(challenge_btn)
 	var sp4 := Control.new(); sp4.size_flags_horizontal = Control.SIZE_EXPAND_FILL; bh.add_child(sp4)
-	for pair in [["装", "装备"], ["功", "功法"], ["图", "地图"], ["破", "突破"]]:
+	# [面板ID（内部标识）, 文案key]：显示文字来自 ui_texts
+	for pair in NAV:
 		var v := VBoxContainer.new(); v.alignment = BoxContainer.ALIGNMENT_CENTER
-		var b := UiStyle.button(pair[0], 26)
+		var b := UiStyle.button(UiText.t(pair[1] + "_SHORT"), 26)
 		b.custom_minimum_size = Vector2(56, 56)
-		var title: String = pair[1]
+		var title: String = pair[0]
 		b.pressed.connect(func() -> void: open_panel(title))
 		v.add_child(b)
-		var l := UiStyle.label(pair[1], 13); l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(l)
+		var l := UiStyle.label(UiText.t(pair[1]), 13); l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(l)
 		bh.add_child(v)
 	# ---- 养成面板（占位，打开时暂停战斗） ----
 	panel = PanelContainer.new()
@@ -179,25 +182,36 @@ func _build() -> void:
 	var pv := VBoxContainer.new(); pv.add_theme_constant_override("separation", 8); panel.add_child(pv)
 	var ph := HBoxContainer.new(); pv.add_child(ph)
 	panel_title = UiStyle.label("", 24, UiStyle.GOLD); panel_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL; ph.add_child(panel_title)
-	var close := UiStyle.button("关闭", 16); close.pressed.connect(close_panel); ph.add_child(close)
+	var close := UiStyle.button(UiText.t("BTN_CLOSE"), 16); close.pressed.connect(close_panel); ph.add_child(close)
 	var scroll := ScrollContainer.new(); scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL; pv.add_child(scroll)
 	panel_body = VBoxContainer.new(); panel_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL; scroll.add_child(panel_body)
+
+func _dodge_idle_text() -> String:
+	return UiText.t("BTN_DODGE") + "\n" + UiText.t("HUD_KEY_SPACE")
+
+func _level_text(l: LevelDef) -> String:
+	var m := GameData.get_map(l.map_id)
+	return UiText.t("HUD_LEVEL", {"map_name": m.name if m else "", "level_index": l.index, "level_name": l.name})
 
 func is_panel_open() -> bool:
 	return panel.visible
 
 func open_panel(title: String) -> void:
-	panel_title.text = title + "（战斗已暂停）"
+	var nav_key := ""
+	for pair in NAV:
+		if pair[0] == title:
+			nav_key = pair[1]
+	panel_title.text = UiText.t("PANEL_TITLE_PAUSED", {"title": UiText.t(nav_key) if nav_key != "" else title})
 	for c in panel_body.get_children():
 		c.queue_free()
 	if title == "地图":
 		for l in GameData.levels_ordered:
 			var m := GameData.get_map(l.map_id)
 			var cleared := PlayerState.is_cleared(l.id)
-			var tag := "已通关" if cleared else ("可挑战" if PlayerState.can_challenge(l.id) else "未解锁")
+			var tag := UiText.t("MAP_TAG_CLEARED") if cleared else UiText.t("MAP_TAG_OPEN" if PlayerState.can_challenge(l.id) else "MAP_TAG_LOCKED")
 			if PlayerState.is_unstable(l.id):
-				tag += " · 配置不稳定"
-			var b := UiStyle.button("%s · 第%d关 %s  [%s]" % [m.name if m else l.map_id, l.index, l.name, tag], 16)
+				tag += " · " + UiText.t("MAP_TAG_UNSTABLE")
+			var b := UiStyle.button("%s  [%s]" % [_level_text(l), tag], 16)
 			b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			b.disabled = not PlayerState.can_challenge(l.id)
 			var lid := l.id
@@ -215,7 +229,7 @@ func open_panel(title: String) -> void:
 			var info := ""
 			for i in PlayerState.slot_count():
 				var s := GameData.get_skill(PlayerState.active_slots[i])
-				info += "第%d格：%s（%s）\n" % [i + 1, s.name if s else "空", "自动" if PlayerState.slot_auto[i] else "手动"]
+				info += "%d · %s（%s）\n" % [i + 1, s.name if s else UiText.t("LABEL_EMPTY_SLOT"), UiText.t("SLOT_AUTO" if PlayerState.slot_auto[i] else "SLOT_MANUAL")]
 			panel_body.add_child(UiStyle.label(info, 16))
 	panel.visible = true
 	get_tree().paused = true
@@ -231,7 +245,7 @@ func _on_challenge_next() -> void:
 	if nxt and battle:
 		battle.challenge(nxt.id)
 	else:
-		show_banner("暂无可挑战的新关卡（境界/前置关卡未满足）")
+		show_banner(UiText.t("BANNER_NO_NEW_LEVEL"))
 
 func show_banner(text: String) -> void:
 	banner_label.text = text
@@ -256,26 +270,26 @@ func _on_shield(total: float, max_hp: float) -> void:
 	shield_text.text = "%d" % int(total)
 
 func _refresh_auto() -> void:
-	auto_btn.text = "自动战斗：开" if PlayerState.auto_battle else "自动战斗：关"
+	auto_btn.text = UiText.t("BTN_AUTO_ON" if PlayerState.auto_battle else "BTN_AUTO_OFF")
 	auto_btn.modulate = UiStyle.JADE.lightened(0.4) if PlayerState.auto_battle else Color.WHITE
 
 func _refresh_top() -> void:
 	if realm_label == null:
 		return
 	var rl := GameData.get_realm(PlayerState.realm_id)
-	realm_label.text = "境界 · %s" % (rl.name if rl else "?")
-	lingshi_label.text = "灵石 %d" % PlayerState.lingshi
-	xiuwei_label.text = "修为 %d" % PlayerState.xiuwei
+	realm_label.text = UiText.t("HUD_REALM", {"realm_name": rl.name if rl else "?"})
+	lingshi_label.text = UiText.t("HUD_LINGSHI", {"value": PlayerState.lingshi})
+	xiuwei_label.text = UiText.t("HUD_XIUWEI", {"value": PlayerState.xiuwei})
 	if battle == null or battle.level == null:
 		return
 	var l := battle.level
 	var m := GameData.get_map(l.map_id)
-	level_label.text = "%s · 第%d关 %s" % [m.name if m else "", l.index, l.name]
-	var mode_txt: String = ["挑战中", "挂机中", "挂机中（刷普通怪）"][battle.mode]
+	level_label.text = _level_text(l)
+	var mode_txt: String = UiText.t(["HUD_MODE_CHALLENGE", "HUD_MODE_FARM", "HUD_MODE_FARM_NORMALS"][battle.mode])
 	mode_label.text = mode_txt
 	var nxt := PlayerState.next_challenge_level()
 	challenge_btn.disabled = nxt == null
-	challenge_btn.text = "挑战 %s" % nxt.name if nxt else "暂无新关卡"
+	challenge_btn.text = UiText.t("BTN_CHALLENGE", {"level_name": nxt.name}) if nxt else UiText.t("BTN_CHALLENGE_NONE")
 	boss_box.visible = battle.phase == Battle.Phase.BOSS and battle.boss != null
 
 func _process(delta: float) -> void:
@@ -283,26 +297,27 @@ func _process(delta: float) -> void:
 		return
 	var p := battle.phase
 	if p == Battle.Phase.BOSS and battle.boss:
-		wave_label.text = "首领战 · 剩余 %d 秒" % int(ceil(maxf(battle.boss_time_left, 0.0)))
+		wave_label.text = UiText.t("HUD_BOSS_FIGHT", {"timer": UiText.t("HUD_BOSS_TIMER", {"sec": int(ceil(maxf(battle.boss_time_left, 0.0)))})})
 		boss_name.text = battle.boss.def.name
 		boss_bar.max_value = battle.boss.max_hp
 		boss_bar.value = battle.boss.hp
 	elif p == Battle.Phase.BOSS_INTRO:
-		wave_label.text = "首领将至"
+		wave_label.text = UiText.t("HUD_BOSS_INCOMING")
 	elif p == Battle.Phase.VICTORY:
-		wave_label.text = "通关"
+		wave_label.text = UiText.t("HUD_RESULT_CLEAR")
 	elif p == Battle.Phase.DEFEAT:
-		wave_label.text = "挑战失败"
+		wave_label.text = UiText.t("HUD_RESULT_FAIL")
 	elif battle.level:
 		# BUG-011：新一轮行进阶段（wave_index=0）显示即将到来的第1波，不再残留上一轮的“第4/4波”
 		var wi := battle.wave_index + (1 if p == Battle.Phase.WALK else 0)
-		wave_label.text = "%s第 %d / %d 波" % ["行进中 · " if p == Battle.Phase.WALK else "", clampi(wi, 1, battle.level.wave_count), battle.level.wave_count]
+		var wt := UiText.t("HUD_WAVE", {"wave": clampi(wi, 1, battle.level.wave_count), "wave_total": battle.level.wave_count})
+		wave_label.text = UiText.t("HUD_WAVE_WALK", {"wave_text": wt}) if p == Battle.Phase.WALK else wt
 	boss_box.visible = p == Battle.Phase.BOSS and battle.boss != null
 	for i in slots.size():
 		var cdt := battle.skills.cd_totals[i] if i < battle.skills.cd_totals.size() else 0.0
 		slots[i].refresh(battle.skills.skill_in_slot(i), PlayerState.slot_auto[i], battle.skills.cds[i], cdt)
 	var pl := battle.player
-	dodge_btn.text = ("闪避\n%.1f" % pl.dodge_cd) if pl.dodge_cd > 0.0 else "闪避\n空格"
+	dodge_btn.text = (UiText.t("BTN_DODGE") + "\n%.1f" % pl.dodge_cd) if pl.dodge_cd > 0.0 else _dodge_idle_text()
 	dodge_btn.disabled = pl.dodge_cd > 0.0
 	if hint_label.text != "":
 		_hint_pulse += delta
