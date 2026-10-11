@@ -17,7 +17,8 @@ var alive := true
 var facing := 1
 var god_mode := false            # 测试用
 var _move_dir := 0.0
-var dodge_t := 0.0               # >0 = 闪避中（免伤）
+var dodge_t := 0.0               # >0 = 闪避位移中
+var dodge_elapsed := -1.0        # 本次闪避已过时间；0 ≤ elapsed ≤ DODGE_DURATION 期间免伤（含按下当帧，共18帧）
 var dodge_cd := 0.0
 var _dodge_dir := 1
 var attack_cd := 0.0
@@ -34,6 +35,7 @@ func reset_for_run(st: Dictionary) -> void:
 	hp = max_hp
 	alive = true
 	dodge_t = 0.0
+	dodge_elapsed = -1.0
 	dodge_cd = 0.0
 	attack_cd = 0.0
 	shields.clear()
@@ -56,6 +58,7 @@ func dodge(dir: int = 0) -> bool:
 		return false   # 冷却中忽略，不排队
 	_dodge_dir = dir if dir != 0 else facing
 	dodge_t = GameData.const_f("DODGE_DURATION", 0.3)
+	dodge_elapsed = 0.0
 	dodge_cd = GameData.const_f("DODGE_COOLDOWN", 3.0)
 	return true
 
@@ -63,7 +66,11 @@ func is_dodging() -> bool:
 	return dodge_t > 0.0
 
 func is_invulnerable() -> bool:
-	return dodge_t > 0.0 or god_mode
+	return in_dodge_iframes() or god_mode
+
+## 免伤窗口：按下当帧起 DODGE_DURATION 秒（含端点，固定步长下恰 18 帧），与位移计时分开（BUG-006）
+func in_dodge_iframes() -> bool:
+	return dodge_elapsed >= 0.0 and dodge_elapsed <= GameData.const_f("DODGE_DURATION", 0.3) + 1e-6
 
 func dodge_cooldown_total() -> float:
 	return GameData.const_f("DODGE_COOLDOWN", 3.0)
@@ -156,6 +163,10 @@ func step(delta: float) -> void:
 		if s.time <= 0.0:
 			_end_shield(s, false)
 	attack_cd -= delta
+	if dodge_elapsed >= 0.0:
+		dodge_elapsed += delta
+		if not in_dodge_iframes():
+			dodge_elapsed = -1.0
 	if dodge_t > 0.0:
 		var dur := GameData.const_f("DODGE_DURATION", 0.3)
 		# BUG-006：按实际剩余时间截断位移，计时用阈值消除浮点残差（位移恰为 DODGE_DISTANCE）
@@ -195,7 +206,7 @@ func _update_visual(delta: float) -> void:
 	sprite.flip_h = facing < 0
 	_lunge_t = maxf(_lunge_t - delta, 0.0)
 	sprite.position.x = (8.0 if _lunge_t > 0.0 else 0.0) * facing
-	sprite.modulate = Color(1, 1, 1, 0.45) if dodge_t > 0.0 else Color.WHITE
+	sprite.modulate = Color(1, 1, 1, 0.45) if in_dodge_iframes() else Color.WHITE
 	queue_redraw()
 
 func _draw() -> void:

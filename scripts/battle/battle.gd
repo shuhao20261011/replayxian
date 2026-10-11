@@ -503,7 +503,7 @@ func time_until_next_true_damage_attack() -> float:
 
 ## 预警结束判定：返回是否命中玩家
 func resolve_telegraph(tg: Telegraph) -> bool:
-	var dodged := player.is_dodging()
+	var dodged := player.in_dodge_iframes()
 	var inside := tg.player_inside()
 	var hit := inside and not player.is_invulnerable()
 	if hit and tg.boss != null:
