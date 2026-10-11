@@ -10,6 +10,14 @@ const SUITES := [
 	"res://tests/test_loop.gd",
 	"res://tests/test_regressions.gd",
 	"res://tests/test_ui_text.gd",
+	"res://tests/test_gongfa.gd",
+	"res://tests/test_gear.gd",
+	"res://tests/test_gear_battle.gd",
+	"res://tests/test_ui_panels.gd",
+	"res://tests/test_art.gd",
+	"res://tests/test_stage5.gd",
+	"res://tests/test_save.gd",
+	"res://tests/test_settings.gd",
 ]
 
 ## 记录运行期脚本错误：测试过程中出现任何 SCRIPT ERROR 都算该测试失败（避免错误被静默吞掉）
@@ -42,6 +50,9 @@ func _ready() -> void:
 		if n == null or not n.has_method("to_dict" if al == "PlayerState" else "load_all"):
 			total += 1; failed += 1
 			print("  FAIL  autoload %s 未加载（脚本解析错误？）" % al)
+	if not catcher.errors.is_empty():
+		total += 1; failed += 1
+		print("  FAIL  启动阶段脚本错误：\n        - " + "\n        - ".join(catcher.errors))
 	for path in SUITES:
 		var script: GDScript = load(path)
 		if script == null or not script.can_instantiate():

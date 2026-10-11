@@ -1,6 +1,6 @@
 class_name EquipBaseDef
 extends Resource
-## equip_bases.csv 装备底子（阶段1-2只用于开局装备属性；生成/词条在阶段4）
+## equip_bases.csv 装备底子（白装基础值，实际 × 品质 base_mult）
 
 @export var id := ""
 @export var slot_id := ""
@@ -12,6 +12,9 @@ extends Resource
 @export var crit_rate := 0.0
 @export var move_speed := 0.0
 @export var is_core := false
+@export var orange_effect_id := ""
+@export var gongfa_id := ""
+@export var desc := ""
 
 static func from_row(r: Dictionary) -> EquipBaseDef:
 	var d := EquipBaseDef.new()
@@ -25,4 +28,7 @@ static func from_row(r: Dictionary) -> EquipBaseDef:
 	d.crit_rate = CsvUtil.f(r, "crit_rate")
 	d.move_speed = CsvUtil.f(r, "move_speed")
 	d.is_core = CsvUtil.b(r, "is_core")
+	d.orange_effect_id = CsvUtil.s(r, "orange_effect_id")
+	d.gongfa_id = CsvUtil.s(r, "gongfa_id")
+	d.desc = CsvUtil.s(r, "desc")
 	return d

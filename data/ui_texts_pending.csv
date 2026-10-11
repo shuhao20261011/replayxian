@@ -1,0 +1,151 @@
+key,text,placeholders,max_chars,context
+HUD_COOLDOWN,冷却,,2,技能格/闪避圆章冷却中的小字（阶段3-4 待收编）
+TIP_EMPTY_SLOT,在【功法】中装配技能,,10,空技能格悬停提示（阶段3-4 待收编）
+BANNER_LOOT,获得{items},items:掉落名以“、”连接,24,拾取掉落横幅（阶段3-4 待收编）
+PANEL_SUB_GEAR,炼器·重铸·分解,,8,装备面板标题旁副题（阶段3-4 待收编）
+PANEL_SUB_GONGFA,习法·精进·装配,,8,功法面板标题旁副题（阶段3-4 待收编）
+LABEL_STATS,属性,,2,装备面板左栏小标题（阶段3-4 待收编）
+LABEL_BAG,背包,,2,装备面板中栏小标题（阶段3-4 待收编）
+LABEL_DETAIL,详情,,2,装备/功法面板右栏小标题（阶段3-4 待收编）
+LABEL_BAG_EMPTY,行囊空空，斩妖可得法器,,11,背包为空时（阶段3-4 待收编）
+LABEL_SELECT_GEAR,择一件法器查看,,7,未选中装备时详情区（阶段3-4 待收编）
+LABEL_GEAR_TAG,{quality_name}品·{slot_name}·{tier}阶,quality_name:qualities.name;slot_name:equip_slots.name;tier:int1,8,装备详情名称旁（阶段3-4 待收编）
+LABEL_AFFIXES,词条,,2,装备详情词条区标题（阶段3-4 待收编）
+LABEL_REROLL_COST,每条{refine_name}{refine}·灵石{lingshi},refine_name:materials.name;refine:int2;lingshi:int5,18,词条区标题旁重铸花费（阶段3-4 待收编）
+LABEL_NO_AFFIX,此品无词条,,5,白品装备词条区（阶段3-4 待收编）
+LABEL_DECOMPOSE_GAIN,可得{item_name}+{count},item_name:materials.name;count:int2,10,分解按钮旁收益（阶段3-4 待收编）
+LABEL_EQUIPPED_HINT,从背包选同部位法器即可替换,,13,已装备物品详情底部（阶段3-4 待收编）
+LABEL_BATCH_DECOMPOSE,批量分解,,4,装备面板底栏（阶段3-4 待收编）
+BTN_DECOMPOSE_UPTO,{quality_name}品及以下,quality_name:qualities.name,5,批量分解按钮（阶段3-4 待收编）
+LABEL_AUTO_DECOMPOSE,自动分解,,4,装备面板底栏（阶段3-4 待收编）
+LABEL_NEVER_AUTO,{quality_name}品永不自动分解,quality_name:qualities.name,8,自动分解开关旁注（阶段3-4 待收编）
+TOAST_GEAR_EQUIPPED,已装备{equip_name},equip_name:equip_bases.name,7,装备成功（阶段3-4 待收编）
+TOAST_GEAR_DECOMPOSED,分解得{item_name}+{count},item_name:materials.name;count:int2,10,单件分解（阶段3-4 待收编）
+TOAST_BATCH_DECOMPOSED,分解法器{count}件,count:int3,8,批量分解（阶段3-4 待收编）
+TOAST_REROLLED,重铸得{affix},affix:词条文本,14,重铸成功（阶段3-4 待收编）
+TIP_RECOMMENDED,优于当前所穿,,6,背包条目推荐箭头悬停（阶段3-4 待收编）
+BTN_CHOOSE_ORANGE,择{equip_name}·{effect_name},equip_name:equip_bases.name;effect_name:orange_effects.name,10,终关三选一按钮（阶段3-4 待收编）
+STAT_MOVE_SPEED,移动速度,,4,装备基础属性（affixes 无此属性名）（阶段3-4 待收编）
+ERR_NOT_ENOUGH,{item_name}不足,item_name:materials.name,6,材料/灵石/残页不足（阶段3-4 待收编）
+ERR_CANNOT_REROLL,此品不可重铸,,6,（阶段3-4 待收编）
+ERR_NOT_IN_BAG,先卸下再操作,,6,（阶段3-4 待收编）
+ERR_NO_POOL,无可重铸之词条,,7,（阶段3-4 待收编）
+LABEL_SKILL_BAR,技能栏,,3,功法面板（阶段3-4 待收编）
+LABEL_PASSIVE,被动·{skill_name},skill_name:skills.name,7,功法面板技能栏右侧（阶段3-4 待收编）
+TIP_UNEQUIP,点击卸下,,4,功法面板技能栏格子悬停（阶段3-4 待收编）
+TOAST_SKILL_UNEQUIPPED,第{slot}格已卸下,slot:int1,6,（阶段3-4 待收编）
+LABEL_LEARNABLE,可学习,,3,技能列表状态（阶段3-4 待收编）
+SKILL_KIND_ACTIVE,主动,,2,技能列表类别（阶段3-4 待收编）
+SKILL_KIND_PASSIVE,被动,,2,技能列表类别（阶段3-4 待收编）
+SKILL_KIND_ULTIMATE,绝学,,2,技能列表类别（阶段3-4 待收编）
+LABEL_BOOK_COUNT,持书{count},count:int2,4,技能列表/学习区（阶段3-4 待收编）
+LABEL_LEVEL,Lv{level},level:int2,4,技能等级（阶段3-4 待收编）
+LABEL_LEVEL_MAX,Lv{level}/{max},level:int2;max:int2,7,技能详情等级（阶段3-4 待收编）
+LABEL_SKILL_CD,冷却{cd}秒,cd:num,7,技能详情（阶段3-4 待收编）
+LABEL_NEXT_LEVEL,下一级,,3,技能详情（阶段3-4 待收编）
+BTN_UPGRADE_MAX,已至满级,,4,升级按钮满级（阶段3-4 待收编）
+BTN_EQUIP_TO_SLOT,装入{slot},slot:int1,3,技能装配按钮（阶段3-4 待收编）
+LABEL_CURRENT_PASSIVE,当前被动,,4,（阶段3-4 待收编）
+LABEL_EXCHANGE_COST,需{item_name}{count},item_name:materials.name;count:int2,9,残页兑换按钮旁（阶段3-4 待收编）
+LABEL_REGION_LOCKED,{map_name}未开启,map_name:maps.name,6,残页兑换不可用（阶段3-4 待收编）
+ERR_NO_BOOK,未持此书,,4,（阶段3-4 待收编）
+ERR_ALREADY_LEARNED,已习得，重复之书可分解,,11,（阶段3-4 待收编）
+ERR_NOT_LEARNED,尚未习得,,4,（阶段3-4 待收编）
+ERR_MAX_LEVEL,已至满级,,4,（阶段3-4 待收编）
+ERR_LOCKED_REGION,此地尚未开启,,6,（阶段3-4 待收编）
+GEAR_NAME,【{quality_name}】{equip_name},quality_name:qualities.name;equip_name:equip_bases.name,7,掉落/背包里的装备名（阶段3-4 待收编）
+FLOAT_XIUWEI,修为+{value:int},value:int6,9,拾取修为飘字（阶段3-4 待收编）
+LOOT_ITEM_COUNT,{item_name}×{count},item_name:materials.name;count:int3,8,拾取材料（阶段3-4 待收编）
+LOOT_AUTO_DECOMPOSED,{gear_name}已化为{item_name},gear_name:ui_texts.GEAR_NAME;item_name:materials.name,14,命中自动分解的掉落（阶段3-4 待收编）
+LOOT_BAG_FULL,行囊已满，{gear_name}化为{item_name}×{count},gear_name:ui_texts.GEAR_NAME;item_name:materials.name;count:int2,22,背包满时掉落转材料（阶段3-4 待收编）
+LOOT_ORANGE_PENDING,核心橙装三选一，入【装备】领取,,15,终关首通三选一掉落提示（阶段3-4 待收编）
+HUD_SAVE_SHORT,存,,1,右上存档圆章单字（书法体，第3批效果图；阶段3-4 待收编）
+HUD_CD_SEC,{sec}秒,sec:float1,5,技能格冷却剩余时间（与 HUD_BOSS_TIMER 同用“秒”；效果图写作 6.2s，由策划定）（阶段3-4 待收编）
+HUD_COOLDOWN_SEC,冷却{sec}秒,sec:float1,7,闪避圆钮冷却小字（阶段3-4 待收编）
+LOOT_TOAST_GET,获得,,2,左侧拾取提示小字（第3批效果图；阶段3-4 待收编）
+SETTING_TELEGRAPH_WHITE,统一预警白,,5,设置页“显示”开关：所有地图首领预警都用预警白（BUG-016；阶段6 起常显于设置页；阶段3-4 待收编）
+TIP_TELEGRAPH_WHITE,所有地图的首领预警都改用白色,,14,上一项的悬停说明（阶段3-4 待收编）
+PANEL_SUB_BREAK,积修为　聚灵石　破关隘,,11,突破面板副标题（阶段5 待收编）
+LABEL_REALM_NOW,当前境界,,4,突破面板左栏标题（阶段5 待收编）
+LABEL_REALM_NEXT,突破至,,3,突破面板右栏标题（阶段5 待收编）
+LABEL_BREAK_COST,突破所需,,4,突破面板条件区标题（阶段5 待收编）
+LABEL_BREAK_UNLOCK,突破后开放,,5,突破面板解锁区标题（阶段5 待收编）
+LABEL_HAVE_NEED,{have:int}／{need:int},have:int7;need:int7,15,突破条件持有／需要（阶段5 待收编）
+LABEL_BREAK_RULE,突破必定成功　属性替换为新境界,,15,突破按钮上方小字（realms 规则：成功率100%　属性直接替换；阶段5 待收编）
+LABEL_REALM_MAX,已至此界之巅　来日再破,,11,已到最高境界时右栏文字（阶段5 待收编）
+BTN_BREAK,突破,,2,突破按钮（阶段5 待收编）
+BTN_GO_MAP,前往{map_name},map_name:maps.name,5,地图开放卡片按钮：前往该地图第一关（阶段5 待收编）
+BTN_STAY,稍后,,2,地图开放卡片：留在此处（阶段5 待收编）
+MAP_TAG_NEED_REALM,需{realm_name},realm_name:realms.name,4,地图面板：未开放地图所需境界（阶段5 待收编）
+MAP_TAG_NEW,新开,,2,地图面板：刚开放且未通关任何关卡的地图（阶段5 待收编）
+TITLE_FIRST_CLEAR,首通奖励,,4,首通奖励卡片标题（阶段5 待收编）
+TITLE_ORANGE_CHOICE,核心橙装　三选一,,8,终关首通三选一对话框标题（阶段5 待收编）
+SUB_ORANGE_CHOICE,择其一件　余者不可再得,,11,三选一副标题（阶段5 待收编）
+LABEL_ORANGE_AFFIX,另附随机词条{count:int}条,count:int1,9,三选一卡片：橙色品质附带的随机词条数（qualities.affix_count；阶段5 待收编）
+BTN_CHOOSE,择此件,,3,三选一卡片按钮（阶段5 待收编）
+BTN_CHOOSE_LATER,稍后再选,,4,三选一：关闭对话框，可在装备面板继续选择（阶段5 待收编）
+HUD_BUILD_VERSION,阶段{stage:raw}　{commit:raw},stage:raw3;commit:raw8,13,右下角构建版本小字（导出时由 tools/build_web.sh 写入 build_info.json；阶段5 待收编）
+HUD_BUILD_DEV,开发版,,3,未经构建脚本导出时的版本小字（阶段5 待收编）
+BTN_CHOOSE_NOW,现在选择,,4,自动挂机时的三选一提示卡片：打开三选一对话框（暂停；阶段5 待收编）
+HINT_ORANGE_AUTO_LATER,{sec:int}秒后收起，可在【装备】中选择,sec:int,16,自动挂机三选一卡片倒计时；到点按“稍后再选”收起（阶段5 待收编）
+HUD_SAVE_OK,已保存,,3,右上存档圆章下小字：最近一次保存成功（阶段6 待收编）
+HUD_SAVE_DIRTY,待保存,,3,右上存档圆章下小字：有改动、本帧末保存（阶段6 待收编）
+HUD_SAVE_ERROR,保存失败,,4,右上存档圆章下小字：写盘失败（阶段6 待收编）
+HUD_SAVE_BLOCKED,存档只读,,4,右上存档圆章下小字：存档来自更新版本，本次不写盘（阶段6 待收编）
+TIP_SAVE_BADGE,设置与存档,,5,右上【存】圆章悬停：点击打开设置页（阶段6 待收编）
+TIP_SAVE_LAST,上次保存{time:raw},time:raw,12,存档状态悬停 / 设置页：本地时间 时:分:秒（阶段6 待收编）
+TITLE_SETTINGS,设置,,2,设置页标题（阶段6 待收编）
+PANEL_SUB_SETTINGS,存档与显示,,5,设置页副标题（阶段6 待收编）
+LABEL_SAVE_SECTION,存档,,2,设置页分区标题（阶段6 待收编）
+LABEL_DISPLAY_SECTION,显示,,2,设置页分区标题（阶段6 待收编）
+LABEL_SAVE_STATE,存档状态,,4,设置页键值行（阶段6 待收编）
+LABEL_SAVE_WHERE,存放位置,,4,设置页键值行（阶段6 待收编）
+LABEL_SAVE_WHERE_WEB,本浏览器本地存储,,8,设置页：Web 版存档位置（IndexedDB + localStorage 镜像；阶段6 待收编）
+LABEL_SAVE_FORMAT,存档格式,,4,设置页键值行（阶段6 待收编）
+LABEL_SAVE_FORMAT_VALUE,第{version:int}版,version:int,5,设置页：save_version（阶段6 待收编）
+LABEL_SAVE_AUTO,每{sec:int}秒及重要操作后自动保存,sec:int,16,设置页说明：AUTOSAVE_INTERVAL（阶段6 待收编）
+BTN_EXPORT_SAVE,导出存档,,4,设置页按钮：Web 下载文件 / 桌面另存为（阶段6 待收编）
+BTN_IMPORT_SAVE,导入存档,,4,设置页按钮：Web 选择文件 / 桌面打开文件（阶段6 待收编）
+BTN_COPY_SAVE,复制存档码,,5,设置页按钮（桌面版）：存档文本复制到剪贴板（阶段6 待收编）
+BTN_PASTE_SAVE,粘贴存档码,,5,设置页按钮（桌面版）：从剪贴板导入（阶段6 待收编）
+BTN_RESET_SAVE,重置存档,,4,设置页按钮（两次确认；阶段6 待收编）
+TIP_EXPORT_SAVE,把当前进度保存为文件,,10,导出按钮悬停（阶段6 待收编）
+TIP_IMPORT_SAVE,从存档文件恢复进度（会先备份当前进度）,,19,导入按钮悬停（阶段6 待收编）
+TIP_RESET_SAVE,清空进度从头修行（会先备份当前进度）,,18,重置按钮悬停（阶段6 待收编）
+TITLE_CONFIRM,请确认,,3,确认框标题（阶段6 待收编）
+TITLE_CONFIRM_AGAIN,再次确认,,4,确认框第二步标题（阶段6 待收编）
+TITLE_SAVE_NOTICE,存档提示,,4,存档提示框标题（损坏 / 恢复 / 版本过新 / 导入结果；阶段6 待收编）
+CONFIRM_RESET_1,重置后将从头修行，确定吗？,,13,重置第一次确认（阶段6 待收编）
+CONFIRM_RESET_2,当前进度将被清空，此操作不可撤销（已自动备份）,,23,重置第二次确认（阶段6 待收编）
+CONFIRM_IMPORT_1,导入将用存档文件替换当前进度，确定吗？,,19,导入第一次确认（阶段6 待收编）
+CONFIRM_IMPORT_2,当前进度将被替换（已自动备份）,,15,导入第二次确认（阶段6 待收编）
+BTN_CONFIRM,确定,,2,确认框按钮（阶段6 待收编）
+BTN_CONFIRM_RESET,确定重置,,4,重置第二次确认按钮（阶段6 待收编）
+BTN_CONFIRM_IMPORT,确定导入,,4,导入第二次确认按钮（阶段6 待收编）
+BTN_CANCEL,取消,,2,确认框按钮（阶段6 待收编）
+BTN_OK,知道了,,3,提示框按钮（阶段6 待收编）
+MSG_EXPORT_DONE,存档已导出,,5,导出成功提示（阶段6 待收编）
+MSG_COPY_DONE,存档码已复制到剪贴板,,10,复制成功提示（阶段6 待收编）
+MSG_IMPORT_DONE,导入成功，原进度已备份,,11,导入成功提示（阶段6 待收编）
+MSG_RESET_DONE,存档已重置，原进度已备份,,12,重置成功提示（阶段6 待收编）
+MSG_IMPORT_FAIL,导入失败——{reason}——当前进度未改动,reason:ui_texts.IMPORT_ERR_*,30,导入失败提示（阶段6 待收编）
+IMPORT_ERR_TOO_BIG,文件过大,,4,导入失败原因：超过 1MB（阶段6 待收编）
+IMPORT_ERR_PARSE,不是有效的存档文件,,9,导入失败原因：不是 JSON 对象（阶段6 待收编）
+IMPORT_ERR_FIELDS,存档缺少必要内容,,8,导入失败原因：缺字段 / 类型不对（阶段6 待收编）
+IMPORT_ERR_TOO_NEW,存档来自更新的版本,,9,导入失败原因：save_version 高于游戏（阶段6 待收编）
+IMPORT_ERR_CHECKSUM,存档已损坏（校验不符）,,11,导入失败原因：checksum 不符（阶段6 待收编）
+IMPORT_ERR_MIGRATE,存档版本无法升级,,8,导入失败原因：迁移失败（阶段6 待收编）
+IMPORT_ERR_RANGE,存档数值异常,,6,导入失败原因：数值越界（阶段6 待收编）
+IMPORT_ERR_IDS,存档包含未知内容,,8,导入失败原因：境界等关键 ID 不存在（阶段6 待收编）
+IMPORT_ERR_RULES,存档内容不合规则,,8,导入失败原因：未学技能上槽 / 同技能两槽等（阶段6 待收编）
+IMPORT_ERR_EMPTY,没有读到存档内容,,8,导入失败原因：剪贴板为空 / 文件为空（阶段6 待收编）
+SAVE_MSG_RECOVERED,存档损坏，已从备份恢复,,11,启动提示：主存档损坏、用 .bak / .tmp 恢复（阶段6 待收编）
+SAVE_MSG_CORRUPT,存档损坏且无法恢复，已开始新的修行。损坏的文件已另存为{file:raw},file:raw,50,启动提示：全部损坏，坏文件改名 save.corrupt.<时间>.json（阶段6 待收编）
+SAVE_MSG_TOO_NEW,存档来自更新的版本，本次无法读取。为保护存档，本次不会自动保存,,32,启动提示：save_version 高于游戏（阶段6 待收编）
+SAVE_MSG_DROPPED,存档中有{count:int}项内容已不存在，已移除,count:int,20,启动提示：表更新后旧存档里的未知 ID 被丢弃（阶段6 待收编）
+OFFLINE_SUB,按{level_name}的收益结算,level_name:levels.name,14,闭关收益页副标题：最近已通关关卡（阶段6 待收编）
+OFFLINE_CAPPED,已达闭关上限{hours:int}小时,hours:int,10,闭关收益页：达到 OFFLINE_CAP_MINUTES（阶段6 待收编）
+OFFLINE_BAG_OVERFLOW,背包将满，{count:int}件装备转为{item_name},count:int;item_name:materials.name,18,闭关收益页：背包放不下的装备按溢出规则转炼器材料（阶段6 待收编）
+OFFLINE_CLAIMED,闭关所得已收下,,7,领取后横幅（阶段6 待收编）
+OFFLINE_ROLLBACK,系统时间早于上次记录，本次不计闭关收益,,19,启动横幅：时钟回拨（阶段6 待收编）
+OFFLINE_GEAR_COUNT,装备{count:int}件,count:int,6,闭关收益页：装备件数（阶段6 待收编）

@@ -235,3 +235,20 @@ func test_all_active_skills_castable() -> void:
 			check(dmg or sk.shape == "self_buff" and sk.effect2_type != "burst_absorb_pct" or sk.id == "SK_GANG_GUARD", "%s 造成伤害" % sid)
 			check(sk.shape != "self_buff" or b.player.shields.size() >= 0, "护盾正常")
 	free_battle(b)
+
+func test_system_started_clear_does_not_count_as_manual() -> void:
+	PlayerState.record_auto_failure("LV_1_1")
+	check(PlayerState.is_unstable("LV_1_1"), "已标记")
+	_strong()
+	var b := make_battle()
+	b.start_run(GameData.get_level("LV_1_1"), Battle.RunMode.CHALLENGE)   # 系统发起（如新存档自动挑战）
+	check(_wait_finish(b, 240.0), "结束")
+	eq(b.last_result, "victory", "通关")
+	check(PlayerState.is_unstable("LV_1_1"), "系统发起的通关不算 manual_clear")
+	free_battle(b)
+	b = make_battle()
+	b.challenge("LV_1_1")
+	PlayerState.set_auto_battle(true)   # 中途切自动也算
+	check(_wait_finish(b, 240.0), "结束")
+	check(not PlayerState.is_unstable("LV_1_1"), "玩家点挑战发起并通关清除标记")
+	free_battle(b)

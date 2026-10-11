@@ -15,6 +15,7 @@ config/icon="res://icon.svg"
 
 GameData="*res://scripts/autoload/game_data.gd"
 PlayerState="*res://scripts/autoload/player_state.gd"
+SaveSystem="*res://scripts/autoload/save_system.gd"
 
 [display]
 
@@ -26,7 +27,7 @@ window/stretch/aspect="expand"
 
 [gui]
 
-theme/custom="res://ui/theme.tres"
+theme/custom="res://art/ui/ui_theme.tres"
 
 [input]
 

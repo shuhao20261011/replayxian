@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/battle/player.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://art/characters/chr_hero_idle_01f.png" id="2_tex"]
+[ext_resource type="SpriteFrames" path="res://art/characters/hero/chr_hero.tres" id="2_frames"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
 size = Vector2(44, 150)
@@ -11,9 +11,12 @@ collision_layer = 1
 collision_mask = 0
 script = ExtResource("1_script")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("2_tex")
-offset = Vector2(16, -88)
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+centered = true
+offset = Vector2(-16, -88)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -75)

@@ -1,5 +1,64 @@
 # 配置表变更记录
 
+## v5.5 — 2026-10-11（全场预警虚线定稿）
+
+只改 `tools/gen_tables.py`，重新生成；`validate.py` 0 错误。
+- `constants.csv` 新增 `TELEGRAPH_ARENA_DASH_PX=24`、`TELEGRAPH_ARENA_GAP_PX=16`（美术 style_guide 2.2 定稿）；普通预警仍为 `TELEGRAPH_DASH_PX/GAP_PX`=12/12（GAP 的 desc 去掉“全场同样使用”）。
+- `README.md` 3.7 对照表：全场主线改为划 24 / 空 16，并补一行纹理：全场用 `fx_warn_dash_screen.png`、`fx_warn_rect_9p_screen.png`（按 24/16 制作），普通用 `fx_warn_dash.png` 等（12/12）。
+- `tools/validate.py`：两个新常量纳入“必须存在且 >0”检查。
+- 前端：telegraph.gd 绘制 arena 预警时改用 TELEGRAPH_ARENA_DASH_PX/GAP_PX；用贴图时选 *_screen 纹理。
+
+## v5.4 — 2026-10-11（菜单图标、预警绘制参数对齐美术定稿）
+
+只改 `tools/gen_tables.py`，重新生成；`validate.py` 0 错误（另有 8 条告警：菜单图标美术尚未出图）。数值未改。
+
+### 一、预警绘制常量（以 art/final/style_guide.md 2.2 为准）
+| 常量 | 值 | 说明 |
+|---|---|---|
+| TELEGRAPH_OUTLINE_ALPHA | 0.6 → **0.7** | 外描边不透明度 |
+| TELEGRAPH_LINE_PX | 4（新增） | 普通预警主线宽 |
+| TELEGRAPH_DASH_PX / TELEGRAPH_GAP_PX | 12 / 12（新增） | 虚线划/空 |
+| TELEGRAPH_PROGRESS_FILL_ALPHA | 0.3（新增） | 进度内圈填充（style_guide 有、需求未列） |
+| TELEGRAPH_ARENA_LINE_PX | 6（新增） | 全场预警主线宽 |
+| TELEGRAPH_ARENA_OUTLINE_PX | 3（新增） | 全场预警外描边宽 |
+| TELEGRAPH_ARENA_OUTLINE_ALPHA | 0.7（新增） | 全场预警外描边不透明度 |
+| TELEGRAPH_ARENA_FILL_ALPHA_CENTER / _EDGE | 0.15 / 0.35（新增） | 全场底色中心→四边渐变 |
+| TELEGRAPH_BLINK_MIN_ALPHA | 0.45（新增） | 闪烁 modulate.a 下限（style_guide 5.8） |
+不变：TELEGRAPH_OUTLINE_PX=2、TELEGRAPH_OUTLINE_COLOR=#1C1E21、TELEGRAPH_FILL_ALPHA=0.15。与需求一致，style_guide 另多出“进度内圈 30%”和闪烁参数；全场预警的虚线划/空 style_guide 未单列，沿用 12/12。
+
+### 二、图标清单
+- 新增类别「菜单」4 个：ui_icon_menu_equip（布袋）、ui_icon_menu_gongfa（翻开的古籍）、ui_icon_menu_map（地图卷与金钉）、ui_icon_menu_breakthrough（山峰与金光），源图128×128、显示64×64；refs 关联 ui_texts 的 NAV_GEAR/NAV_GONGFA/NAV_MAP/NAV_BREAK 及对应 _SHORT。键名采用美术暂定名（合规未改）。
+- 追加列 `variants`：按键 6 个各记 `_pressed`，菜单 4 个各记 `_fg`（透明底前景版）。清单共 58 个图标、10 个变体。
+- validate：菜单图标作为固定 UI 图标允许存在（refs 须指向存在的 ui_texts，且关联对应 NAV_*）；按键须有 _pressed、菜单须有 _fg；变体须以“图标键_”开头；与 art/final/ui/icons/ 实际文件比对（只告警）。
+- 核对结果：原 54 个图标与 6 个 _pressed 和实际文件一一对应；菜单 4 个图标及 4 个 _fg 共 8 个文件美术尚未出图（style_guide 第10节第3条也记为待办），无清单外文件。
+
+### 三、给前端
+- telegraph.gd 按 3.7 新表绘制：普通 4px 虚线 12/12 + 2px 外描边 70% + 15% 填充（进度内圈 30%）；arena 6px 虚线 + 3px 外描边 70% + 中心 15%→四边 35% 渐变；闪烁 a 1.0↔0.45。参数从 constants 读。
+- 右下入口按钮可换用 ui_icon_menu_*_fg 叠在圆章按钮上（出图后），无图时继续用 NAV_*_SHORT 单字。
+
+## v5.3 — 2026-10-11（收编前端临时文案）
+
+只改 `tools/gen_tables.py` 的 UI_TEXTS 并重新生成；`validate.py` 0 错误（26 张表、651 行）。`game/data/ui_texts_local.csv` 只读未动。
+
+- `ui_texts.csv` 并入前端临时表全部 **38 条**，key 全部保留，与原有 45 条无 key 冲突，现共 83 条。前端 `UiText` 规则为“主表同名 key 优先”，所以同步本表后，本地表里的条目都会被主表覆盖，前端可在确认后自行删除本地表。
+- 按 README 第5节打磨，改写 **14 条**（占位符名不变）：BANNER_RETREAT_RETURN、BANNER_NO_NEW_LEVEL、HUD_LINGSHI、HUD_XIUWEI、HUD_CONTROLS、HUD_SAVE_PENDING、HUD_MODE_FARM、HUD_MODE_FARM_NORMALS、HUD_BOSS_FIGHT、HUD_WAVE_WALK、HINT_KEY_SPACE、PANEL_TITLE_PAUSED、FLOAT_LINGSHI、FLOAT_CRIT。其余 24 条原样保留。例：
+  - BANNER_RETREAT_RETURN：“配置已调，重返{level_name}” → “整装再战，重返{level_name}”（与“暂难稳过…，退守…”成对）
+  - HUD_CONTROLS：“A/D 移动 · 1-4 技能 · 空格 闪避 · Q 自动” → “A D 移动　1–4 技能　空格闪避　Q 自动战斗”（去半角斜杠/中点，术语与按钮【自动战斗】一致）
+  - HUD_SAVE_PENDING：“存档：未接入（阶段6）” → “存档未启用”（去掉开发用语和半角标点；阶段6应替换或隐藏）
+  - 另：HUD_MODE_FARM 挂机中→历练中、HUD_MODE_FARM_NORMALS 挂机·外围→外围历练；FLOAT_LINGSHI “+{value:int} 灵石”→“灵石+{value:int}”；PANEL_TITLE_PAUSED “{title}（战斗已暂停）”→“{title}·战斗暂停”。
+- 补齐 max_chars（按渲染后最长值）与 context（去掉“前端补充”，写明位置/触发，标注“v5.3 收编前端”）。
+- placeholders 规范化：`value:int` → `value:int7/int4/int6`（按位数）；新增来源写法 `ui_texts.KEY` / `ui_texts.NAV_*`（嵌套文案）。
+- `tools/validate.py`：支持上述嵌套来源（被引文案须存在、不能自引用，按被引 max_chars 计长）；负向测试：引用不存在的 key 会报错。
+- 给前端的提示：hud.gd 第225行 `" · "`、第244行 `"%d · %s（%s）"` 在代码里拼接半角空格+中点，建议改用全角“·”或入表；PANEL_TITLE_PAUSED 在找不到 NAV key 时会把面板内部 ID 作为 title 上屏，建议兜底用 NAV 文案。
+
+## v5.2 — 2026-10-11（仅文档：两条运行时硬性规则）
+
+数据表未改，`validate.py` 0 错误。测试确认 BUG-005 回归通过。
+- `README.md` 3.7「危险招式节奏」新增两条硬性运行时规则（第4节同步引用）：
+  1. 危险招最小间隔保护：释放危险招前若距上次危险判定不足 DODGE_COOLDOWN + DANGER_MIN_GAP_MARGIN_S（3.5 秒）则推迟出招（前端已实现；测试在掌心雷眩晕推迟场景实测最差 3.50 秒）。validate 只覆盖静态排招，眩晕等运行时变化由该保护兜底。
+  2. 预警时长按帧向上取整：0.8 秒 = 60fps 下 48 帧（BUG-014 曾为 47 帧）。
+- `tools/validate.py`：检查 DODGE_COOLDOWN、DANGER_MIN_GAP_MARGIN_S、BOSS_WARN_TIME 存在且为正数。
+
 ## v5.1 — 2026-10-11（小修订：预警色按地图配置、图标清单）
 
 改法同前：只改 `tools/gen_tables.py`，重新生成；`validate.py` 0 错误（26 张表、613 行）。数值未改，balance 结果不变（未重跑，无需重跑）。
