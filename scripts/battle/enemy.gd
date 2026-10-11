@@ -197,4 +197,4 @@ func _draw() -> void:
 	draw_rect(Rect2(-w / 2, top, w, 6), Color(0, 0, 0, 0.6))
 	draw_rect(Rect2(-w / 2, top, w * hp / max_hp, 6), Color("#C9433A"))
 	if stun_t > 0.0:
-		draw_string(ThemeDB.fallback_font, Vector2(-12, top - 4), UiText.t("FLOAT_STUN"), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color.YELLOW)
+		draw_string(UiStyle.world_font(), Vector2(-12, top - 4), UiText.t("FLOAT_STUN"), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color.YELLOW)

@@ -162,7 +162,7 @@ class FloatText extends FxBase:
 		if life >= duration:
 			finish()
 	func _draw() -> void:
-		var font := ThemeDB.fallback_font
+		var font := UiStyle.world_font()
 		var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, size).x
 		draw_string_outline(font, Vector2(-w / 2, 0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, 4, Color(0.1, 0.1, 0.1, 0.9))
 		draw_string(font, Vector2(-w / 2, 0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)

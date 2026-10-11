@@ -1,5 +1,13 @@
 class_name UiStyle
 extends RefCounted
+
+## 世界内绘制文字（预警招式名、飘字等）用的字体：项目主题默认字体（内嵌中文子集，Web 也能显示）。
+## 不要用 ThemeDB.fallback_font（引擎自带字体，无中文）。
+static func world_font() -> Font:
+	var th := ThemeDB.get_project_theme()
+	if th and th.default_font:
+		return th.default_font
+	return ThemeDB.fallback_font
 ## 占位UI样式（style_guide 2节配色：深墨半透明面板 + 金色细描边）。正式UI切图到位后换成 NinePatchRect。
 
 const PANEL := Color(0.106, 0.114, 0.125, 0.78)

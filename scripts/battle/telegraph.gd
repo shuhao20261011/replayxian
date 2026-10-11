@@ -128,7 +128,7 @@ func _draw() -> void:
 		draw_rect(bar, color)
 	# BUG-012：引导提示显示期间不画招式名（与屏幕中央“按空格闪避！”重叠）
 	if arena and not battle.tutorial.is_active_for(self):
-		var font := ThemeDB.fallback_font
+		var font := UiStyle.world_font()
 		draw_string_outline(font, Vector2(cx - 80, -330), attack.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 40, int(GameData.const_f("TELEGRAPH_OUTLINE_PX", 2.0)) * 2, outline_color())
 		draw_string(font, Vector2(cx - 80, -330), attack.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 40, color)
 
