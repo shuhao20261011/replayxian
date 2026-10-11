@@ -220,7 +220,7 @@ func _build() -> void:
 	var mid := VBoxContainer.new()
 	mid.add_theme_constant_override("separation", 4)
 	mid.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	mid.offset_top = 66; mid.offset_left = -280; mid.offset_right = 280
+	mid.offset_top = 66; mid.offset_left = -230; mid.offset_right = 230
 	mid.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(mid)
 	wave_box = PanelContainer.new()
@@ -234,9 +234,9 @@ func _build() -> void:
 	boss_name = UiStyle.title("", 24, Color("#E8B0A0")); bnr.add_child(boss_name)
 	boss_stun = UiStyle.label(UiText.t("FLOAT_STUN"), 15, Color("#FFE08A")); boss_stun.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	boss_stun.visible = false; bnr.add_child(boss_stun)
-	boss_bar = UiStyle.bar(UiStyle.HP.lightened(0.15)); boss_bar.custom_minimum_size = Vector2(560, 14); boss_box.add_child(boss_bar)
+	boss_bar = UiStyle.bar(UiStyle.HP.lightened(0.15)); boss_bar.custom_minimum_size = Vector2(420, 14)   # 不伸到右上挑战按钮下; boss_box.add_child(boss_bar)
 	banner_label = UiStyle.label("", 18, UiStyle.GOLD_TEXT); banner_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	banner_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; banner_label.custom_minimum_size = Vector2(560, 0); mid.add_child(banner_label)
+	banner_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; banner_label.custom_minimum_size = Vector2(460, 0); mid.add_child(banner_label)
 	# ---- 屏幕中央：情境引导（主句 / 空格键图标 / 自动模式小字，BUG-004） ----
 	hint_label = UiStyle.title("", 52, UiStyle.MIST)
 	hint_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER)

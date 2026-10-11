@@ -15,8 +15,8 @@ var _cd: Label
 var _cd_cap: Label
 var _shade: ColorRect
 var _empty: Label
-var _num: Label
-var _key: TextureRect
+var _key: Label   # 快捷键数字（缺按键图标时显示；QA TC_SB_01 读取 _key.text）
+var _key_tex: TextureRect
 var _auto: Button
 var _ready_flash := 0.0
 var _was_cd := false
@@ -62,14 +62,14 @@ func _ready() -> void:
 	_btn.add_child(_empty)
 	var row := HBoxContainer.new(); row.add_theme_constant_override("separation", 2); row.alignment = BoxContainer.ALIGNMENT_CENTER
 	add_child(row)
-	_key = TextureRect.new(); _key.texture = ArtUi.key_icon(str(slot + 1))
-	_key.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; _key.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_key.custom_minimum_size = Vector2(30, 30)
-	_key.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_key_tex = TextureRect.new(); _key_tex.texture = ArtUi.key_icon(str(slot + 1))
+	_key_tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; _key_tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_key_tex.custom_minimum_size = Vector2(30, 30)
+	_key_tex.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(_key_tex)
+	_key = UiStyle.label(str(slot + 1), 12, UiStyle.GOLD_TEXT)   # 缺按键图标时的退路
+	_key.visible = _key_tex.texture == null
 	row.add_child(_key)
-	_num = UiStyle.label(str(slot + 1), 12, UiStyle.GOLD_TEXT)   # 缺按键图标时的退路
-	_num.visible = _key.texture == null
-	row.add_child(_num)
 	_auto = Button.new()
 	_auto.focus_mode = Control.FOCUS_NONE
 	_auto.add_theme_font_size_override("font_size", 11)
@@ -92,12 +92,12 @@ func _style_auto(on: bool) -> void:
 	_auto.add_theme_color_override("font_hover_color", Color("#FFFFFF"))
 
 func refresh(skill: SkillDef, auto_on: bool, cd_left: float, cd_total: float) -> void:
-	_num.text = str(slot + 1)
+	_key.text = str(slot + 1)
 	var act := "skill_%d" % (slot + 1)
 	var down := InputMap.has_action(act) and Input.is_action_pressed(act)
 	var kt := ArtUi.key_icon(str(slot + 1), down)
-	if kt and _key.texture != kt:
-		_key.texture = kt
+	if kt and _key_tex.texture != kt:
+		_key_tex.texture = kt
 	if skill == null:
 		_icon.texture = null
 		_cd.text = ""; _cd_cap.visible = false
