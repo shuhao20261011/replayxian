@@ -14,7 +14,7 @@ static func shell(owner: PanelContainer, title_text: String, sub_text: String) -
 	head.add_child(UiStyle.spacer())
 	var close := UiStyle.medallion("✕", 40, 18)
 	close.remove_theme_font_override("font")
-	close.tooltip_text = "关闭（继续战斗）"
+	close.tooltip_text = UiText.t("BTN_CLOSE")
 	head.add_child(close)
 	v.add_child(UiStyle.hsep(0.6))
 	var body := VBoxContainer.new(); body.size_flags_vertical = Control.SIZE_EXPAND_FILL; body.add_theme_constant_override("separation", 8)
@@ -98,3 +98,25 @@ static func kv(parent: Control, k: String, v: String, vcolor: Color = UiStyle.MI
 	h.add_child(UiStyle.label(v, 16, vcolor))
 	if delta != "":
 		h.add_child(UiStyle.label(delta, 15, dcolor))
+
+## PlayerState 操作结果码 → 上屏文案（ui_texts / 待收编表）；"ok" 返回 ok_text
+static func result_text(code: String, ok_text: String = "") -> String:
+	match code:
+		"ok":
+			return ok_text
+		"no_lingshi":
+			return UiText.t("ERR_NOT_ENOUGH", {"item_name": GameData.material_name("CUR_LINGSHI")})
+		"no_refine":
+			return UiText.t("ERR_NOT_ENOUGH", {"item_name": GameData.material_name("MAT_REFINE")})
+		"no_pages":
+			return UiText.t("ERR_NOT_ENOUGH", {"item_name": GameData.material_name(PlayerState.PAGE_ID)})
+		"cannot_reroll": return UiText.t("ERR_CANNOT_REROLL")
+		"not_in_bag": return UiText.t("ERR_NOT_IN_BAG")
+		"no_pool": return UiText.t("ERR_NO_POOL")
+		"no_book": return UiText.t("ERR_NO_BOOK")
+		"already_learned": return UiText.t("ERR_ALREADY_LEARNED")
+		"not_learned": return UiText.t("ERR_NOT_LEARNED")
+		"max_level": return UiText.t("ERR_MAX_LEVEL")
+		"locked_region": return UiText.t("ERR_LOCKED_REGION")
+	push_warning("PanelKit.result_text: 未登记的结果码 %s" % code)
+	return ""

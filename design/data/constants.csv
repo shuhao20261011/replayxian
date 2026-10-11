@@ -46,7 +46,4 @@ AUTO_SHIELD_RESERVE_CD,12.0,秒,v4：冷却≥该值的护盾技能（金刚不�
 FAIL_RETURN_POLICY,last_cleared,枚举,失败后返回最近已通关关卡挂机；未通关时刷第一关普通怪（计划已定）；自动模式另见AUTO_FAIL_RETREAT_*
 AUTO_FAIL_RETREAT_COUNT,1,次,v3：自动模式下同一关连续失败达到该次数，即把该关标记为“当前配置不稳定”，回退到已通关且未被标记的最高关卡继续自动挂机
 AUTO_FAIL_RETREAT_RESET_ON,loadout_change|skill_level_up|realm_up|manual_clear,枚举,v3：清除“不稳定”标记的时机：更换技能栏/被动或装备（含重铸）、任一技能升级、境界突破、manual_clear=玩家点【挑战】按钮发起该关并通关（v4 明确：无论中途是否切过自动）
-<<<<<<< HEAD
-=======
 BOSS_MIN_SPACING_PX,180,像素,首领与主角的最小中心距离（首领占位图约240px宽）：首领停在max(普攻距离,此值)，主角贴近时首领后退；玩家选敌与普攻按首领体型外沿放宽
->>>>>>> 02a0548 (feat(stage3-4): 功法/技能书/升级/残页 + 装备生成/词条/橙装/掉落/换装/分解/重铸；装/功面板；首领最小间距；v4 反伤/反震防御开关；正式主角与青竹山背景接入)

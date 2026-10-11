@@ -1,6 +1,28 @@
 # 配置表变更记录
 
-<<<<<<< HEAD
+## v5.3 — 2026-10-11（收编前端临时文案）
+
+只改 `tools/gen_tables.py` 的 UI_TEXTS 并重新生成；`validate.py` 0 错误（26 张表、651 行）。`game/data/ui_texts_local.csv` 只读未动。
+
+- `ui_texts.csv` 并入前端临时表全部 **38 条**，key 全部保留，与原有 45 条无 key 冲突，现共 83 条。前端 `UiText` 规则为“主表同名 key 优先”，所以同步本表后，本地表里的条目都会被主表覆盖，前端可在确认后自行删除本地表。
+- 按 README 第5节打磨，改写 **14 条**（占位符名不变）：BANNER_RETREAT_RETURN、BANNER_NO_NEW_LEVEL、HUD_LINGSHI、HUD_XIUWEI、HUD_CONTROLS、HUD_SAVE_PENDING、HUD_MODE_FARM、HUD_MODE_FARM_NORMALS、HUD_BOSS_FIGHT、HUD_WAVE_WALK、HINT_KEY_SPACE、PANEL_TITLE_PAUSED、FLOAT_LINGSHI、FLOAT_CRIT。其余 24 条原样保留。例：
+  - BANNER_RETREAT_RETURN：“配置已调，重返{level_name}” → “整装再战，重返{level_name}”（与“暂难稳过…，退守…”成对）
+  - HUD_CONTROLS：“A/D 移动 · 1-4 技能 · 空格 闪避 · Q 自动” → “A D 移动　1–4 技能　空格闪避　Q 自动战斗”（去半角斜杠/中点，术语与按钮【自动战斗】一致）
+  - HUD_SAVE_PENDING：“存档：未接入（阶段6）” → “存档未启用”（去掉开发用语和半角标点；阶段6应替换或隐藏）
+  - 另：HUD_MODE_FARM 挂机中→历练中、HUD_MODE_FARM_NORMALS 挂机·外围→外围历练；FLOAT_LINGSHI “+{value:int} 灵石”→“灵石+{value:int}”；PANEL_TITLE_PAUSED “{title}（战斗已暂停）”→“{title}·战斗暂停”。
+- 补齐 max_chars（按渲染后最长值）与 context（去掉“前端补充”，写明位置/触发，标注“v5.3 收编前端”）。
+- placeholders 规范化：`value:int` → `value:int7/int4/int6`（按位数）；新增来源写法 `ui_texts.KEY` / `ui_texts.NAV_*`（嵌套文案）。
+- `tools/validate.py`：支持上述嵌套来源（被引文案须存在、不能自引用，按被引 max_chars 计长）；负向测试：引用不存在的 key 会报错。
+- 给前端的提示：hud.gd 第225行 `" · "`、第244行 `"%d · %s（%s）"` 在代码里拼接半角空格+中点，建议改用全角“·”或入表；PANEL_TITLE_PAUSED 在找不到 NAV key 时会把面板内部 ID 作为 title 上屏，建议兜底用 NAV 文案。
+
+## v5.2 — 2026-10-11（仅文档：两条运行时硬性规则）
+
+数据表未改，`validate.py` 0 错误。测试确认 BUG-005 回归通过。
+- `README.md` 3.7「危险招式节奏」新增两条硬性运行时规则（第4节同步引用）：
+  1. 危险招最小间隔保护：释放危险招前若距上次危险判定不足 DODGE_COOLDOWN + DANGER_MIN_GAP_MARGIN_S（3.5 秒）则推迟出招（前端已实现；测试在掌心雷眩晕推迟场景实测最差 3.50 秒）。validate 只覆盖静态排招，眩晕等运行时变化由该保护兜底。
+  2. 预警时长按帧向上取整：0.8 秒 = 60fps 下 48 帧（BUG-014 曾为 47 帧）。
+- `tools/validate.py`：检查 DODGE_COOLDOWN、DANGER_MIN_GAP_MARGIN_S、BOSS_WARN_TIME 存在且为正数。
+
 ## v5.1 — 2026-10-11（小修订：预警色按地图配置、图标清单）
 
 改法同前：只改 `tools/gen_tables.py`，重新生成；`validate.py` 0 错误（26 张表、613 行）。数值未改，balance 结果不变（未重跑，无需重跑）。
@@ -86,8 +108,6 @@
 - `README.md`：新增第5节『文案规范』与 3.20 ui_texts；各表新增列说明；3.7 增加危险招式节奏表；天坠时刻改为 20/40/60。
 - `balance.md`：按 v5 重算（2-5 倍率、天坠时刻）。
 
-=======
->>>>>>> 02a0548 (feat(stage3-4): 功法/技能书/升级/残页 + 装备生成/词条/橙装/掉落/换装/分解/重铸；装/功面板；首领最小间距；v4 反伤/反震防御开关；正式主角与青竹山背景接入)
 ## v4 — 2026-10-11（小修订：反伤防御定案、操作规则对齐前端、节奏常量入表）
 
 改法同前：先改 `tools/gen_tables.py`，再重新生成；`validate.py` 0 错误；`balance.py` 已重跑。数据表只有 `constants.csv`、`tutorial_steps.csv` 两张有变化，**关卡/怪物/技能等数值都没改**。

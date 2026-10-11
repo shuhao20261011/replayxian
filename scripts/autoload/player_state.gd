@@ -407,7 +407,7 @@ func add_gear(g: GearItem) -> String:
 	if bag.size() >= bag_capacity() and not protected:
 		var v := GearSystem.decompose_value(g)
 		add_item("MAT_REFINE", v)
-		loot_notice.emit("背包已满：%s 转为炼器材料×%d" % [g.display_name(), v])
+		loot_notice.emit(UiText.t("LOOT_BAG_FULL", {"gear_name": g.display_name(), "item_name": GameData.material_name("MAT_REFINE"), "count": v}))
 		return "overflow"
 	bag.append(g)
 	inventory_changed.emit()

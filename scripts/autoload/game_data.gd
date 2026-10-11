@@ -341,3 +341,11 @@ func telegraph_color(attack: BossAttackDef, map_id: String = "", unified_alt: bo
 
 func telegraph_style(attack: BossAttackDef) -> String:
 	return attack.telegraph_style if attack.telegraph_style != "" else const_s("TELEGRAPH_DEFAULT_STYLE", "dashed")
+
+## 属性显示名：取 affixes 表里该属性词条的 name（攻击/生命/防御/暴击率/暴击伤害/反伤……）；
+## 表里没有词条的属性（移动速度）用待收编文案 STAT_<属性>。
+func stat_name(stat: String) -> String:
+	for af: AffixDef in affixes_ordered:
+		if af.stat == stat:
+			return af.name
+	return UiText.t("STAT_" + stat.to_upper())

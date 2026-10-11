@@ -352,6 +352,11 @@ for r in T["ui_texts"]:
         decl[n] = psrc
         if re.match(r"^int\d$", psrc): continue
         tb, _, fd = psrc.partition(".")
+        if tb == "ui_texts":       # v5.3：嵌套另一条文案（KEY 或前缀通配 PREFIX*）
+            _ks = [x["key"] for x in T["ui_texts"] if (x["key"].startswith(fd[:-1]) if fd.endswith("*") else x["key"] == fd)]
+            if not _ks: err("ui_texts %s 占位符 %s 引用的文案 %s 不存在" % (k, n, psrc))
+            if k in _ks: err("ui_texts %s 占位符 %s 不能引用自身" % (k, n))
+            continue
         if tb not in T or not T[tb] or fd not in T[tb][0]: err("ui_texts %s 占位符 %s 来源 %s 不存在" % (k, n, psrc))
     used = [m.group(1) for m in PH_RE.finditer(str(r["text"]))]
     for n in used:
@@ -361,6 +366,8 @@ for r in T["ui_texts"]:
     def longest(src):
         if re.match(r"^int\d$", src): return "9" * int(src[3])
         tb, _, fd = src.partition(".")
+        if tb == "ui_texts":       # 嵌套文案按其 max_chars 计长
+            return "囗" * max((int(x["max_chars"]) for x in T["ui_texts"] if (x["key"].startswith(fd[:-1]) if fd.endswith("*") else x["key"] == fd)), default=0)
         return max((str(x[fd]) for x in T.get(tb, []) if fd in x), key=len, default="")
     try: out = PH_RE.sub(lambda m: longest(decl[m.group(1)]), str(r["text"]))
     except KeyError: continue
@@ -377,6 +384,9 @@ for t, col, rid in (("qualities", "beam_color", "quality_id"), ("gongfa", "fx_co
 
 # v5 BUG-005：危险招式间隔 ≥ 闪避冷却 + 余量（逐帧复刻 boss.gd 排招，模拟每关首领出现后60秒）
 from common import danger_gap_violations
+# v5.2：运行时“危险招最小间隔保护”与“预警按帧向上取整”依赖以下常量，必须存在且为正数
+for _k in ("DODGE_COOLDOWN", "DANGER_MIN_GAP_MARGIN_S", "BOSS_WARN_TIME"):
+    if not (isinstance(CK.get(_k), (int, float)) and CK.get(_k) > 0): err("constants 缺少或非法：%s（运行时间隔保护/预警帧数依赖）" % _k)
 _min_gap = CK.get("DODGE_COOLDOWN", 3.0) + CK.get("DANGER_MIN_GAP_MARGIN_S", 0.5)
 for lv, a1, a2, gap, t1, t2, order in danger_gap_violations(T, _min_gap):
     err("%s 首领危险招式间隔不足：%s（末段判定 %.2f 秒）→ %s（判定 %.2f 秒）只隔 %.2f 秒 < 闪避冷却+余量 %.1f 秒（优先顺序：%s）"

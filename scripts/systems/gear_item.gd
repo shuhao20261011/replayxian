@@ -25,7 +25,7 @@ func tier() -> int:
 func display_name() -> String:
 	var b := base()
 	var q := quality()
-	return "【%s】%s" % [q.name if q else "?", b.name if b else base_id]
+	return UiText.t("GEAR_NAME", {"quality_name": q.name if q else "", "equip_name": b.name if b else ""})
 
 func color() -> Color:
 	var q := quality()
@@ -70,8 +70,5 @@ static func affix_text(a: Dictionary) -> String:
 	var af := GameData.affixes.get(a.affix_id) as AffixDef
 	if af == null:
 		return str(a.affix_id)
-	match af.value_type:
-		"pct":
-			return "%s +%.1f%%" % [af.name, float(a.value) * 100.0]
-		_:
-			return "%s +%d" % [af.name, int(a.value)]
+	# README 5.1：名称与数值之间不加半角空格（“攻击+12”“暴击率+3.5%”）
+	return "%s+%s" % [af.name, UiText.fmt(float(a.value), "pct") if af.value_type == "pct" else UiText.fmt(int(round(float(a.value))), "int")]

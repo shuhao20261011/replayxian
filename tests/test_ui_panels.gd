@@ -20,7 +20,7 @@ func test_gear_panel_pause_equip_and_resume() -> void:
 	PlayerState.add_gear(g)
 	PlayerState.mark_cleared("LV_1_1")
 	PlayerState.record_auto_failure("LV_1_2")
-	hud.open_panel("装备")
+	hud.open_panel("gear")
 	check(runner.get_tree().paused, "打开装备面板暂停战斗")
 	check(hud.gear_panel.visible and hud.is_panel_open(), "装备面板可见")
 	eq(hud.gear_panel.process_mode, Node.PROCESS_MODE_INHERIT, "面板继承 HUD 的 ALWAYS")
@@ -30,7 +30,7 @@ func test_gear_panel_pause_equip_and_resume() -> void:
 	await runner.get_tree().physics_frame
 	near(battle.sim_time, t0, 0.0001, "暂停期间战斗不推进")
 	hud.gear_panel.select(g.uid)
-	var eb := _find_button(hud.gear_panel, "装备")
+	var eb := _find_button(hud.gear_panel, UiText.t("BTN_EQUIP_GEAR"))
 	check(eb != null, "详情里有【装备】按钮")
 	if eb:
 		eb.pressed.emit()
@@ -48,22 +48,22 @@ func test_gongfa_panel_learn_upgrade_equip() -> void:
 	var hud: Hud = m.get_node("HUD")
 	PlayerState.add_book("BK_SWORD_COMBO", 1)
 	PlayerState.lingshi = 100000
-	hud.open_panel("功法")
+	hud.open_panel("gongfa")
 	check(runner.get_tree().paused and hud.gongfa_panel.visible, "功法面板打开并暂停")
 	hud.gongfa_panel.select_gongfa("GF_SWORD")
 	hud.gongfa_panel.select_skill("SK_SWORD_COMBO")
-	var lb := _find_button(hud.gongfa_panel, "学习")
+	var lb := _find_button(hud.gongfa_panel, UiText.t("BTN_LEARN", {"book_name": GameData.get_book("BK_SWORD_COMBO").name}))
 	check(lb != null, "有【学习】按钮")
 	if lb:
 		lb.pressed.emit()
 	eq(PlayerState.skill_level("SK_SWORD_COMBO"), 1, "面板学习")
 	hud.gongfa_panel.refresh()
-	var ub := _find_button(hud.gongfa_panel, "升级")
+	var ub := _find_button(hud.gongfa_panel, UiText.t("BTN_UPGRADE", {"cost": PlayerState.upgrade_cost("SK_SWORD_COMBO")}))
 	if ub:
 		ub.pressed.emit()
 	eq(PlayerState.skill_level("SK_SWORD_COMBO"), 2, "面板升级")
 	hud.gongfa_panel.refresh()
-	var e4 := _find_button(hud.gongfa_panel, "装到4")
+	var e4 := _find_button(hud.gongfa_panel, UiText.t("BTN_EQUIP_TO_SLOT", {"slot": 4}))
 	if e4:
 		e4.pressed.emit()
 	eq(PlayerState.active_slots[3], "SK_SWORD_COMBO", "面板装配到第4格")

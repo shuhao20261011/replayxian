@@ -87,28 +87,28 @@ static func apply(grants: Array, lingshi_gain_pct: float = 0.0) -> Array:
 			"lingshi":
 				var v := int(round(int(gr.count) * (1.0 + lingshi_gain_pct)))
 				PlayerState.add_rewards(v, 0)
-				shown.append({"text": "灵石+%d" % v, "color": Color(1, 0.86, 0.4), "beam": ""})
+				shown.append({"text": UiText.t("FLOAT_LINGSHI", {"value": v}), "color": Color(1, 0.86, 0.4), "beam": ""})
 			"xiuwei":
 				PlayerState.add_rewards(0, int(gr.count))
-				shown.append({"text": "修为+%d" % gr.count, "color": Color(0.6, 0.85, 1), "beam": ""})
+				shown.append({"text": UiText.t("FLOAT_XIUWEI", {"value": int(gr.count)}), "color": Color(0.6, 0.85, 1), "beam": ""})
 			"material":
 				PlayerState.add_item(gr.id, int(gr.count))
-				shown.append({"text": "%s×%d" % [GameData.material_name(gr.id), gr.count], "color": Color(0.8, 0.9, 0.8), "beam": ""})
+				shown.append({"text": UiText.t("LOOT_ITEM_COUNT", {"item_name": GameData.material_name(gr.id), "count": int(gr.count)}), "color": Color(0.8, 0.9, 0.8), "beam": ""})
 			"book":
 				PlayerState.add_book(gr.id, int(gr.count))
 				var bk := GameData.get_book(gr.id)
-				shown.append({"text": (bk.name if bk else gr.id), "color": Color(0.75, 0.6, 1), "beam": "book"})
+				shown.append({"text": (bk.name if bk else ""), "color": Color(0.75, 0.6, 1), "beam": "book"})
 			"equipment":
 				var g: GearItem = gr.item
 				var res := PlayerState.add_gear(g)
 				var q := g.quality()
 				var t := g.display_name()
 				if res == "auto_decomposed":
-					t += "→自动分解"
+					t = UiText.t("LOOT_AUTO_DECOMPOSED", {"gear_name": t, "item_name": GameData.material_name("MAT_REFINE")})
 				elif res == "overflow":
-					t += "→背包满转材料"
+					t = UiText.t("LOOT_BAG_FULL", {"gear_name": t, "item_name": GameData.material_name("MAT_REFINE"), "count": GearSystem.decompose_value(g)})
 				shown.append({"text": t, "color": g.color(), "beam": q.beam if q else ""})
 			"orange_choice":
 				PlayerState.add_orange_choice(gr.choices)
-				shown.append({"text": "核心橙装三选一（在【装】中领取）", "color": GameData.qualities_ordered().back().color, "beam": "tall_gold"})
+				shown.append({"text": UiText.t("LOOT_ORANGE_PENDING"), "color": GameData.qualities_ordered().back().color, "beam": "tall_gold"})
 	return shown
