@@ -7,6 +7,7 @@ var level: LevelDef
 var attacks: Array[BossAttackDef] = []
 var timers := {}          # attack_id -> 距离下次可用的秒数
 var busy_t := 0.0         # 危险攻击前摇/预警期间不移动、不普攻
+var guard_delays := 0     # 调试/测试：被间隔保护推迟的帧数
 
 func setup_boss(d: EnemyDef, lvl: LevelDef, b: Battle) -> void:
 	level = lvl
@@ -18,6 +19,16 @@ func setup_boss(d: EnemyDef, lvl: LevelDef, b: Battle) -> void:
 		if a != null and a.min_level_index <= lvl.index:
 			attacks.append(a)
 			timers[a.id] = a.first_cast_s if a.is_danger else 0.0
+
+## 危险招式最小间隔保护（v5 README 第4节，BUG-005）：表里的节拍已保证间隔，但掌心雷眩晕等会压缩节拍。
+## 本招首个判定（现在+预警）距上一次危险判定须 ≥ DODGE_COOLDOWN + DANGER_MIN_GAP_MARGIN_S，否则推迟释放。
+static func min_danger_gap() -> float:
+	return GameData.const_f("DODGE_COOLDOWN", 3.0) + GameData.const_f("DANGER_MIN_GAP_MARGIN_S", 0.5)
+
+func danger_gap_ok(warn: float) -> bool:
+	if battle.last_danger_resolve_t < 0.0:
+		return true
+	return battle.sim_time + warn - battle.last_danger_resolve_t >= min_danger_gap() - 1e-6
 
 func has_attack(attack_id: String) -> bool:
 	for a in attacks:
@@ -55,8 +66,12 @@ func _behave(delta: float, p: Player) -> void:
 	if not battle.has_active_danger_telegraph():
 		for a in attacks:
 			if a.is_danger and float(timers[a.id]) <= 0.0:
+				var warn := a.warn_s if a.warn_s > 0.0 else GameData.const_f("BOSS_WARN_TIME", 0.8)
+				if not danger_gap_ok(warn):
+					guard_delays += 1
+					break   # 运行时间隔保护：推迟，计时器保持就绪，间隔够了立刻放
 				timers[a.id] = a.cd_s
-				busy_t = a.warn_s if a.warn_s > 0.0 else GameData.const_f("BOSS_WARN_TIME", 0.8)
+				busy_t = warn
 				battle.start_boss_attack(self, a)
 				return
 	# 2) 普攻（无预警，近战接触）
