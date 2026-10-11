@@ -1,0 +1,15 @@
+{
+ "stage": "stage6",
+ "commit": "1a39b6c",
+ "built_at": "2026-10-11T08:51:21+00:00",
+ "files": [
+  "index.1a39b6c.apple-touch-icon.png",
+  "index.1a39b6c.audio.position.worklet.js",
+  "index.1a39b6c.audio.worklet.js",
+  "index.1a39b6c.icon.png",
+  "index.1a39b6c.js",
+  "index.1a39b6c.pck",
+  "index.1a39b6c.png",
+  "index.1a39b6c.wasm"
+ ]
+}
