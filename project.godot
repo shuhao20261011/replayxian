@@ -26,7 +26,7 @@ window/stretch/aspect="expand"
 
 [gui]
 
-theme/custom="res://ui/theme.tres"
+theme/custom="res://art/ui/ui_theme.tres"
 
 [input]
 

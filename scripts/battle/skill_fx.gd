@@ -98,7 +98,7 @@ class Zone extends FxBase:
 		if tick_t <= 0.0:
 			tick_t += maxf(tick, 0.05)
 			for e in battle.enemies_in_x_range(position.x - radius, position.x + radius):
-				battle.player_hit_enemy(e, coef, opts)
+				battle.player_hit_enemy(e, coef, opts.merged({"fx": "thunder_ground"}) if opts.get("gongfa_id", "") == "GF_THUNDER" else opts)
 		queue_redraw()
 		if life >= duration:
 			finish()
@@ -141,11 +141,18 @@ class EnemyBolt extends FxBase:
 		travel_left -= dx
 		var p := battle.player
 		if p.alive and absf(p.position.x - position.x) < 24.0:
-			battle.damage_player(damage, source, false)
+			battle.damage_player(damage, source if is_instance_valid(source) else null, false)   # 雷蟾已死（节点已释放）时雷球照常命中
 			finish(); return
 		if travel_left <= 0.0:
 			finish()
+	var tex: Texture2D
 	func _draw() -> void:
+		if tex:   # fx_toad_orb.png 朝左飞；向右时水平翻转
+			var sz := tex.get_size()
+			draw_set_transform(Vector2(0, -68), 0.0, Vector2(-1.0 if dir > 0 else 1.0, 1.0))
+			draw_texture(tex, -sz / 2.0)
+			draw_set_transform(Vector2.ZERO)
+			return
 		draw_circle(Vector2(0, -60), 12, Color("#BFD3FF"))
 		draw_circle(Vector2(0, -60), 6, Color.WHITE)
 

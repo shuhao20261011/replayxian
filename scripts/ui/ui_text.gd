@@ -1,12 +1,14 @@
 class_name UiText
 extends RefCounted
 ## v5 文案：上屏文字一律来自 design/data/ui_texts.csv（key → text，按 placeholders 填值）。
-## 表里还没有的前端文字放在 data/ui_texts_local.csv（同列结构，待策划收编；主表同名 key 优先）。
-## 模板渲染与 design/tools/common.py 的 render_tpl() 一致：
-##   {f} / {f:num} 数值保留至多2位小数并去掉末尾0；{f:pct} ×100 后至多1位小数加 %；{f:int} 四舍五入取整（与 Python round 一致：恰好一半时取偶）。
-##   非数值（关卡名等字符串）原样代入；字段缺失时保留占位符原文并告警。
+## v5.3 起阶段1-2的临时文案已全部收编进主表（原 data/ui_texts_local.csv 已删除）。
+## 阶段3-4 面板新增、主表还没有的文案登记在 data/ui_texts_pending.csv（同列结构，待策划收编；主表同名 key 优先，
+## 收编后可直接删行）。缺 key 时告警并显示 key 本身（测试会拦截）。
 
-const LOCAL_PATH := "res://data/ui_texts_local.csv"
+const PENDING_PATH := "res://data/ui_texts_pending.csv"
+## 模板渲染与 design/tools/common.py 的 render_tpl() 一致：
+##   {f} / {f:num} 数值保留至多2位小数并去掉末尾0；{f:pct} ×100 后至多1位小数加 %；{f:int} 四舍五入取整（与 Python round 一致：恰好一半时取偶）；{f:raw} 原样输出（阶段5，待策划工具同步）。
+##   非数值（关卡名等字符串）原样代入；字段缺失时保留占位符原文并告警。
 
 static var _rows: Dictionary = {}
 static var _src: Variant = null
@@ -18,8 +20,9 @@ static func _ensure() -> void:
 		return
 	_src = main
 	_rows = {}
-	for r in CsvUtil.load_rows(LOCAL_PATH) if FileAccess.file_exists(LOCAL_PATH) else []:
-		_rows[CsvUtil.s(r, "key")] = r
+	if FileAccess.file_exists(PENDING_PATH):
+		for r in CsvUtil.load_rows(PENDING_PATH):
+			_rows[CsvUtil.s(r, "key")] = r
 	for r in main:
 		_rows[CsvUtil.s(r, "key")] = r
 
@@ -42,7 +45,7 @@ static func row(key: String) -> Dictionary:
 static func render(tpl: String, data: Dictionary) -> String:
 	if _re == null:
 		_re = RegEx.new()
-		_re.compile("\\{([a-z_][a-z0-9_]*)(?::(pct|num|int))?\\}")
+		_re.compile("\\{([a-z_][a-z0-9_]*)(?::(pct|num|int|raw))?\\}")
 	var out := ""
 	var pos := 0
 	for m in _re.search_all(tpl):
@@ -64,7 +67,7 @@ static func _is_number(v: Variant) -> bool:
 	return false
 
 static func fmt(v: Variant, f: String = "") -> String:
-	if not _is_number(v):
+	if f == "raw" or not _is_number(v):   # {f:raw}：原样输出（如提交号 1234567 / 12e4567 不得被当作数字格式化）
 		return str(v)
 	var x := float(v)
 	match f:

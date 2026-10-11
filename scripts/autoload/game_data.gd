@@ -30,6 +30,15 @@ var realms_ordered: Array[RealmDef] = []
 var equip_bases := {}   # id -> EquipBaseDef
 var qualities := {}     # id -> QualityDef
 var materials := {}     # id -> Dictionary
+var affixes := {}       # id -> AffixDef
+var affixes_ordered: Array[AffixDef] = []
+var gear_tiers := {}    # tier(int) -> GearTierDef
+var orange_effects := {} # id -> OrangeEffectDef
+var equip_slots: Array[Dictionary] = []   # 按 order 排序的 {slot_id, name, order}
+var quality_weights := {} # weight_set_id -> {quality_id: weight}
+var drop_tables := {}   # drop_table_id -> Array[Dictionary]（按 seq）
+var book_pools := {}    # book_pool_id -> Array[{book_id, weight}]
+var first_clear := {}   # reward_id -> Array[Dictionary]（按 seq）
 var errors := PackedStringArray()
 
 func _ready() -> void:
@@ -45,6 +54,8 @@ func load_all(dir: String = DEFAULT_DATA_DIR) -> bool:
 	tables.clear(); constants.clear(); gongfa.clear(); skills.clear(); books.clear(); enemies.clear()
 	boss_attacks.clear(); maps.clear(); levels.clear(); levels_ordered.clear(); realms.clear()
 	realms_ordered.clear(); equip_bases.clear(); qualities.clear(); materials.clear()
+	affixes.clear(); affixes_ordered.clear(); gear_tiers.clear(); orange_effects.clear(); equip_slots.clear()
+	quality_weights.clear(); drop_tables.clear(); book_pools.clear(); first_clear.clear()
 	for t in TABLE_NAMES:
 		var path := dir.path_join(t + ".csv")
 		if not FileAccess.file_exists(path):
@@ -100,6 +111,39 @@ func _build() -> void:
 		var q := QualityDef.from_row(r); qualities[q.id] = q
 	for r in tables.get("materials", []):
 		materials[CsvUtil.s(r, "item_id")] = r
+	for r in tables.get("affixes", []):
+		var af := AffixDef.from_row(r); affixes[af.id] = af; affixes_ordered.append(af)
+	for r in tables.get("gear_tiers", []):
+		var gt := GearTierDef.from_row(r); gear_tiers[gt.tier] = gt
+	for r in tables.get("orange_effects", []):
+		var oe := OrangeEffectDef.from_row(r); orange_effects[oe.id] = oe
+	for r in tables.get("equip_slots", []):
+		equip_slots.append({"slot_id": CsvUtil.s(r, "slot_id"), "name": CsvUtil.s(r, "name"), "order": CsvUtil.i(r, "order")})
+	equip_slots.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.order < b.order)
+	for r in tables.get("quality_weights", []):
+		var w := {}
+		for q in qualities.keys():
+			w[q] = CsvUtil.f(r, q)
+		quality_weights[CsvUtil.s(r, "weight_set_id")] = w
+	for r in tables.get("drop_tables", []):
+		var id := CsvUtil.s(r, "drop_table_id")
+		if not drop_tables.has(id):
+			drop_tables[id] = []
+		drop_tables[id].append(r)
+	for r in tables.get("book_pools", []):
+		var id := CsvUtil.s(r, "book_pool_id")
+		if not book_pools.has(id):
+			book_pools[id] = []
+		book_pools[id].append({"book_id": CsvUtil.s(r, "book_id"), "weight": CsvUtil.f(r, "weight", 1.0)})
+	for r in tables.get("first_clear_rewards", []):
+		var id := CsvUtil.s(r, "reward_id")
+		if not first_clear.has(id):
+			first_clear[id] = []
+		first_clear[id].append(r)
+	for arr in drop_tables.values():
+		arr.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return CsvUtil.i(a, "seq") < CsvUtil.i(b, "seq"))
+	for arr in first_clear.values():
+		arr.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return CsvUtil.i(a, "seq") < CsvUtil.i(b, "seq"))
 
 ## 引用完整性（阶段1-2用到的部分；完整校验见 design/tools/validate.py）
 func _validate() -> void:
@@ -132,10 +176,107 @@ func _validate() -> void:
 		# breakthrough_mat_id 允许为空（v2：最后一张地图无突破材料）
 		if m.breakthrough_mat_id != "" and not materials.has(m.breakthrough_mat_id):
 			errors.append("地图 %s 的突破材料 %s 不存在" % [m.id, m.breakthrough_mat_id])
+	for af: AffixDef in affixes.values():
+		for sl in af.allowed_slots:
+			if not _has_slot(sl):
+				errors.append("词条 %s 的槽位 %s 不存在" % [af.id, sl])
+		if not qualities.has(af.min_quality):
+			errors.append("词条 %s 的最低品质 %s 不存在" % [af.id, af.min_quality])
+	for eb: EquipBaseDef in equip_bases.values():
+		if not _has_slot(eb.slot_id):
+			errors.append("装备底子 %s 的槽位 %s 不存在" % [eb.id, eb.slot_id])
+		if eb.orange_effect_id != "" and not orange_effects.has(eb.orange_effect_id):
+			errors.append("装备底子 %s 的橙装特效 %s 不存在" % [eb.id, eb.orange_effect_id])
+	for id in drop_tables:
+		for r in drop_tables[id]:
+			_check_ref("掉落表 " + id, CsvUtil.s(r, "entry_type"), CsvUtil.s(r, "ref_id"), CsvUtil.s(r, "weight_set_id"))
+	for id in first_clear:
+		for r in first_clear[id]:
+			_check_ref("首通奖励 " + id, CsvUtil.s(r, "reward_type"), CsvUtil.s(r, "ref_id"), CsvUtil.s(r, "weight_set_id"))
+	for id in book_pools:
+		for e in book_pools[id]:
+			if not books.has(e.book_id):
+				errors.append("书池 %s 引用了不存在的技能书 %s" % [id, e.book_id])
+	for l in levels_ordered:
+		for t in [l.normal_drop_table_id, l.boss_drop_table_id]:
+			if t != "" and not drop_tables.has(t):
+				errors.append("关卡 %s 的掉落表 %s 不存在" % [l.id, t])
 	for r in tables.get("start_kit", []):
 		var bid := CsvUtil.s(r, "ref_id")
 		if not equip_bases.has(bid):
 			errors.append("start_kit 引用了不存在的装备底子 %s" % bid)
+
+func _has_slot(slot_id: String) -> bool:
+	for s in equip_slots:
+		if s.slot_id == slot_id:
+			return true
+	return false
+
+func _check_ref(where: String, kind: String, ref: String, ws: String) -> void:
+	match kind:
+		"equipment":
+			if tier_from_ref(ref) <= 0 or not gear_tiers.has(tier_from_ref(ref)):
+				errors.append("%s 装备档位 %s 无效" % [where, ref])
+			if ws != "" and not quality_weights.has(ws):
+				errors.append("%s 品质权重组 %s 不存在" % [where, ws])
+		"material":
+			if not materials.has(ref):
+				errors.append("%s 材料 %s 不存在" % [where, ref])
+		"book_pool":
+			if not book_pools.has(ref):
+				errors.append("%s 书池 %s 不存在" % [where, ref])
+		"book":
+			if not books.has(ref):
+				errors.append("%s 技能书 %s 不存在" % [where, ref])
+		"orange_choice":
+			if not equip_bases.has(ref):
+				errors.append("%s 橙装底子 %s 不存在" % [where, ref])
+
+## "TIER_2" -> 2
+func tier_from_ref(ref: String) -> int:
+	return ref.trim_prefix("TIER_").to_int() if ref.begins_with("TIER_") else 0
+
+func get_book(id: String) -> SkillBookDef:
+	return books.get(id) as SkillBookDef
+
+func get_quality(id: String) -> QualityDef:
+	return qualities.get(id) as QualityDef
+
+func get_base(id: String) -> EquipBaseDef:
+	return equip_bases.get(id) as EquipBaseDef
+
+func get_tier(tier: int) -> GearTierDef:
+	return gear_tiers.get(tier) as GearTierDef
+
+func slot_name(slot_id: String) -> String:
+	for s in equip_slots:
+		if s.slot_id == slot_id:
+			return s.name
+	return slot_id
+
+func material_name(id: String) -> String:
+	return CsvUtil.s(materials.get(id, {}), "name", id)
+
+func qualities_ordered() -> Array[QualityDef]:
+	var out: Array[QualityDef] = []
+	for q: QualityDef in qualities.values():
+		out.append(q)
+	out.sort_custom(func(a: QualityDef, b: QualityDef) -> bool: return a.order < b.order)
+	return out
+
+func skills_of_gongfa(gongfa_id: String) -> Array[SkillDef]:
+	var out: Array[SkillDef] = []
+	for r in tables.get("skills", []):
+		var s := get_skill(CsvUtil.s(r, "skill_id"))
+		if s and s.gongfa_id == gongfa_id:
+			out.append(s)
+	return out
+
+func gongfa_ordered() -> Array[GongfaDef]:
+	var out: Array[GongfaDef] = []
+	for r in tables.get("gongfa", []):
+		out.append(gongfa[CsvUtil.s(r, "gongfa_id")])
+	return out
 
 # ---------- 常量 ----------
 func const_f(key: String, def_value: float = 0.0) -> float:
@@ -144,6 +285,11 @@ func const_f(key: String, def_value: float = 0.0) -> float:
 
 func const_i(key: String, def_value: int = 0) -> int:
 	return int(round(const_f(key, def_value)))
+
+func const_b(key: String, def_value: bool = false) -> bool:
+	if not constants.has(key):
+		return def_value
+	return str(constants[key]).strip_edges().to_lower() in ["true", "1", "yes"]
 
 func const_s(key: String, def_value: String = "") -> String:
 	return str(constants.get(key, def_value))
@@ -157,6 +303,14 @@ func get_enemy(id: String) -> EnemyDef:
 
 func get_level(id: String) -> LevelDef:
 	return levels.get(id) as LevelDef
+
+## 阶段5：按 maps.order 排序
+func maps_ordered() -> Array[MapDef]:
+	var out: Array[MapDef] = []
+	for m: MapDef in maps.values():
+		out.append(m)
+	out.sort_custom(func(a: MapDef, b: MapDef) -> bool: return a.order < b.order)
+	return out
 
 func get_map(id: String) -> MapDef:
 	return maps.get(id) as MapDef
@@ -195,3 +349,11 @@ func telegraph_color(attack: BossAttackDef, map_id: String = "", unified_alt: bo
 
 func telegraph_style(attack: BossAttackDef) -> String:
 	return attack.telegraph_style if attack.telegraph_style != "" else const_s("TELEGRAPH_DEFAULT_STYLE", "dashed")
+
+## 属性显示名：取 affixes 表里该属性词条的 name（攻击/生命/防御/暴击率/暴击伤害/反伤……）；
+## 表里没有词条的属性（移动速度）用待收编文案 STAT_<属性>。
+func stat_name(stat: String) -> String:
+	for af: AffixDef in affixes_ordered:
+		if af.stat == stat:
+			return af.name
+	return UiText.t("STAT_" + stat.to_upper())

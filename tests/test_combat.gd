@@ -87,7 +87,7 @@ func test_true_damage_ignores_def_hits_shield_no_reflect() -> void:
 	var e := spawn_dummy(b, "EN_BAMBOO_IMP", 60)
 	e.stun_t = 100.0
 	b.controller.request_skill(2)   # 护体：护盾 + 反伤/反震
-	b.tick(DT)
+	sim(b, b.player.cast_release_delay() + DT)   # 施法动作出手帧才生效
 	var ehp := e.hp
 	var shield := b.player.shield_total()
 	check(shield > 0.0, "护体产生护盾")
@@ -126,7 +126,7 @@ func test_guard_counter_icd() -> void:
 	e.stun_t = 100.0   # 不让它自己出手，只测手动触发的接触攻击
 	PlayerState.set_auto_battle(false)
 	b.controller.request_skill(2)
-	b.tick(DT)
+	sim(b, b.player.cast_release_delay() + DT)
 	check(b.player.has_shield_from("SK_GANG_GUARD"), "护体护盾存在")
 	b.player.shields[0].amount = 1e9   # 保证护盾不破
 	b.enemy_contact_hit(e, 10.0)
@@ -157,3 +157,36 @@ func test_pause_stops_battle() -> void:
 		await runner.get_tree().physics_frame
 	check(b.sim_time > t0, "关闭面板后恢复")
 	free_battle(b)
+
+
+func test_art_frame_synced_timing() -> void:
+	# 时间来自 chr_hero.tres 的帧率与命中/出手帧号（攻击第4帧=索引3@15fps，施法索引3@12fps）
+	near(b_attack_delay(), 3.0 / Player.FRAMES.get_animation_speed(&"attack"), 0.0001, "普攻命中帧时间")
+	var b := _battle()
+	PlayerState.set_auto_battle(false)
+	var e := spawn_dummy(b, "EN_BAMBOO_IMP", 80)
+	e.stun_t = 100.0; e.max_hp = 1e6; e.hp = 1e6
+	b.tick(DT)
+	check(b.player.is_attacking(), "普攻起手")
+	near(e.hp, 1e6, 0.01, "起手时尚未造成伤害")
+	sim(b, b.player.attack_hit_delay() + DT)
+	check(e.hp < 1e6, "命中帧结算伤害")
+	var hp1 := e.hp
+	b.controller.request_skill(2)   # 护体
+	b.tick(DT)
+	check(not b.player.has_shield_from("SK_GANG_GUARD"), "出手帧前护盾未生效")
+	check(b.skills.cds[2] > 0.0, "按下即进入冷却（不排队）")
+	sim(b, b.player.cast_release_delay() + DT)
+	check(b.player.has_shield_from("SK_GANG_GUARD"), "出手帧护盾生效")
+	# 闪避打断普攻前摇；动作时长对齐 DODGE_DURATION
+	sim(b, 1.0)
+	b.player.attack_cd = 0.0
+	b.tick(DT)
+	check(b.player.is_attacking(), "再次起手")
+	b.controller.request_dodge()
+	b.tick(DT)
+	check(not b.player.is_attacking(), "闪避打断前摇")
+	free_battle(b)
+
+func b_attack_delay() -> float:
+	return Player.frame_time(&"attack", GameData.const_i("HERO_ATTACK_HIT_FRAME", 3))

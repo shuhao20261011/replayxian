@@ -1,0 +1,341 @@
+[gd_resource type="Theme" load_steps=53 format=3]
+
+[ext_resource type="FontFile" path="res://art/fonts/NotoSerifSC-Regular.otf" id="1"]
+[ext_resource type="FontFile" path="res://art/fonts/NotoSerifSC-Bold.otf" id="2"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_panel_9p_translucent.png" id="3"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_pill_9p.png" id="4"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_tag_9p.png" id="5"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_tag_9p_hover.png" id="6"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_tag_9p_pressed.png" id="7"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_tag_9p_disabled.png" id="8"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_barframe_9p.png" id="9"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_bar_hp_progress_9p.png" id="10"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_bar_shield_progress_9p.png" id="11"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_toggle_on.png" id="12"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_toggle_off.png" id="13"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_banner_9p.png" id="14"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_pill_9p.png" id="15"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_pill_9p_hover.png" id="16"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_pill_9p_pressed.png" id="17"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_tag_9p.png" id="18"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_slot_9p.png" id="19"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_slot_9p_pressed.png" id="20"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_roundbtn.png" id="21"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_roundbtn_hover.png" id="22"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_roundbtn_pressed.png" id="23"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_roundbtn_disabled.png" id="24"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_dodge.png" id="25"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_dodge_pressed.png" id="26"]
+[ext_resource type="Texture2D" path="res://art/ui/ui_dodge_disabled.png" id="27"]
+
+[sub_resource type="StyleBoxTexture" id="sb1"]
+content_margin_left = 40.0
+content_margin_top = 30.0
+content_margin_right = 40.0
+content_margin_bottom = 30.0
+texture = ExtResource("3")
+texture_margin_left = 35.0
+texture_margin_top = 25.0
+texture_margin_right = 35.0
+texture_margin_bottom = 25.0
+
+[sub_resource type="StyleBoxTexture" id="sb2"]
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 8.0
+texture = ExtResource("4")
+texture_margin_left = 24.0
+texture_margin_top = 12.0
+texture_margin_right = 24.0
+texture_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxTexture" id="sb3"]
+content_margin_left = 30.0
+content_margin_top = 10.0
+content_margin_right = 30.0
+content_margin_bottom = 12.0
+texture = ExtResource("5")
+texture_margin_left = 31.0
+texture_margin_top = 13.0
+texture_margin_right = 31.0
+texture_margin_bottom = 13.0
+
+[sub_resource type="StyleBoxTexture" id="sb4"]
+content_margin_left = 30.0
+content_margin_top = 10.0
+content_margin_right = 30.0
+content_margin_bottom = 12.0
+texture = ExtResource("6")
+texture_margin_left = 31.0
+texture_margin_top = 13.0
+texture_margin_right = 31.0
+texture_margin_bottom = 13.0
+
+[sub_resource type="StyleBoxTexture" id="sb5"]
+content_margin_left = 30.0
+content_margin_top = 10.0
+content_margin_right = 30.0
+content_margin_bottom = 12.0
+texture = ExtResource("7")
+texture_margin_left = 31.0
+texture_margin_top = 13.0
+texture_margin_right = 31.0
+texture_margin_bottom = 13.0
+
+[sub_resource type="StyleBoxTexture" id="sb6"]
+content_margin_left = 30.0
+content_margin_top = 10.0
+content_margin_right = 30.0
+content_margin_bottom = 12.0
+texture = ExtResource("8")
+texture_margin_left = 31.0
+texture_margin_top = 13.0
+texture_margin_right = 31.0
+texture_margin_bottom = 13.0
+
+[sub_resource type="StyleBoxEmpty" id="sb7"]
+
+[sub_resource type="StyleBoxTexture" id="sb8"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+texture = ExtResource("9")
+texture_margin_left = 20.0
+texture_margin_top = 10.0
+texture_margin_right = 20.0
+texture_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxTexture" id="sb9"]
+texture = ExtResource("10")
+texture_margin_left = 20.0
+texture_margin_top = 10.0
+texture_margin_right = 20.0
+texture_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxTexture" id="sb10"]
+texture = ExtResource("11")
+texture_margin_left = 20.0
+texture_margin_top = 10.0
+texture_margin_right = 20.0
+texture_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxEmpty" id="sb11"]
+
+[sub_resource type="StyleBoxTexture" id="sb12"]
+content_margin_left = 66.0
+content_margin_top = 14.0
+content_margin_right = 66.0
+content_margin_bottom = 16.0
+texture = ExtResource("14")
+texture_margin_left = 62.0
+texture_margin_top = 28.0
+texture_margin_right = 62.0
+texture_margin_bottom = 28.0
+
+[sub_resource type="StyleBoxTexture" id="sb13"]
+content_margin_left = 22.0
+content_margin_top = 6.0
+content_margin_right = 22.0
+content_margin_bottom = 6.0
+texture = ExtResource("15")
+texture_margin_left = 24.0
+texture_margin_top = 12.0
+texture_margin_right = 24.0
+texture_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxTexture" id="sb14"]
+content_margin_left = 22.0
+content_margin_top = 6.0
+content_margin_right = 22.0
+content_margin_bottom = 6.0
+texture = ExtResource("16")
+texture_margin_left = 24.0
+texture_margin_top = 12.0
+texture_margin_right = 24.0
+texture_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxTexture" id="sb15"]
+content_margin_left = 22.0
+content_margin_top = 6.0
+content_margin_right = 22.0
+content_margin_bottom = 6.0
+texture = ExtResource("17")
+texture_margin_left = 24.0
+texture_margin_top = 12.0
+texture_margin_right = 24.0
+texture_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxTexture" id="sb16"]
+content_margin_left = 28.0
+content_margin_top = 6.0
+content_margin_right = 28.0
+content_margin_bottom = 8.0
+texture = ExtResource("18")
+texture_margin_left = 31.0
+texture_margin_top = 13.0
+texture_margin_right = 31.0
+texture_margin_bottom = 13.0
+
+[sub_resource type="StyleBoxTexture" id="sb17"]
+texture = ExtResource("19")
+texture_margin_left = 27.0
+texture_margin_top = 27.0
+texture_margin_right = 27.0
+texture_margin_bottom = 27.0
+
+[sub_resource type="StyleBoxTexture" id="sb18"]
+texture = ExtResource("20")
+texture_margin_left = 27.0
+texture_margin_top = 27.0
+texture_margin_right = 27.0
+texture_margin_bottom = 27.0
+
+[sub_resource type="StyleBoxTexture" id="sb19"]
+texture = ExtResource("21")
+texture_margin_left = 0.0
+texture_margin_top = 0.0
+texture_margin_right = 0.0
+texture_margin_bottom = 0.0
+
+[sub_resource type="StyleBoxTexture" id="sb20"]
+texture = ExtResource("22")
+texture_margin_left = 0.0
+texture_margin_top = 0.0
+texture_margin_right = 0.0
+texture_margin_bottom = 0.0
+
+[sub_resource type="StyleBoxTexture" id="sb21"]
+texture = ExtResource("23")
+texture_margin_left = 0.0
+texture_margin_top = 0.0
+texture_margin_right = 0.0
+texture_margin_bottom = 0.0
+
+[sub_resource type="StyleBoxTexture" id="sb22"]
+texture = ExtResource("24")
+texture_margin_left = 0.0
+texture_margin_top = 0.0
+texture_margin_right = 0.0
+texture_margin_bottom = 0.0
+
+[sub_resource type="StyleBoxTexture" id="sb23"]
+texture = ExtResource("25")
+texture_margin_left = 0.0
+texture_margin_top = 0.0
+texture_margin_right = 0.0
+texture_margin_bottom = 0.0
+
+[sub_resource type="StyleBoxTexture" id="sb24"]
+texture = ExtResource("26")
+texture_margin_left = 0.0
+texture_margin_top = 0.0
+texture_margin_right = 0.0
+texture_margin_bottom = 0.0
+
+[sub_resource type="StyleBoxTexture" id="sb25"]
+texture = ExtResource("27")
+texture_margin_left = 0.0
+texture_margin_top = 0.0
+texture_margin_right = 0.0
+texture_margin_bottom = 0.0
+
+[resource]
+default_font = ExtResource("1")
+default_font_size = 18
+Label/colors/font_color = Color(0.9176, 0.8431, 0.6588, 1)
+Label/colors/font_outline_color = Color(0.1098, 0.1176, 0.1294, 0.85)
+Label/constants/outline_size = 4
+Label/colors/font_shadow_color = Color(0, 0, 0, 0)
+Panel/styles/panel = SubResource("sb1")
+PanelContainer/styles/panel = SubResource("sb1")
+PopupPanel/styles/panel = SubResource("sb1")
+TooltipPanel/styles/panel = SubResource("sb2")
+TooltipLabel/colors/font_color = Color(0.9176, 0.8431, 0.6588, 1)
+TooltipLabel/font_sizes/font_size = 15
+Button/styles/normal = SubResource("sb3")
+Button/styles/hover = SubResource("sb4")
+Button/styles/pressed = SubResource("sb5")
+Button/styles/hover_pressed = SubResource("sb5")
+Button/styles/disabled = SubResource("sb6")
+Button/styles/focus = SubResource("sb7")
+Button/colors/font_color = Color(0.9176, 0.8431, 0.6588, 1)
+Button/colors/font_hover_color = Color(0.9647, 0.9216, 0.7961, 1)
+Button/colors/font_pressed_color = Color(0.8471, 0.7647, 0.5569, 1)
+Button/colors/font_hover_pressed_color = Color(0.8471, 0.7647, 0.5569, 1)
+Button/colors/font_focus_color = Color(0.9176, 0.8431, 0.6588, 1)
+Button/colors/font_disabled_color = Color(0.5412, 0.5137, 0.4549, 1)
+Button/colors/font_outline_color = Color(0.1098, 0.1176, 0.1294, 0.85)
+Button/constants/outline_size = 3
+Button/font_sizes/font_size = 18
+Button/fonts/font = ExtResource("2")
+ProgressBar/styles/background = SubResource("sb8")
+ProgressBar/styles/fill = SubResource("sb9")
+ProgressBar/colors/font_color = Color(0.9176, 0.8431, 0.6588, 1)
+ProgressBar/colors/font_outline_color = Color(0.1098, 0.1176, 0.1294, 0.85)
+ProgressBar/constants/outline_size = 3
+ProgressBar/font_sizes/font_size = 14
+CheckButton/icons/checked = ExtResource("12")
+CheckButton/icons/unchecked = ExtResource("13")
+CheckButton/icons/checked_disabled = ExtResource("12")
+CheckButton/icons/unchecked_disabled = ExtResource("13")
+CheckButton/colors/font_color = Color(0.9176, 0.8431, 0.6588, 1)
+CheckButton/colors/font_hover_color = Color(0.9647, 0.9216, 0.7961, 1)
+CheckButton/colors/font_pressed_color = Color(0.9176, 0.8431, 0.6588, 1)
+CheckButton/colors/font_outline_color = Color(0.1098, 0.1176, 0.1294, 0.85)
+CheckButton/constants/outline_size = 3
+CheckButton/constants/h_separation = 8
+CheckButton/styles/normal = SubResource("sb11")
+CheckButton/styles/hover = SubResource("sb11")
+CheckButton/styles/pressed = SubResource("sb11")
+CheckButton/styles/hover_pressed = SubResource("sb11")
+CheckButton/styles/disabled = SubResource("sb11")
+CheckButton/styles/focus = SubResource("sb11")
+ShieldBar/base_type = &"ProgressBar"
+ShieldBar/styles/background = SubResource("sb8")
+ShieldBar/styles/fill = SubResource("sb10")
+ShieldBar/colors/font_color = Color(0.2039, 0.149, 0.0549, 1)
+ShieldBar/constants/outline_size = 0
+TitleBanner/base_type = &"PanelContainer"
+TitleBanner/styles/panel = SubResource("sb12")
+PillPanel/base_type = &"PanelContainer"
+PillPanel/styles/panel = SubResource("sb13")
+PillButton/base_type = &"Button"
+PillButton/styles/normal = SubResource("sb13")
+PillButton/styles/hover = SubResource("sb14")
+PillButton/styles/pressed = SubResource("sb15")
+PillButton/font_sizes/font_size = 16
+TagLabel/base_type = &"Label"
+TagLabel/styles/normal = SubResource("sb16")
+SkillSlot/base_type = &"Panel"
+SkillSlot/styles/panel = SubResource("sb17")
+SkillSlotPressed/base_type = &"Panel"
+SkillSlotPressed/styles/panel = SubResource("sb18")
+RoundButton/base_type = &"Button"
+RoundButton/styles/normal = SubResource("sb19")
+RoundButton/styles/hover = SubResource("sb20")
+RoundButton/styles/pressed = SubResource("sb21")
+RoundButton/styles/hover_pressed = SubResource("sb21")
+RoundButton/styles/disabled = SubResource("sb22")
+RoundButton/font_sizes/font_size = 16
+DodgeButton/base_type = &"Button"
+DodgeButton/styles/normal = SubResource("sb23")
+DodgeButton/styles/hover = SubResource("sb23")
+DodgeButton/styles/pressed = SubResource("sb24")
+DodgeButton/styles/hover_pressed = SubResource("sb24")
+DodgeButton/styles/disabled = SubResource("sb25")
+DodgeButton/font_sizes/font_size = 20
+DodgeButton/fonts/font = ExtResource("2")
+DimLabel/base_type = &"Label"
+DimLabel/colors/font_color = Color(0.7843, 0.7294, 0.5882, 1)
+DimLabel/font_sizes/font_size = 14
+TitleLabel/base_type = &"Label"
+TitleLabel/fonts/font = ExtResource("2")
+TitleLabel/font_sizes/font_size = 28
+DamageLabel/base_type = &"Label"
+DamageLabel/fonts/font = ExtResource("2")
+DamageLabel/font_sizes/font_size = 40
+DamageLabel/colors/font_color = Color(1, 0.9255, 0.7686, 1)
+DamageLabel/colors/font_outline_color = Color(0.4706, 0.07843, 0.0549, 1)
+DamageLabel/constants/outline_size = 8

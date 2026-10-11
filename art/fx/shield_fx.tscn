@@ -1,0 +1,39 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://art/fx/shield_fx.gd" id="1"]
+[ext_resource type="Texture2D" path="res://art/fx/fx_shield_sphere.png" id="2"]
+[ext_resource type="Texture2D" path="res://art/fx/fx_shield_ring.png" id="3"]
+[ext_resource type="Shader" path="res://art/fx/shaders/shield_sphere.gdshader" id="4"]
+[ext_resource type="SpriteFrames" path="res://art/fx/fx_frames.tres" id="5"]
+
+[sub_resource type="ShaderMaterial" id="sphere"]
+shader = ExtResource("4")
+shader_parameter/body_alpha = 0.45
+shader_parameter/rim_power = 3.0
+shader_parameter/rim_gain = 0.7
+shader_parameter/spin = 0.25
+
+[sub_resource type="CanvasItemMaterial" id="add"]
+blend_mode = 1
+
+[node name="ShieldFx" type="Node2D"]
+script = ExtResource("1")
+
+[node name="Sphere" type="Sprite2D" parent="."]
+material = SubResource("sphere")
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("2")
+
+[node name="Ring" type="Sprite2D" parent="."]
+material = SubResource("add")
+scale = Vector2(0.9, 0.3)
+position = Vector2(0, 86)
+texture = ExtResource("3")
+
+[node name="HitFlash" type="AnimatedSprite2D" parent="."]
+visible = false
+modulate = Color(0.808, 0.643, 0.271, 1)
+material = SubResource("add")
+scale = Vector2(0.8, 0.8)
+sprite_frames = ExtResource("5")
+animation = &"shield_hit"

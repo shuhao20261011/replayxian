@@ -1,0 +1,90 @@
+key,text,placeholders,max_chars,context
+HUD_COOLDOWN,冷却,,2,技能格/闪避圆章冷却中的小字（阶段3-4 待收编）
+TIP_EMPTY_SLOT,在【功法】中装配技能,,10,空技能格悬停提示（阶段3-4 待收编）
+BANNER_LOOT,获得{items},items:掉落名以“、”连接,24,拾取掉落横幅（阶段3-4 待收编）
+PANEL_SUB_GEAR,炼器·重铸·分解,,8,装备面板标题旁副题（阶段3-4 待收编）
+PANEL_SUB_GONGFA,习法·精进·装配,,8,功法面板标题旁副题（阶段3-4 待收编）
+LABEL_STATS,属性,,2,装备面板左栏小标题（阶段3-4 待收编）
+LABEL_BAG,背包,,2,装备面板中栏小标题（阶段3-4 待收编）
+LABEL_DETAIL,详情,,2,装备/功法面板右栏小标题（阶段3-4 待收编）
+LABEL_BAG_EMPTY,行囊空空，斩妖可得法器,,11,背包为空时（阶段3-4 待收编）
+LABEL_SELECT_GEAR,择一件法器查看,,7,未选中装备时详情区（阶段3-4 待收编）
+LABEL_GEAR_TAG,{quality_name}品·{slot_name}·{tier}阶,quality_name:qualities.name;slot_name:equip_slots.name;tier:int1,8,装备详情名称旁（阶段3-4 待收编）
+LABEL_AFFIXES,词条,,2,装备详情词条区标题（阶段3-4 待收编）
+LABEL_REROLL_COST,每条{refine_name}{refine}·灵石{lingshi},refine_name:materials.name;refine:int2;lingshi:int5,18,词条区标题旁重铸花费（阶段3-4 待收编）
+LABEL_NO_AFFIX,此品无词条,,5,白品装备词条区（阶段3-4 待收编）
+LABEL_DECOMPOSE_GAIN,可得{item_name}+{count},item_name:materials.name;count:int2,10,分解按钮旁收益（阶段3-4 待收编）
+LABEL_EQUIPPED_HINT,从背包选同部位法器即可替换,,13,已装备物品详情底部（阶段3-4 待收编）
+LABEL_BATCH_DECOMPOSE,批量分解,,4,装备面板底栏（阶段3-4 待收编）
+BTN_DECOMPOSE_UPTO,{quality_name}品及以下,quality_name:qualities.name,5,批量分解按钮（阶段3-4 待收编）
+LABEL_AUTO_DECOMPOSE,自动分解,,4,装备面板底栏（阶段3-4 待收编）
+LABEL_NEVER_AUTO,{quality_name}品永不自动分解,quality_name:qualities.name,8,自动分解开关旁注（阶段3-4 待收编）
+TOAST_GEAR_EQUIPPED,已装备{equip_name},equip_name:equip_bases.name,7,装备成功（阶段3-4 待收编）
+TOAST_GEAR_DECOMPOSED,分解得{item_name}+{count},item_name:materials.name;count:int2,10,单件分解（阶段3-4 待收编）
+TOAST_BATCH_DECOMPOSED,分解法器{count}件,count:int3,8,批量分解（阶段3-4 待收编）
+TOAST_REROLLED,重铸得{affix},affix:词条文本,14,重铸成功（阶段3-4 待收编）
+TIP_RECOMMENDED,优于当前所穿,,6,背包条目推荐箭头悬停（阶段3-4 待收编）
+BTN_CHOOSE_ORANGE,择{equip_name}·{effect_name},equip_name:equip_bases.name;effect_name:orange_effects.name,10,终关三选一按钮（阶段3-4 待收编）
+STAT_MOVE_SPEED,移动速度,,4,装备基础属性（affixes 无此属性名）（阶段3-4 待收编）
+ERR_NOT_ENOUGH,{item_name}不足,item_name:materials.name,6,材料/灵石/残页不足（阶段3-4 待收编）
+ERR_CANNOT_REROLL,此品不可重铸,,6,（阶段3-4 待收编）
+ERR_NOT_IN_BAG,先卸下再操作,,6,（阶段3-4 待收编）
+ERR_NO_POOL,无可重铸之词条,,7,（阶段3-4 待收编）
+LABEL_SKILL_BAR,技能栏,,3,功法面板（阶段3-4 待收编）
+LABEL_PASSIVE,被动·{skill_name},skill_name:skills.name,7,功法面板技能栏右侧（阶段3-4 待收编）
+TIP_UNEQUIP,点击卸下,,4,功法面板技能栏格子悬停（阶段3-4 待收编）
+TOAST_SKILL_UNEQUIPPED,第{slot}格已卸下,slot:int1,6,（阶段3-4 待收编）
+LABEL_LEARNABLE,可学习,,3,技能列表状态（阶段3-4 待收编）
+SKILL_KIND_ACTIVE,主动,,2,技能列表类别（阶段3-4 待收编）
+SKILL_KIND_PASSIVE,被动,,2,技能列表类别（阶段3-4 待收编）
+SKILL_KIND_ULTIMATE,绝学,,2,技能列表类别（阶段3-4 待收编）
+LABEL_BOOK_COUNT,持书{count},count:int2,4,技能列表/学习区（阶段3-4 待收编）
+LABEL_LEVEL,Lv{level},level:int2,4,技能等级（阶段3-4 待收编）
+LABEL_LEVEL_MAX,Lv{level}/{max},level:int2;max:int2,7,技能详情等级（阶段3-4 待收编）
+LABEL_SKILL_CD,冷却{cd}秒,cd:num,7,技能详情（阶段3-4 待收编）
+LABEL_NEXT_LEVEL,下一级,,3,技能详情（阶段3-4 待收编）
+BTN_UPGRADE_MAX,已至满级,,4,升级按钮满级（阶段3-4 待收编）
+BTN_EQUIP_TO_SLOT,装入{slot},slot:int1,3,技能装配按钮（阶段3-4 待收编）
+LABEL_CURRENT_PASSIVE,当前被动,,4,（阶段3-4 待收编）
+LABEL_EXCHANGE_COST,需{item_name}{count},item_name:materials.name;count:int2,9,残页兑换按钮旁（阶段3-4 待收编）
+LABEL_REGION_LOCKED,{map_name}未开启,map_name:maps.name,6,残页兑换不可用（阶段3-4 待收编）
+ERR_NO_BOOK,未持此书,,4,（阶段3-4 待收编）
+ERR_ALREADY_LEARNED,已习得，重复之书可分解,,11,（阶段3-4 待收编）
+ERR_NOT_LEARNED,尚未习得,,4,（阶段3-4 待收编）
+ERR_MAX_LEVEL,已至满级,,4,（阶段3-4 待收编）
+ERR_LOCKED_REGION,此地尚未开启,,6,（阶段3-4 待收编）
+GEAR_NAME,【{quality_name}】{equip_name},quality_name:qualities.name;equip_name:equip_bases.name,7,掉落/背包里的装备名（阶段3-4 待收编）
+FLOAT_XIUWEI,修为+{value:int},value:int6,9,拾取修为飘字（阶段3-4 待收编）
+LOOT_ITEM_COUNT,{item_name}×{count},item_name:materials.name;count:int3,8,拾取材料（阶段3-4 待收编）
+LOOT_AUTO_DECOMPOSED,{gear_name}已化为{item_name},gear_name:ui_texts.GEAR_NAME;item_name:materials.name,14,命中自动分解的掉落（阶段3-4 待收编）
+LOOT_BAG_FULL,行囊已满，{gear_name}化为{item_name}×{count},gear_name:ui_texts.GEAR_NAME;item_name:materials.name;count:int2,22,背包满时掉落转材料（阶段3-4 待收编）
+LOOT_ORANGE_PENDING,核心橙装三选一，入【装备】领取,,15,终关首通三选一掉落提示（阶段3-4 待收编）
+HUD_SAVE_SHORT,存,,1,右上存档圆章单字（书法体，第3批效果图；阶段3-4 待收编）
+HUD_CD_SEC,{sec}秒,sec:float1,5,技能格冷却剩余时间（与 HUD_BOSS_TIMER 同用“秒”；效果图写作 6.2s，由策划定）（阶段3-4 待收编）
+HUD_COOLDOWN_SEC,冷却{sec}秒,sec:float1,7,闪避圆钮冷却小字（阶段3-4 待收编）
+LOOT_TOAST_GET,获得,,2,左侧拾取提示小字（第3批效果图；阶段3-4 待收编）
+SETTING_TELEGRAPH_WHITE,统一预警白,,5,设置开关：所有地图首领预警都用预警白（BUG-016，入口默认隐藏，待制作人定稿；阶段3-4 待收编）
+TIP_TELEGRAPH_WHITE,所有地图的首领预警都改用白色,,14,上一项的悬停说明（阶段3-4 待收编）
+PANEL_SUB_BREAK,积修为　聚灵石　破关隘,,11,突破面板副标题（阶段5 待收编）
+LABEL_REALM_NOW,当前境界,,4,突破面板左栏标题（阶段5 待收编）
+LABEL_REALM_NEXT,突破至,,3,突破面板右栏标题（阶段5 待收编）
+LABEL_BREAK_COST,突破所需,,4,突破面板条件区标题（阶段5 待收编）
+LABEL_BREAK_UNLOCK,突破后开放,,5,突破面板解锁区标题（阶段5 待收编）
+LABEL_HAVE_NEED,{have:int}／{need:int},have:int7;need:int7,15,突破条件持有／需要（阶段5 待收编）
+LABEL_BREAK_RULE,突破必定成功　属性替换为新境界,,15,突破按钮上方小字（realms 规则：成功率100%　属性直接替换；阶段5 待收编）
+LABEL_REALM_MAX,已至此界之巅　来日再破,,11,已到最高境界时右栏文字（阶段5 待收编）
+BTN_BREAK,突破,,2,突破按钮（阶段5 待收编）
+BTN_GO_MAP,前往{map_name},map_name:maps.name,5,地图开放卡片按钮：前往该地图第一关（阶段5 待收编）
+BTN_STAY,稍后,,2,地图开放卡片：留在此处（阶段5 待收编）
+MAP_TAG_NEED_REALM,需{realm_name},realm_name:realms.name,4,地图面板：未开放地图所需境界（阶段5 待收编）
+MAP_TAG_NEW,新开,,2,地图面板：刚开放且未通关任何关卡的地图（阶段5 待收编）
+TITLE_FIRST_CLEAR,首通奖励,,4,首通奖励卡片标题（阶段5 待收编）
+TITLE_ORANGE_CHOICE,核心橙装　三选一,,8,终关首通三选一对话框标题（阶段5 待收编）
+SUB_ORANGE_CHOICE,择其一件　余者不可再得,,11,三选一副标题（阶段5 待收编）
+LABEL_ORANGE_AFFIX,另附随机词条{count:int}条,count:int1,9,三选一卡片：橙色品质附带的随机词条数（qualities.affix_count；阶段5 待收编）
+BTN_CHOOSE,择此件,,3,三选一卡片按钮（阶段5 待收编）
+BTN_CHOOSE_LATER,稍后再选,,4,三选一：关闭对话框，可在装备面板继续选择（阶段5 待收编）
+HUD_BUILD_VERSION,阶段{stage:raw}　{commit:raw},stage:raw3;commit:raw8,13,右下角构建版本小字（导出时由 tools/build_web.sh 写入 build_info.json；阶段5 待收编）
+HUD_BUILD_DEV,开发版,,3,未经构建脚本导出时的版本小字（阶段5 待收编）
+BTN_CHOOSE_NOW,现在选择,,4,自动挂机时的三选一提示卡片：打开三选一对话框（暂停；阶段5 待收编）
+HINT_ORANGE_AUTO_LATER,{sec:int}秒后收起，可在【装备】中选择,sec:int,16,自动挂机三选一卡片倒计时；到点按“稍后再选”收起（阶段5 待收编）
