@@ -702,7 +702,7 @@ func _setup_background() -> void:
 		var fore := bg.get_node_or_null("Fore") as CanvasItem
 		if fore:
 			# 前景竹在角色之上（z=20），镜头随主角移动时会扫过主角：降低不透明度
-			fore.modulate.a = GameData.const_f("BG_FORE_ALPHA", 0.7)
+			fore.modulate.a = GameData.const_f("BG_FORE_ALPHA", 0.6)
 		background.add_child(bg)
 		return
 	var layers := [["far", 0.15, Vector2(0, 0), 1280.0], ["mid", 0.5, Vector2(0, 0), 2560.0], ["ground", 1.0, Vector2(0, ground_y - 10), 2560.0]]

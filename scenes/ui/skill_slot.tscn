@@ -3,5 +3,5 @@
 [ext_resource type="Script" path="res://scripts/ui/skill_slot.gd" id="1_script"]
 
 [node name="SkillSlot" type="VBoxContainer"]
-custom_minimum_size = Vector2(72, 104)
+custom_minimum_size = Vector2(76, 104)
 script = ExtResource("1_script")
