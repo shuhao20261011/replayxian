@@ -140,3 +140,19 @@ func test_bug016_white_toggle_hidden_by_default() -> void:
 	PlayerState.telegraph_alt = false
 	hud.close_panel()
 	_end(r[0])
+
+## 回归：首领血条在 HUD 树里（4e2970d 行尾注释吞掉了 add_child → 血条不显示且每次实例化留一个孤儿 ProgressBar，QA TC_LT_01/02 全量跑时报孤儿）
+func test_boss_bar_in_tree_and_no_orphans() -> void:
+	var before := int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
+	var r := await _main()
+	var hud: Hud = r[1]; var battle: Battle = r[2]
+	check(hud.boss_bar.is_inside_tree() and hud.boss_bar.get_parent() == hud.boss_box, "首领血条挂在首领栏下")
+	battle.start_run(GameData.get_level("LV_1_1"), Battle.RunMode.FARM)
+	battle.debug_force_boss()
+	hud._process(0.016)
+	check(hud.boss_bar.is_visible_in_tree(), "首领战时血条可见")
+	near(hud.boss_bar.max_value, battle.boss.max_hp, 0.001, "血条上限 = 首领生命")
+	runner.get_tree().paused = false
+	runner.remove_child(r[0]); (r[0] as Node).free()
+	var after := int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
+	check(after <= before, "释放主场景后没有新增孤儿节点（%d → %d）" % [before, after])
