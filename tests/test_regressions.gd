@@ -248,6 +248,6 @@ func test_bug005_danger_gap_guard_after_stun() -> void:
 		var mn := 999.0
 		for g in gaps:
 			mn = minf(mn, g)
-		check(mn >= Boss.min_danger_gap() - 2.0 * DT, "%s 最小间隔 %.2f ≥ %.2f" % [lid, mn, Boss.min_danger_gap()])
+		check(mn >= Boss.min_danger_gap() - 1e-4, "%s 最小间隔 %.2f ≥ %.2f" % [lid, mn, Boss.min_danger_gap()])
 		check(b.boss.guard_delays > 0, "%s 保护确实推迟过释放" % lid)
 		free_battle(b)

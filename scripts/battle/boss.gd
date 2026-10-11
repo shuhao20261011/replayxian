@@ -25,10 +25,11 @@ func setup_boss(d: EnemyDef, lvl: LevelDef, b: Battle) -> void:
 static func min_danger_gap() -> float:
 	return GameData.const_f("DODGE_COOLDOWN", 3.0) + GameData.const_f("DANGER_MIN_GAP_MARGIN_S", 0.5)
 
-func danger_gap_ok(warn: float) -> bool:
+## 新预警在起手的同一帧就开始计时，实际判定时刻 = 起手时刻 + warn − 本帧步长（按保守估计）
+func danger_gap_ok(warn: float, delta: float = 0.0) -> bool:
 	if battle.last_danger_resolve_t < 0.0:
 		return true
-	return battle.sim_time + warn - battle.last_danger_resolve_t >= min_danger_gap() - 1e-6
+	return battle.sim_time - delta + warn - battle.last_danger_resolve_t >= min_danger_gap() - 1e-6
 
 func has_attack(attack_id: String) -> bool:
 	for a in attacks:
@@ -67,7 +68,10 @@ func _behave(delta: float, p: Player) -> void:
 		for a in attacks:
 			if a.is_danger and float(timers[a.id]) <= 0.0:
 				var warn := a.warn_s if a.warn_s > 0.0 else GameData.const_f("BOSS_WARN_TIME", 0.8)
-				if not danger_gap_ok(warn):
+				# 首领战剩余时间不够这一招结算（限时内放不完）就不再起手
+				if battle.phase == Battle.Phase.BOSS and battle.boss_time_left <= warn:
+					break
+				if not danger_gap_ok(warn, delta):
 					guard_delays += 1
 					break   # 运行时间隔保护：推迟，计时器保持就绪，间隔够了立刻放
 				timers[a.id] = a.cd_s
