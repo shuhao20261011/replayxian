@@ -1,0 +1,16 @@
+book_id,skill_id,name,gongfa_id,region_map_id,rarity,decompose_pages,exchange_pages,source_desc
+BK_SWORD_FLYING,SK_SWORD_FLYING,《飞剑》,GF_SWORD,MAP_QINGZHU,common,1,10,新手引导赠送；青竹山首领概率掉落（重复书可分解残页）
+BK_SWORD_COMBO,SK_SWORD_COMBO,《连环剑》,GF_SWORD,MAP_QINGZHU,rare,1,10,青竹山1-2首通保底；青竹山首领概率掉落
+BK_SWORD_PIERCE,SK_SWORD_PIERCE,《破甲剑》,GF_SWORD,MAP_QINGZHU,rare,1,10,青竹山1-4首通保底；青竹山首领概率掉落
+BK_SWORD_EXECUTE,SK_SWORD_EXECUTE,《诛仙剑》,GF_SWORD,MAP_QINGZHU,epic,1,10,青竹山1-5首通保底；青竹山首领概率掉落；离线概率；残页兑换
+BK_SWORD_PASSIVE,SK_SWORD_PASSIVE,《剑心通明》,GF_SWORD,MAP_QINGZHU,rare,1,10,青竹山1-3首通保底；青竹山首领概率掉落
+BK_THUNDER_STRIKE,SK_THUNDER_STRIKE,《雷击》,GF_THUNDER,MAP_LEIZE,common,1,10,新手引导赠送；雷泽谷首领概率掉落
+BK_THUNDER_CLOUD,SK_THUNDER_CLOUD,《雷云》,GF_THUNDER,MAP_LEIZE,rare,1,10,雷泽谷2-2首通保底；雷泽谷首领概率掉落
+BK_THUNDER_PALM,SK_THUNDER_PALM,《掌心雷》,GF_THUNDER,MAP_LEIZE,rare,1,10,雷泽谷2-4首通保底；雷泽谷首领概率掉落
+BK_THUNDER_NINE,SK_THUNDER_NINE,《九霄神雷》,GF_THUNDER,MAP_LEIZE,epic,1,10,雷泽谷2-5首通保底；雷泽谷首领概率掉落；离线概率；残页兑换
+BK_THUNDER_PASSIVE,SK_THUNDER_PASSIVE,《引雷之体》,GF_THUNDER,MAP_LEIZE,rare,1,10,雷泽谷2-3首通保底；雷泽谷首领概率掉落
+BK_GANG_GUARD,SK_GANG_GUARD,《护体》,GF_GANG,MAP_XUANYAN,common,1,10,新手引导赠送；玄岩洞首领概率掉落
+BK_GANG_QUAKE,SK_GANG_QUAKE,《震岳》,GF_GANG,MAP_XUANYAN,rare,1,10,玄岩洞3-2首通保底；玄岩洞首领概率掉落
+BK_GANG_GALE,SK_GANG_GALE,《罡风护身》,GF_GANG,MAP_XUANYAN,rare,1,10,玄岩洞3-4首通保底；玄岩洞首领概率掉落
+BK_GANG_VAJRA,SK_GANG_VAJRA,《金刚不坏》,GF_GANG,MAP_XUANYAN,epic,1,10,玄岩洞3-5首通保底；玄岩洞首领概率掉落；离线概率；残页兑换
+BK_GANG_PASSIVE,SK_GANG_PASSIVE,《玄罡护体》,GF_GANG,MAP_XUANYAN,rare,1,10,玄岩洞3-3首通保底；玄岩洞首领概率掉落

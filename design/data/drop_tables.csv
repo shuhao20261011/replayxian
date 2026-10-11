@@ -1,0 +1,16 @@
+drop_table_id,seq,roll,entry_type,ref_id,chance,count_min,count_max,weight_set_id,desc
+DT_NORMAL_T1,1,per_kill,equipment,TIER_1,0.04,1,1,QW_NORMAL_T1,普通怪少量装备
+DT_NORMAL_T1,2,per_kill,material,MAT_REFINE,0.05,1,1,,少量炼器材料（灵石/修为见enemies表）
+DT_BOSS_T1,1,per_kill,equipment,TIER_1,1.0,1,1,QW_BOSS_T1,首领保证掉落装备（计划已定）
+DT_BOSS_T1,2,per_kill,material,MAT_REFINE,0.5,2,4,,炼器材料
+DT_BOSS_T1,3,per_kill,book_pool,BP_T1,0.16,1,1,,区域技能书（按书池权重抽1本）
+DT_NORMAL_T2,1,per_kill,equipment,TIER_2,0.04,1,1,QW_NORMAL_T2,普通怪少量装备
+DT_NORMAL_T2,2,per_kill,material,MAT_REFINE,0.05,1,2,,少量炼器材料（灵石/修为见enemies表）
+DT_BOSS_T2,1,per_kill,equipment,TIER_2,1.0,1,1,QW_BOSS_T2,首领保证掉落装备（计划已定）
+DT_BOSS_T2,2,per_kill,material,MAT_REFINE,0.5,2,6,,炼器材料
+DT_BOSS_T2,3,per_kill,book_pool,BP_T2,0.16,1,1,,区域技能书（按书池权重抽1本）
+DT_NORMAL_T3,1,per_kill,equipment,TIER_3,0.04,1,1,QW_NORMAL_T3,普通怪少量装备
+DT_NORMAL_T3,2,per_kill,material,MAT_REFINE,0.05,1,3,,少量炼器材料（灵石/修为见enemies表）
+DT_BOSS_T3,1,per_kill,equipment,TIER_3,1.0,1,1,QW_BOSS_T3,首领保证掉落装备（计划已定）
+DT_BOSS_T3,2,per_kill,material,MAT_REFINE,0.5,2,8,,炼器材料
+DT_BOSS_T3,3,per_kill,book_pool,BP_T3,0.16,1,1,,区域技能书（按书池权重抽1本）

@@ -1,0 +1,10 @@
+enemy_id,name,kind,map_id,hp,atk,def,move_speed,attack_interval_s,attack_range_px,behavior,behavior_param,lingshi,xiuwei,desc
+EN_BAMBOO_IMP,竹灵,normal,MAP_QINGZHU,300,10,2,90,1.2,60,melee_chase,,4,3,基础近战小怪，直线靠近后挥砍
+EN_MOUNTAIN_APE,山魈,normal,MAP_QINGZHU,520,16,4,140,1.5,70,charge,dash_trigger_px=280;dash_px=260;dash_coef=1.5,7,5,距离280像素内蓄力0.5秒后冲撞，冲撞伤害1.5倍
+EN_MARSH_WISP,泽灵,normal,MAP_LEIZE,860,26,6,120,1.0,50,swarm,group_spacing_px=40,9,7,成群贴身的鬼火，彼此间距小，易被连锁/范围技能成片清除
+EN_THUNDER_TOAD,雷蟾,normal,MAP_LEIZE,1560,40,10,60,2.0,380,ranged,keep_distance_px=300;projectile_speed=350,15,11,远程吐雷球，保持300像素距离，逼迫玩家推进或用远程技能
+EN_CAVE_BAT,洞蝠,normal,MAP_XUANYAN,3000,60,12,180,1.0,60,hit_and_run,retreat_px=200;retreat_after_hits=2,20,16,高速飞行，咬两口后后撤再扑，单体技能易落空
+EN_ROCK_GOLEM,岩傀,normal,MAP_XUANYAN,8000,95,35,50,2.2,90,tank,super_armor=true;smash_coef=1.3,40,30,高防高血，霸体不受击退/眩晕（首领规则同），破甲剑与持续伤害克制
+BOSS_ZHUMEI,青竹山主·竹魅,boss,MAP_QINGZHU,7000,24,6,100,1.6,120,boss_pattern,attack_ids=BA_ZHUMEI_SLASH|BA_ZHUMEI_THORN|BA_ZHUMEI_LEAF,120,80,青竹山区域首领：竹刺直线突刺、竹叶旋风
+BOSS_KUINIU,雷泽谷主·夔牛,boss,MAP_LEIZE,18000,66,14,90,1.8,140,boss_pattern,attack_ids=BA_KUINIU_HORN|BA_KUINIU_STOMP|BA_KUINIU_BOLTS,300,220,雷泽谷区域首领：雷霆践踏、天雷三连
+BOSS_YANMO,玄岩洞主·岩魔,boss,MAP_XUANYAN,55000,240,40,80,2.0,150,boss_pattern,attack_ids=BA_YANMO_FIST|BA_YANMO_CHARGE|BA_YANMO_QUAKE|BA_YANMO_SKYFALL,700,500,玄岩洞区域首领：碎岩冲撞（全屏横向）、地裂、玄岩天坠（第4关起，全场真实伤害，需闪避或护盾），生存与闪避考验

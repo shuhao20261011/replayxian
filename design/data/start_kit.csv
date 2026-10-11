@@ -1,0 +1,4 @@
+entry_type,ref_id,quality_id,count,desc
+equipment,EQB_WEAPON_T1,Q_WHITE,1,开局已装备白色青竹剑
+equipment,EQB_ROBE_T1,Q_WHITE,1,开局已装备白色竹叶袍
+tutorial_drop,EQB_WEAPON_T1,Q_GREEN,1,TUT_05：1-1第2波固定掉落绿色武器（词条固定AF_ATK_FLAT=3）

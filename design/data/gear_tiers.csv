@@ -1,0 +1,4 @@
+gear_tier,map_id,flat_mult,decompose_mult,reroll_lingshi_mult,desc
+1,MAP_QINGZHU,1.0,1,1,青竹山装备
+2,MAP_LEIZE,2.4,2,2,雷泽谷装备
+3,MAP_XUANYAN,5.5,3,4,玄岩洞装备

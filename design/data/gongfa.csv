@@ -1,0 +1,4 @@
+gongfa_id,name,role,build_dir,book_map_id,color,desc
+GF_SWORD,飞剑诀,高频单体攻击、首领输出,攻速、暴击、追加飞剑,MAP_QINGZHU,#7FD3FF,以飞剑高频点杀单体，首领战输出最高
+GF_THUNDER,御雷诀,连锁攻击、群体清怪,雷伤、连锁目标、冷却缩减,MAP_LEIZE,#C9A2FF,雷法连锁与范围伤害，成群敌人清怪最快
+GF_GANG,玄罡诀,护盾、反伤、持续作战,生命、护盾、反伤,MAP_XUANYAN,#FFD27F,护盾与反伤，容错最高，输出偏低但持续稳定

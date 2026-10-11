@@ -1,0 +1,7 @@
+item_id,name,item_type,map_id,desc
+CUR_LINGSHI,灵石,currency,,通用货币：技能升级、突破、重铸
+CUR_XIUWEI,修为,currency,,境界突破消耗，击杀与通关获得
+MAT_REFINE,炼器材料,material,,装备分解/背包溢出获得，用于重铸词条
+MAT_PAGE,悟道残页,material,,重复技能书分解获得，10张兑换一本已解锁区域指定技能书
+MAT_BT_QINGZHU,青竹灵髓,breakthrough,MAP_QINGZHU,青竹山首领首次击败（第1-5关首通）掉落，炼气→筑基突破材料
+MAT_BT_LEIZE,雷泽雷晶,breakthrough,MAP_LEIZE,雷泽谷首领首次击败（第2-5关首通）掉落，筑基→金丹突破材料

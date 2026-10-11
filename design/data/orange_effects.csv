@@ -1,0 +1,4 @@
+orange_effect_id,base_id,gongfa_id,name,param1_key,param1,param2_key,param2,param3_key,param3,internal_cd_s,desc
+OE_SWORD_CORE,EQB_CORE_SWORD,GF_SWORD,青冥万剑,extra_sword_chance,0.3,extra_sword_coef,0.8,boss_dmg_pct,0.15,0,飞剑诀主动技能每次命中有30%概率追加1把飞剑（攻击×0.8），暴击时必定追加；对首领伤害+15%
+OE_THUNDER_CORE,EQB_CORE_THUNDER,GF_THUNDER,雷音震野,chain_count_add,2,kill_cd_refund_s,0.5,,,0,御雷诀技能连锁目标+2；御雷诀技能每击杀1个敌人，所有御雷诀主动技能剩余冷却-0.5秒
+OE_GANG_CORE,EQB_CORE_GANG,GF_GANG,玄罡镇岳,reflect_add_with_shield,0.25,shield_break_burst_pct,0.8,burst_radius_px,220,5,护盾存在时反伤+25%；护盾被击破时以自身为中心半径220爆发，伤害=护盾上限×80%（内置冷却5秒）

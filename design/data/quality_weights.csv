@@ -1,0 +1,9 @@
+weight_set_id,Q_WHITE,Q_GREEN,Q_BLUE,Q_PURPLE,Q_ORANGE,desc
+QW_NORMAL_T1,70,25,5,0,0,青竹山普通怪/离线
+QW_NORMAL_T2,55,32,11,2,0,雷泽谷普通怪/离线
+QW_NORMAL_T3,45,35,15,5,0,玄岩洞普通怪/离线
+QW_BOSS_T1,20,45,30,5,0,青竹山首领
+QW_BOSS_T2,10,40,38,11.5,0.5,雷泽谷首领
+QW_BOSS_T3,5,30,43,20.5,1.5,玄岩洞首领
+QW_FIRST_BLUE,0,0,80,20,0,首通保底：蓝装以上（计划已定）
+QW_FIRST_PURPLE,0,0,0,100,0,地图终关首通：紫装
