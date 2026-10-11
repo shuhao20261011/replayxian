@@ -44,8 +44,8 @@ func is_active() -> bool:
 
 func icon_path() -> String:
 	if icon != "":
-		return "res://art/ui/%s.png" % icon
-	return "res://art/ui/ui_icon_skill_%s.png" % id.to_lower().trim_prefix("sk_")
+		return ArtUi.icon_path(icon)
+	return ArtUi.icon_path("ui_icon_skill_" + id.to_lower().trim_prefix("sk_"))
 
 ## 取某等级数值；表中缺行时按成长字段推算，保证改表不崩
 func level_def(lv: int) -> SkillLevelDef:

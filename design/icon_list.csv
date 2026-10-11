@@ -1,55 +1,59 @@
-icon_key,category,refs,name,prompt,size
-ui_icon_gongfa_sword,功法,gongfa:GF_SWORD,飞剑诀,飞剑诀徽记：以神御剑，一剑快过一剑。专精单体，斩首领最快；主色飞剑青；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_gongfa_thunder,功法,gongfa:GF_THUNDER,御雷诀,御雷诀徽记：引九天之雷，一击连成一片。专精群攻，清怪最快；主色雷电紫蓝；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_gongfa_gang,功法,gongfa:GF_GANG,玄罡诀,玄罡诀徽记：罡气护身，以守代攻。护盾反伤兼备，最耐久战；主色护盾金；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_sword_flying,技能,skills:SK_SWORD_FLYING,飞剑,飞剑：御剑离手；飞剑诀主色飞剑青；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_sword_combo,技能,skills:SK_SWORD_COMBO,连环剑,连环剑：剑出连珠；飞剑诀主色飞剑青；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_sword_pierce,技能,skills:SK_SWORD_PIERCE,破甲剑,破甲剑：剑气贯穿一线；飞剑诀主色飞剑青；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_sword_execute,技能,skills:SK_SWORD_EXECUTE,诛仙剑,诛仙剑：蓄势斩出巨剑；飞剑诀主色飞剑青；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_sword_passive,技能,skills:SK_SWORD_PASSIVE,剑心通明,剑心通明：剑心澄明；飞剑诀主色飞剑青；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_thunder_strike,技能,skills:SK_THUNDER_STRIKE,雷击,雷击：掌引天雷劈向前方；御雷诀主色雷电紫蓝；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_thunder_cloud,技能,skills:SK_THUNDER_CLOUD,雷云,雷云：召雷云笼罩敌群；御雷诀主色雷电紫蓝；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_thunder_palm,技能,skills:SK_THUNDER_PALM,掌心雷,掌心雷：掌心炸开雷光；御雷诀主色雷电紫蓝；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_thunder_nine,技能,skills:SK_THUNDER_NINE,九霄神雷,九霄神雷：九霄之上连降9道神雷；御雷诀主色雷电紫蓝；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_thunder_passive,技能,skills:SK_THUNDER_PASSIVE,引雷之体,引雷之体：雷气入体；御雷诀主色雷电紫蓝；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_gang_guard,技能,skills:SK_GANG_GUARD,护体,护体：凝罡护体；玄罡诀主色护盾金；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_gang_quake,技能,skills:SK_GANG_QUAKE,震岳,震岳：顿足震岳；玄罡诀主色护盾金；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_gang_gale,技能,skills:SK_GANG_GALE,罡风护身,罡风护身：罡风绕身4秒；玄罡诀主色护盾金；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_gang_vajra,技能,skills:SK_GANG_VAJRA,金刚不坏,金刚不坏：金身不坏；玄罡诀主色护盾金；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_skill_gang_passive,技能,skills:SK_GANG_PASSIVE,玄罡护体,玄罡护体：玄罡贯体；玄罡诀主色护盾金；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_book_sword,技能书,skill_books:BK_SWORD_FLYING|skill_books:BK_SWORD_COMBO|skill_books:BK_SWORD_PIERCE|skill_books:BK_SWORD_EXECUTE|skill_books:BK_SWORD_PASSIVE,《飞剑》、《连环剑》、《破甲剑》、《诛仙剑》、《剑心通明》,飞剑诀技能书书皮：线装古籍，飞剑青题签（同功法共用，书名由UI叠字）；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_book_thunder,技能书,skill_books:BK_THUNDER_STRIKE|skill_books:BK_THUNDER_CLOUD|skill_books:BK_THUNDER_PALM|skill_books:BK_THUNDER_NINE|skill_books:BK_THUNDER_PASSIVE,《雷击》、《雷云》、《掌心雷》、《九霄神雷》、《引雷之体》,御雷诀技能书书皮：线装古籍，雷电紫蓝题签（同功法共用，书名由UI叠字）；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_book_gang,技能书,skill_books:BK_GANG_GUARD|skill_books:BK_GANG_QUAKE|skill_books:BK_GANG_GALE|skill_books:BK_GANG_VAJRA|skill_books:BK_GANG_PASSIVE,《护体》、《震岳》、《罡风护身》、《金刚不坏》、《玄罡护体》,玄罡诀技能书书皮：线装古籍，护盾金题签（同功法共用，书名由UI叠字）；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_item_cur_lingshi,货币材料,materials:CUR_LINGSHI,灵石,灵石：修士通货；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_item_cur_xiuwei,货币材料,materials:CUR_XIUWEI,修为,修为：斩妖所积的道行；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_item_mat_refine,货币材料,materials:MAT_REFINE,炼器材料,炼器材料：分解装备所得；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_item_mat_page,货币材料,materials:MAT_PAGE,悟道残页,悟道残页：分解重复技能书所得；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_item_mat_bt_qingzhu,货币材料,materials:MAT_BT_QINGZHU,青竹灵髓,青竹灵髓：竹魅初次伏诛所遗；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_item_mat_bt_leize,货币材料,materials:MAT_BT_LEIZE,雷泽雷晶,雷泽雷晶：夔牛初次伏诛所遗；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_weapon_t1,装备,equip_bases:EQB_WEAPON_T1,青竹剑,武器·青竹剑：山中青竹削成，轻而锋利；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_robe_t1,装备,equip_bases:EQB_ROBE_T1,竹叶袍,衣袍·竹叶袍：竹叶纹袍，轻软透气；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_crown_t1,装备,equip_bases:EQB_CROWN_T1,竹簪冠,头冠·竹簪冠：一支竹簪束发，清雅利落；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_shoes_t1,装备,equip_bases:EQB_SHOES_T1,芒鞋,鞋履·芒鞋：芒草编鞋，踏遍青山；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_ring_t1,装备,equip_bases:EQB_RING_T1,竹节戒,戒指·竹节戒：竹节磨成指环，温润如玉；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_artifact_t1,装备,equip_bases:EQB_ARTIFACT_T1,竹笛,法器·竹笛：竹笛一管，可引清风；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_weapon_t2,装备,equip_bases:EQB_WEAPON_T2,雷纹剑,武器·雷纹剑：剑身雷纹隐现，挥动噼啪作响；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_robe_t2,装备,equip_bases:EQB_ROBE_T2,雷云袍,衣袍·雷云袍：袍上云纹翻涌，似有雷声；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_crown_t2,装备,equip_bases:EQB_CROWN_T2,紫电冠,头冠·紫电冠：冠缀紫电，神识清明；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_shoes_t2,装备,equip_bases:EQB_SHOES_T2,踏雷靴,鞋履·踏雷靴：踏雷而行，步步生电；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_ring_t2,装备,equip_bases:EQB_RING_T2,雷蟾戒,戒指·雷蟾戒：雷蟾晶骨所制，触之微麻；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_artifact_t2,装备,equip_bases:EQB_ARTIFACT_T2,雷珠,法器·雷珠：雷泽深处所得，内蕴电光；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_weapon_t3,装备,equip_bases:EQB_WEAPON_T3,玄铁剑,武器·玄铁剑：玄铁锻成，沉重无匹；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_robe_t3,装备,equip_bases:EQB_ROBE_T3,玄岩甲衣,衣袍·玄岩甲衣：玄岩片缀成，刀剑难入；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_crown_t3,装备,equip_bases:EQB_CROWN_T3,玄石冠,头冠·玄石冠：玄石雕冠，镇心守神；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_shoes_t3,装备,equip_bases:EQB_SHOES_T3,镇岳履,鞋履·镇岳履：足下生根，稳如山岳；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_ring_t3,装备,equip_bases:EQB_RING_T3,玄晶戒,戒指·玄晶戒：玄晶为戒，幽光内敛；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_artifact_t3,装备,equip_bases:EQB_ARTIFACT_T3,岩心印,法器·岩心印：岩心铸成的法印，厚重沉稳；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_core_sword,装备,equip_bases:EQB_CORE_SWORD,青冥剑,武器·青冥剑：飞剑诀至宝，剑出青冥，万剑相随；核心橙装，橙色宝光；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_core_thunder,装备,equip_bases:EQB_CORE_THUNDER,雷音鼓,法器·雷音鼓：御雷诀至宝，一鼓雷音，震动四野；核心橙装，橙色宝光；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_equip_core_gang,装备,equip_bases:EQB_CORE_GANG,玄罡宝衣,衣袍·玄罡宝衣：玄罡诀至宝，罡气凝衣，坚不可摧；核心橙装，橙色宝光；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64
-ui_icon_key_space,按键,key:SPACE|tutorial_steps:TUT_06_BOSS|tutorial_steps:TUT_07_SKYFALL_DODGE,空格键,键帽：墨底圆角、古金描边、金字 #EAD7A8，与 UI 按钮同一套，键面“空格”；用途：闪避；天坠引导、首领引导,源图256×96，显示128×48
-ui_icon_key_q,按键,key:Q|tutorial_steps:TUT_07_SKYFALL_DODGE,Q键,键帽：墨底圆角、古金描边、金字 #EAD7A8，与 UI 按钮同一套，键面“Q”；用途：切回自动战斗,源图96×96，显示48×48
-ui_icon_key_1,按键,key:1|tutorial_steps:TUT_04_CAST,1键,键帽：墨底圆角、古金描边、金字 #EAD7A8，与 UI 按钮同一套，键面“1”；用途：技能栏第1格；释放引导,源图96×96，显示48×48
-ui_icon_key_2,按键,key:2,2键,键帽：墨底圆角、古金描边、金字 #EAD7A8，与 UI 按钮同一套，键面“2”；用途：技能栏第2格,源图96×96，显示48×48
-ui_icon_key_3,按键,key:3,3键,键帽：墨底圆角、古金描边、金字 #EAD7A8，与 UI 按钮同一套，键面“3”；用途：技能栏第3格,源图96×96，显示48×48
-ui_icon_key_4,按键,key:4,4键,键帽：墨底圆角、古金描边、金字 #EAD7A8，与 UI 按钮同一套，键面“4”；用途：技能栏第4格,源图96×96，显示48×48
+icon_key,category,refs,name,prompt,size,variants
+ui_icon_gongfa_sword,功法,gongfa:GF_SWORD,飞剑诀,飞剑诀徽记：以神御剑，一剑快过一剑。专精单体，斩首领最快；主色飞剑青；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_gongfa_thunder,功法,gongfa:GF_THUNDER,御雷诀,御雷诀徽记：引九天之雷，一击连成一片。专精群攻，清怪最快；主色雷电紫蓝；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_gongfa_gang,功法,gongfa:GF_GANG,玄罡诀,玄罡诀徽记：罡气护身，以守代攻。护盾反伤兼备，最耐久战；主色护盾金；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_sword_flying,技能,skills:SK_SWORD_FLYING,飞剑,飞剑：御剑离手；飞剑诀主色飞剑青；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_sword_combo,技能,skills:SK_SWORD_COMBO,连环剑,连环剑：剑出连珠；飞剑诀主色飞剑青；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_sword_pierce,技能,skills:SK_SWORD_PIERCE,破甲剑,破甲剑：剑气贯穿一线；飞剑诀主色飞剑青；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_sword_execute,技能,skills:SK_SWORD_EXECUTE,诛仙剑,诛仙剑：蓄势斩出巨剑；飞剑诀主色飞剑青；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_sword_passive,技能,skills:SK_SWORD_PASSIVE,剑心通明,剑心通明：剑心澄明；飞剑诀主色飞剑青；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_thunder_strike,技能,skills:SK_THUNDER_STRIKE,雷击,雷击：掌引天雷劈向前方；御雷诀主色雷电紫蓝；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_thunder_cloud,技能,skills:SK_THUNDER_CLOUD,雷云,雷云：召雷云笼罩敌群；御雷诀主色雷电紫蓝；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_thunder_palm,技能,skills:SK_THUNDER_PALM,掌心雷,掌心雷：掌心炸开雷光；御雷诀主色雷电紫蓝；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_thunder_nine,技能,skills:SK_THUNDER_NINE,九霄神雷,九霄神雷：九霄之上连降9道神雷；御雷诀主色雷电紫蓝；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_thunder_passive,技能,skills:SK_THUNDER_PASSIVE,引雷之体,引雷之体：雷气入体；御雷诀主色雷电紫蓝；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_gang_guard,技能,skills:SK_GANG_GUARD,护体,护体：凝罡护体；玄罡诀主色护盾金；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_gang_quake,技能,skills:SK_GANG_QUAKE,震岳,震岳：顿足震岳；玄罡诀主色护盾金；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_gang_gale,技能,skills:SK_GANG_GALE,罡风护身,罡风护身：罡风绕身4秒；玄罡诀主色护盾金；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_gang_vajra,技能,skills:SK_GANG_VAJRA,金刚不坏,金刚不坏：金身不坏；玄罡诀主色护盾金；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_skill_gang_passive,技能,skills:SK_GANG_PASSIVE,玄罡护体,玄罡护体：玄罡贯体；玄罡诀主色护盾金；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_book_sword,技能书,skill_books:BK_SWORD_FLYING|skill_books:BK_SWORD_COMBO|skill_books:BK_SWORD_PIERCE|skill_books:BK_SWORD_EXECUTE|skill_books:BK_SWORD_PASSIVE,《飞剑》、《连环剑》、《破甲剑》、《诛仙剑》、《剑心通明》,飞剑诀技能书书皮：线装古籍，飞剑青题签（同功法共用，书名由UI叠字）；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_book_thunder,技能书,skill_books:BK_THUNDER_STRIKE|skill_books:BK_THUNDER_CLOUD|skill_books:BK_THUNDER_PALM|skill_books:BK_THUNDER_NINE|skill_books:BK_THUNDER_PASSIVE,《雷击》、《雷云》、《掌心雷》、《九霄神雷》、《引雷之体》,御雷诀技能书书皮：线装古籍，雷电紫蓝题签（同功法共用，书名由UI叠字）；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_book_gang,技能书,skill_books:BK_GANG_GUARD|skill_books:BK_GANG_QUAKE|skill_books:BK_GANG_GALE|skill_books:BK_GANG_VAJRA|skill_books:BK_GANG_PASSIVE,《护体》、《震岳》、《罡风护身》、《金刚不坏》、《玄罡护体》,玄罡诀技能书书皮：线装古籍，护盾金题签（同功法共用，书名由UI叠字）；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_item_cur_lingshi,货币材料,materials:CUR_LINGSHI,灵石,灵石：修士通货；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_item_cur_xiuwei,货币材料,materials:CUR_XIUWEI,修为,修为：斩妖所积的道行；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_item_mat_refine,货币材料,materials:MAT_REFINE,炼器材料,炼器材料：分解装备所得；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_item_mat_page,货币材料,materials:MAT_PAGE,悟道残页,悟道残页：分解重复技能书所得；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_item_mat_bt_qingzhu,货币材料,materials:MAT_BT_QINGZHU,青竹灵髓,青竹灵髓：竹魅初次伏诛所遗；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_item_mat_bt_leize,货币材料,materials:MAT_BT_LEIZE,雷泽雷晶,雷泽雷晶：夔牛初次伏诛所遗；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_weapon_t1,装备,equip_bases:EQB_WEAPON_T1,青竹剑,武器·青竹剑：山中青竹削成，轻而锋利；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_robe_t1,装备,equip_bases:EQB_ROBE_T1,竹叶袍,衣袍·竹叶袍：竹叶纹袍，轻软透气；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_crown_t1,装备,equip_bases:EQB_CROWN_T1,竹簪冠,头冠·竹簪冠：一支竹簪束发，清雅利落；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_shoes_t1,装备,equip_bases:EQB_SHOES_T1,芒鞋,鞋履·芒鞋：芒草编鞋，踏遍青山；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_ring_t1,装备,equip_bases:EQB_RING_T1,竹节戒,戒指·竹节戒：竹节磨成指环，温润如玉；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_artifact_t1,装备,equip_bases:EQB_ARTIFACT_T1,竹笛,法器·竹笛：竹笛一管，可引清风；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_weapon_t2,装备,equip_bases:EQB_WEAPON_T2,雷纹剑,武器·雷纹剑：剑身雷纹隐现，挥动噼啪作响；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_robe_t2,装备,equip_bases:EQB_ROBE_T2,雷云袍,衣袍·雷云袍：袍上云纹翻涌，似有雷声；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_crown_t2,装备,equip_bases:EQB_CROWN_T2,紫电冠,头冠·紫电冠：冠缀紫电，神识清明；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_shoes_t2,装备,equip_bases:EQB_SHOES_T2,踏雷靴,鞋履·踏雷靴：踏雷而行，步步生电；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_ring_t2,装备,equip_bases:EQB_RING_T2,雷蟾戒,戒指·雷蟾戒：雷蟾晶骨所制，触之微麻；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_artifact_t2,装备,equip_bases:EQB_ARTIFACT_T2,雷珠,法器·雷珠：雷泽深处所得，内蕴电光；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_weapon_t3,装备,equip_bases:EQB_WEAPON_T3,玄铁剑,武器·玄铁剑：玄铁锻成，沉重无匹；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_robe_t3,装备,equip_bases:EQB_ROBE_T3,玄岩甲衣,衣袍·玄岩甲衣：玄岩片缀成，刀剑难入；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_crown_t3,装备,equip_bases:EQB_CROWN_T3,玄石冠,头冠·玄石冠：玄石雕冠，镇心守神；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_shoes_t3,装备,equip_bases:EQB_SHOES_T3,镇岳履,鞋履·镇岳履：足下生根，稳如山岳；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_ring_t3,装备,equip_bases:EQB_RING_T3,玄晶戒,戒指·玄晶戒：玄晶为戒，幽光内敛；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_artifact_t3,装备,equip_bases:EQB_ARTIFACT_T3,岩心印,法器·岩心印：岩心铸成的法印，厚重沉稳；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_core_sword,装备,equip_bases:EQB_CORE_SWORD,青冥剑,武器·青冥剑：飞剑诀至宝，剑出青冥，万剑相随；核心橙装，橙色宝光；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_core_thunder,装备,equip_bases:EQB_CORE_THUNDER,雷音鼓,法器·雷音鼓：御雷诀至宝，一鼓雷音，震动四野；核心橙装，橙色宝光；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_equip_core_gang,装备,equip_bases:EQB_CORE_GANG,玄罡宝衣,衣袍·玄罡宝衣：玄罡诀至宝，罡气凝衣，坚不可摧；核心橙装，橙色宝光；写实手绘，统一深色底、左上光源，古金细描边,源图128×128，显示64×64,
+ui_icon_key_space,按键,key:SPACE|tutorial_steps:TUT_06_BOSS|tutorial_steps:TUT_07_SKYFALL_DODGE,空格键,键帽：墨底圆角、古金描边、金字 #EAD7A8，与 UI 按钮同一套，键面“空格”；用途：闪避；天坠引导、首领引导,源图256×96，显示128×48,ui_icon_key_space_pressed
+ui_icon_key_q,按键,key:Q|tutorial_steps:TUT_07_SKYFALL_DODGE,Q键,键帽：墨底圆角、古金描边、金字 #EAD7A8，与 UI 按钮同一套，键面“Q”；用途：切回自动战斗,源图96×96，显示48×48,ui_icon_key_q_pressed
+ui_icon_key_1,按键,key:1|tutorial_steps:TUT_04_CAST,1键,键帽：墨底圆角、古金描边、金字 #EAD7A8，与 UI 按钮同一套，键面“1”；用途：技能栏第1格；释放引导,源图96×96，显示48×48,ui_icon_key_1_pressed
+ui_icon_key_2,按键,key:2,2键,键帽：墨底圆角、古金描边、金字 #EAD7A8，与 UI 按钮同一套，键面“2”；用途：技能栏第2格,源图96×96，显示48×48,ui_icon_key_2_pressed
+ui_icon_key_3,按键,key:3,3键,键帽：墨底圆角、古金描边、金字 #EAD7A8，与 UI 按钮同一套，键面“3”；用途：技能栏第3格,源图96×96，显示48×48,ui_icon_key_3_pressed
+ui_icon_key_4,按键,key:4,4键,键帽：墨底圆角、古金描边、金字 #EAD7A8，与 UI 按钮同一套，键面“4”；用途：技能栏第4格,源图96×96，显示48×48,ui_icon_key_4_pressed
+ui_icon_menu_equip,菜单,ui_texts:NAV_GEAR|ui_texts:NAV_GEAR_SHORT,装备,装备：一只束口布袋，袋口露出剑柄与玉佩；写实手绘，统一深色底、左上光源，古金细描边；另出透明底前景版 _fg 供圆章按钮叠放,源图128×128，显示64×64,ui_icon_menu_equip_fg
+ui_icon_menu_gongfa,菜单,ui_texts:NAV_GONGFA|ui_texts:NAV_GONGFA_SHORT,功法,功法：一卷翻开的线装古籍，书页墨字隐现；写实手绘，统一深色底、左上光源，古金细描边；另出透明底前景版 _fg 供圆章按钮叠放,源图128×128，显示64×64,ui_icon_menu_gongfa_fg
+ui_icon_menu_map,菜单,ui_texts:NAV_MAP|ui_texts:NAV_MAP_SHORT,地图,地图：半展的山水地图卷，几枚金钉标出关隘；写实手绘，统一深色底、左上光源，古金细描边；另出透明底前景版 _fg 供圆章按钮叠放,源图128×128，显示64×64,ui_icon_menu_map_fg
+ui_icon_menu_breakthrough,菜单,ui_texts:NAV_BREAK|ui_texts:NAV_BREAK_SHORT,突破,突破：层叠山峰，峰顶金光破云而出；写实手绘，统一深色底、左上光源，古金细描边；另出透明底前景版 _fg 供圆章按钮叠放,源图128×128，显示64×64,ui_icon_menu_breakthrough_fg

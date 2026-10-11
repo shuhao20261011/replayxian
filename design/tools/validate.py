@@ -352,6 +352,11 @@ for r in T["ui_texts"]:
         decl[n] = psrc
         if re.match(r"^int\d$", psrc): continue
         tb, _, fd = psrc.partition(".")
+        if tb == "ui_texts":       # v5.3：嵌套另一条文案（KEY 或前缀通配 PREFIX*）
+            _ks = [x["key"] for x in T["ui_texts"] if (x["key"].startswith(fd[:-1]) if fd.endswith("*") else x["key"] == fd)]
+            if not _ks: err("ui_texts %s 占位符 %s 引用的文案 %s 不存在" % (k, n, psrc))
+            if k in _ks: err("ui_texts %s 占位符 %s 不能引用自身" % (k, n))
+            continue
         if tb not in T or not T[tb] or fd not in T[tb][0]: err("ui_texts %s 占位符 %s 来源 %s 不存在" % (k, n, psrc))
     used = [m.group(1) for m in PH_RE.finditer(str(r["text"]))]
     for n in used:
@@ -361,6 +366,8 @@ for r in T["ui_texts"]:
     def longest(src):
         if re.match(r"^int\d$", src): return "9" * int(src[3])
         tb, _, fd = src.partition(".")
+        if tb == "ui_texts":       # 嵌套文案按其 max_chars 计长
+            return "囗" * max((int(x["max_chars"]) for x in T["ui_texts"] if (x["key"].startswith(fd[:-1]) if fd.endswith("*") else x["key"] == fd)), default=0)
         return max((str(x[fd]) for x in T.get(tb, []) if fd in x), key=len, default="")
     try: out = PH_RE.sub(lambda m: longest(decl[m.group(1)]), str(r["text"]))
     except KeyError: continue
@@ -377,6 +384,9 @@ for t, col, rid in (("qualities", "beam_color", "quality_id"), ("gongfa", "fx_co
 
 # v5 BUG-005：危险招式间隔 ≥ 闪避冷却 + 余量（逐帧复刻 boss.gd 排招，模拟每关首领出现后60秒）
 from common import danger_gap_violations
+# v5.2：运行时“危险招最小间隔保护”与“预警按帧向上取整”依赖以下常量，必须存在且为正数
+for _k in ("DODGE_COOLDOWN", "DANGER_MIN_GAP_MARGIN_S", "BOSS_WARN_TIME"):
+    if not (isinstance(CK.get(_k), (int, float)) and CK.get(_k) > 0): err("constants 缺少或非法：%s（运行时间隔保护/预警帧数依赖）" % _k)
 _min_gap = CK.get("DODGE_COOLDOWN", 3.0) + CK.get("DANGER_MIN_GAP_MARGIN_S", 0.5)
 for lv, a1, a2, gap, t1, t2, order in danger_gap_violations(T, _min_gap):
     err("%s 首领危险招式间隔不足：%s（末段判定 %.2f 秒）→ %s（判定 %.2f 秒）只隔 %.2f 秒 < 闪避冷却+余量 %.1f 秒（优先顺序：%s）"
@@ -386,11 +396,17 @@ ART_TELEGRAPH = {"#B8382C", "#F4F1EA"}          # style_guide：朱砂 / 预警�
 _tdef, _talt = str(CK.get("TELEGRAPH_DEFAULT_COLOR", "")).upper(), str(CK.get("TELEGRAPH_ALT_COLOR", "")).upper()
 if _tdef != "#B8382C": err("constants.TELEGRAPH_DEFAULT_COLOR 应为美术规范朱砂 #B8382C，现为 %s" % _tdef)
 if _talt != "#F4F1EA": err("constants.TELEGRAPH_ALT_COLOR 应为美术规范预警白 #F4F1EA，现为 %s" % _talt)
-for k in ("TELEGRAPH_OUTLINE_PX", "TELEGRAPH_OUTLINE_COLOR", "TELEGRAPH_OUTLINE_ALPHA", "TELEGRAPH_FILL_ALPHA"):
+_TG_PX = ("TELEGRAPH_LINE_PX", "TELEGRAPH_DASH_PX", "TELEGRAPH_GAP_PX", "TELEGRAPH_OUTLINE_PX", "TELEGRAPH_ARENA_LINE_PX",
+          "TELEGRAPH_ARENA_DASH_PX", "TELEGRAPH_ARENA_GAP_PX", "TELEGRAPH_ARENA_OUTLINE_PX")
+_TG_A = ("TELEGRAPH_OUTLINE_ALPHA", "TELEGRAPH_FILL_ALPHA", "TELEGRAPH_PROGRESS_FILL_ALPHA", "TELEGRAPH_ARENA_OUTLINE_ALPHA",
+         "TELEGRAPH_ARENA_FILL_ALPHA_CENTER", "TELEGRAPH_ARENA_FILL_ALPHA_EDGE", "TELEGRAPH_BLINK_MIN_ALPHA")
+for k in _TG_PX + _TG_A + ("TELEGRAPH_OUTLINE_COLOR",):
     if k not in CK: err("constants 缺少 %s" % k)
+for k in _TG_PX:
+    if not (isinstance(CK.get(k), (int, float)) and CK.get(k) > 0): err("%s 须 >0" % k)
 if not HEX.match(str(CK.get("TELEGRAPH_OUTLINE_COLOR", ""))): err("constants.TELEGRAPH_OUTLINE_COLOR 不是 #RRGGBB")
 if not (isinstance(CK.get("TELEGRAPH_OUTLINE_PX"), (int, float)) and CK.get("TELEGRAPH_OUTLINE_PX") > 0): err("TELEGRAPH_OUTLINE_PX 须 >0")
-for k in ("TELEGRAPH_OUTLINE_ALPHA", "TELEGRAPH_FILL_ALPHA"):
+for k in _TG_A:
     if not (isinstance(CK.get(k), (int, float)) and 0 <= CK.get(k) <= 1): err("%s 须在 0~1" % k)
 _mapcol = {}
 for m in T["maps"]:
@@ -410,6 +426,9 @@ for a in T["boss_attacks"]:
 # v5.1 图标清单：design/icon_list.csv 必须与各表 icon 列 + 按键图标完全一致
 _ip = os.path.join(os.path.dirname(DATA), "icon_list.csv")
 KEY_ICONS = {"ui_icon_key_space", "ui_icon_key_q", "ui_icon_key_1", "ui_icon_key_2", "ui_icon_key_3", "ui_icon_key_4"}
+# v5.4：菜单图标为固定 UI 图标（不来自数据表 icon 列），refs 指向 ui_texts 的 NAV_* 文案
+MENU_ICONS = {"ui_icon_menu_equip": "NAV_GEAR", "ui_icon_menu_gongfa": "NAV_GONGFA", "ui_icon_menu_map": "NAV_MAP", "ui_icon_menu_breakthrough": "NAV_BREAK"}
+VARIANT_SUFFIX = {"按键": "_pressed", "菜单": "_fg"}     # 必备变体：按键按下态 / 菜单透明底前景版
 ICON_TABLES = {"gongfa": "gongfa_id", "skills": "skill_id", "skill_books": "book_id", "materials": "item_id", "equip_bases": "base_id"}
 if not os.path.exists(_ip): err("缺少 icon_list.csv（由 gen_tables.py 生成）")
 else:
@@ -426,6 +445,19 @@ else:
             if not str(r.get(c, "")).strip(): err("icon_list %s.%s 为空" % (r.get("icon_key"), c))
         if not re.match(r"^ui_icon_[a-z0-9_]+$", r["icon_key"]): err("icon_list %s 命名不规范" % r["icon_key"])
         refs = {x for x in r["refs"].split("|") if not x.startswith(("key:", "tutorial_steps:"))}
+        _vs = [x for x in str(r.get("variants", "")).split("|") if x]
+        for x in _vs:
+            if not (x.startswith(r["icon_key"] + "_") and re.match(r"^ui_icon_[a-z0-9_]+$", x)): err("icon_list %s 的变体 %s 须以“图标键_”开头且命名合规" % (r["icon_key"], x))
+        if r["category"] in VARIANT_SUFFIX and r["icon_key"] + VARIANT_SUFFIX[r["category"]] not in _vs:
+            err("icon_list %s 缺少变体 %s" % (r["icon_key"], r["icon_key"] + VARIANT_SUFFIX[r["category"]]))
+        if r["icon_key"] in MENU_ICONS:
+            if r["category"] != "菜单": err("icon_list %s 类别应为 菜单" % r["icon_key"])
+            _uik = {x["key"] for x in T["ui_texts"]}
+            for x in r["refs"].split("|"):
+                tb, _, kk = x.partition(":")
+                if tb != "ui_texts" or kk not in _uik: err("icon_list %s 的 refs %s 须指向存在的 ui_texts 文案" % (r["icon_key"], x))
+            if "ui_texts:" + MENU_ICONS[r["icon_key"]] not in r["refs"].split("|"): err("icon_list %s 未关联 %s" % (r["icon_key"], MENU_ICONS[r["icon_key"]]))
+            continue
         if r["icon_key"] in KEY_ICONS:
             if r["category"] != "按键": err("icon_list %s 类别应为 按键" % r["icon_key"])
             for x in r["refs"].split("|"):
@@ -433,8 +465,15 @@ else:
                     err("icon_list %s 引用了不存在的引导步骤 %s" % (r["icon_key"], x))
         elif r["icon_key"] not in need: err("icon_list %s 在各表 icon 列中不存在（多余）" % r["icon_key"])
         elif refs != need[r["icon_key"]]: err("icon_list %s 的 refs 与表不一致：%s ≠ %s" % (r["icon_key"], sorted(refs), sorted(need[r["icon_key"]])))
-    for k in set(need) | KEY_ICONS:
+    for k in set(need) | KEY_ICONS | set(MENU_ICONS):
         if k not in keys: err("icon_list.csv 缺少 %s" % k)
+    # 与美术实际文件核对（只告警：美术可能尚未出图）
+    _art = os.path.join(os.path.dirname(os.path.dirname(DATA)), "art", "final", "ui", "icons")
+    if os.path.isdir(_art):
+        _files = {f[:-4] for f in os.listdir(_art) if f.endswith(".png")}
+        _want = set(keys) | {x for r in IL for x in str(r.get("variants", "")).split("|") if x}
+        for k in sorted(_want - _files): warns.append("art/final/ui/icons 缺少 %s.png" % k)
+        for k in sorted(_files - _want): warns.append("art/final/ui/icons 有清单外文件 %s.png" % k)
 print("表数量:", len(T), " 行数:", sum(len(v) for v in T.values()))
 print("技能书获取途径:")
 for b in T["skill_books"]:

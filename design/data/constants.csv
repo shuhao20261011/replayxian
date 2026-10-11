@@ -13,10 +13,22 @@ BOSS_TIME_LIMIT,60,秒,首领战限时（计划已定）
 TELEGRAPH_DEFAULT_COLOR,#B8382C,颜色,首领危险攻击预警兜底颜色：朱砂（v5.1 以美术 v2 规范为唯一来源，原 #C8312B）。实际按 boss_attacks.telegraph_color → maps.telegraph_color → 本值 的优先级取色
 TELEGRAPH_ALT_COLOR,#F4F1EA,颜色,预警白（v5.1 以美术 v2 规范为准，原 #FFFFFF）：雷泽谷、玄岩洞的地图预警色；玩家设置“统一用预警白”时所有地图都用本值
 TELEGRAPH_DEFAULT_STYLE,dashed,枚举,预警描边样式：dashed 虚线（默认）/ solid 实线
-TELEGRAPH_OUTLINE_PX,2,像素,v5.1（美术实测）：预警主描边外侧再加一圈暗色外描边的宽度，保证在亮背景与熔岩高光上都能分辨
-TELEGRAPH_OUTLINE_COLOR,#1C1E21,颜色,v5.1（美术实测）：预警外描边颜色
-TELEGRAPH_OUTLINE_ALPHA,0.6,比例,v5.1（美术实测）：预警外描边不透明度
-TELEGRAPH_FILL_ALPHA,0.15,比例,v5.1（美术实测）：预警区域内部填充=预警色×本不透明度
+TELEGRAPH_LINE_PX,4,像素,v5.4：普通预警（圆形/矩形）主线宽，虚线（美术 2.2：由 3px 加粗到 4px）
+TELEGRAPH_DASH_PX,12,像素,v5.4：主线虚线每段长度（划）
+TELEGRAPH_GAP_PX,12,像素,v5.4：普通预警主线虚线间隔（空）
+TELEGRAPH_OUTLINE_PX,2,像素,v5.1：主线外侧连续外描边宽度（普通预警）
+TELEGRAPH_OUTLINE_COLOR,#1C1E21,颜色,v5.1：外描边颜色（普通与全场共用）
+TELEGRAPH_OUTLINE_ALPHA,0.7,比例,v5.4：外描边不透明度 0.6→0.7（美术 2.2：60% 时与玄岩洞熔岩高光对比不足）
+TELEGRAPH_FILL_ALPHA,0.15,比例,v5.1：普通预警内部填充=预警色×本不透明度
+TELEGRAPH_PROGRESS_FILL_ALPHA,0.3,比例,v5.4：普通预警“进度内圈”填充不透明度（美术 2.2：随预警进度扩大的内圈）
+TELEGRAPH_ARENA_LINE_PX,6,像素,v5.4：全场预警（天坠）主线宽，虚线
+TELEGRAPH_ARENA_DASH_PX,24,像素,v5.5：全场预警主线虚线每段长度（划），美术 2.2 定稿；纹理 fx_warn_dash_screen.png / fx_warn_rect_9p_screen.png 按 24/16 制作
+TELEGRAPH_ARENA_GAP_PX,16,像素,v5.5：全场预警主线虚线间隔（空），美术 2.2 定稿
+TELEGRAPH_ARENA_OUTLINE_PX,3,像素,v5.4：全场预警外描边宽度（颜色同 TELEGRAPH_OUTLINE_COLOR）
+TELEGRAPH_ARENA_OUTLINE_ALPHA,0.7,比例,v5.4：全场预警外描边不透明度
+TELEGRAPH_ARENA_FILL_ALPHA_CENTER,0.15,比例,v5.4：全场预警底色中心不透明度（中心→四边渐变）
+TELEGRAPH_ARENA_FILL_ALPHA_EDGE,0.35,比例,v5.4：全场预警底色四边不透明度
+TELEGRAPH_BLINK_MIN_ALPHA,0.45,比例,v5.4：预警闪烁时 modulate.a 在 1.0 与本值间往返，0.8 秒内2~3次（美术 5.8）
 DANGER_MIN_GAP_MARGIN_S,0.5,秒,v5（BUG-005）：同一首领任意两次危险招式的伤害判定间隔（前者末段判定→后者首段判定）至少为 DODGE_COOLDOWN + 本值，保证完美操作能躲开每一招；validate.py 逐帧模拟60秒检查，前端可用作运行时保护
 BOSS_MULTI_AREA_INTERVAL,0.4,秒,v5：多段危险招式（anchor=player，如天雷三连、地裂）相邻两段预警的出现间隔（与前端代码默认一致；validate.py 排招模拟读取）
 REFLECT_COUNTER_ICD,0.8,秒,护体反震：全局内置触发间隔（每0.8秒最多反震1次）
@@ -46,3 +58,4 @@ AUTO_SHIELD_RESERVE_CD,12.0,秒,v4：冷却≥该值的护盾技能（金刚不�
 FAIL_RETURN_POLICY,last_cleared,枚举,失败后返回最近已通关关卡挂机；未通关时刷第一关普通怪（计划已定）；自动模式另见AUTO_FAIL_RETREAT_*
 AUTO_FAIL_RETREAT_COUNT,1,次,v3：自动模式下同一关连续失败达到该次数，即把该关标记为“当前配置不稳定”，回退到已通关且未被标记的最高关卡继续自动挂机
 AUTO_FAIL_RETREAT_RESET_ON,loadout_change|skill_level_up|realm_up|manual_clear,枚举,v3：清除“不稳定”标记的时机：更换技能栏/被动或装备（含重铸）、任一技能升级、境界突破、manual_clear=玩家点【挑战】按钮发起该关并通关（v4 明确：无论中途是否切过自动）
+BOSS_MIN_SPACING_PX,180,像素,首领与主角的最小中心距离（首领占位图约240px宽）：首领停在max(普攻距离,此值)，主角贴近时首领后退；玩家选敌与普攻按首领体型外沿放宽

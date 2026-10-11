@@ -30,6 +30,17 @@ func danger_gap_ok(warn: float, _delta: float = 0.0) -> bool:
 	if battle.last_danger_resolve_t < 0.0:
 		return true
 	return battle.sim_time + warn - battle.last_danger_resolve_t >= min_danger_gap() - 1e-6
+## 首领占位图较宽（≈240px），与主角保持的最小中心距离
+static func min_spacing() -> float:
+	return GameData.const_f("BOSS_MIN_SPACING_PX", 180.0)
+
+func stand_distance() -> float:
+	return maxf(def.attack_range_px, min_spacing())
+
+## 玩家普攻/技能/自动走位按“体型外沿”计算：首领比普通怪多出 (最小间距 − 自动普攻接敌距离)
+func body_extent() -> float:
+	var engage := GameData.const_f("PLAYER_NORMAL_ATK_RANGE", 150.0) * 0.8
+	return maxf(min_spacing() - engage, 0.0)
 
 func has_attack(attack_id: String) -> bool:
 	for a in attacks:
@@ -78,14 +89,50 @@ func _behave(delta: float, p: Player) -> void:
 				busy_t = warn
 				battle.start_boss_attack(self, a)
 				return
-	# 2) 普攻（无预警，近战接触）
+	# 2) 普攻（无预警，近战接触）。站位距离至少 BOSS_MIN_SPACING_PX，普攻判定距离同步放宽到站位距离。
+	var stop := stand_distance()
 	for a in attacks:
-		if not a.is_danger and float(timers[a.id]) <= 0.0 and dist <= def.attack_range_px + Player.HALF_WIDTH:
+		if not a.is_danger and float(timers[a.id]) <= 0.0 and dist <= stop + Player.HALF_WIDTH:
+			if _strike_t >= 0.0:
+				return   # 上一记普攻还在起手
 			timers[a.id] = a.cd_s
-			if dist <= a.width_px + Player.HALF_WIDTH:
-				battle.enemy_contact_hit(self, atk * a.damage_coef)
+			if dist <= maxf(a.width_px, stop) + Player.HALF_WIDTH:
+				_strike_reach = maxf(a.width_px, stop)
+				_begin_strike(a.damage_coef, false)   # 正式图集：普攻命中帧结算
 			return
-	# 3) 走位：靠近到普攻距离
-	var stop := def.attack_range_px   # 首领体型大，停在普攻距离边缘，避免与主角重叠
+	# 3) 走位：靠近到站位距离；玩家贴得比最小间距还近时缓慢后退（不覆盖主角）
 	if dist > stop:
 		position.x += signf(dx) * minf(speed() * delta, dist - stop)
+	elif dist < min_spacing() - 1.0 and stun_t <= 0.0:
+		position.x -= signf(dx if dx != 0.0 else -1.0) * minf(speed() * delta, min_spacing() - dist)
+
+## 危险技能出手动画：skill_*（前摇 4 帧共 0.8s，索引 4 出手）。按本招预警时长缩放，出手帧与预警结算同一时刻。
+func play_skill(a: BossAttackDef) -> void:
+	if anim == null:
+		return
+	var name := CreatureArt.skill_anim(a.id)
+	if not anim.sprite_frames.has_animation(name):
+		name = &"attack"
+	_strike_t = -1.0
+	_play_once(String(name))
+	if not anim.animation_finished.is_connected(_on_skill_anim_finished):
+		anim.animation_finished.connect(_on_skill_anim_finished)
+	var warn := a.warn_s if a.warn_s > 0.0 else GameData.const_f("BOSS_WARN_TIME", 0.8)
+	anim.speed_scale = CreatureArt.BOSS_SKILL_WINDUP_S / maxf(warn, 0.05)
+
+## 岩魔冲撞：出手帧在画内前冲 charge_dx（112px）；动画结束切回 idle 前把节点沿朝向挪同样距离，避免“弹回原地”
+func _on_skill_anim_finished() -> void:
+	if anim == null or not alive:
+		return
+	var dx := CreatureArt.skill_end_dx(def, anim.animation)
+	if dx > 0.0:
+		var vr := battle.view_rect() if battle else Rect2(-1e6, 0, 2e6, 1)
+		position.x = clampf(position.x + dx * float(facing), vr.position.x + 60.0, vr.end.x - 60.0)
+		_last_x = position.x   # 不算作“移动”
+
+## 死亡：播 death 并停在最后一帧（随后 battle 整体淡出）
+func play_death() -> void:
+	if anim and anim.sprite_frames.has_animation(&"death"):
+		anim.speed_scale = 1.0
+		anim.modulate = Color.WHITE
+		anim.play(&"death")

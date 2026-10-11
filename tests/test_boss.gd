@@ -183,3 +183,12 @@ func test_skyfall_tutorial_max_show_count() -> void:
 	eq(int(PlayerState.tutorial_state("TUT_07_SKYFALL_DODGE").shown), max_show, "完成后不再提示")
 	near(b.time_scale, 1.0, 0.001, "完成后不再慢放")
 	free_battle(b)
+
+func test_skyfall_hint_auto_subtext_from_table() -> void:
+	var row: Dictionary = {}
+	for r in GameData.tables["tutorial_steps"]:
+		if CsvUtil.s(r, "step_id") == "TUT_07_SKYFALL_DODGE":
+			row = r
+	var sub := TutorialService.auto_subtext(row)
+	check(sub != "" and CsvUtil.s(row, "ui_target").contains(sub), "自动模式小字取自 ui_target（%s）" % sub)
+	check(sub.contains("Q"), "v4 文案含“按 Q 恢复”")

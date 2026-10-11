@@ -6,6 +6,8 @@ extends Node
 ##   --manual                  以手动模式开局
 ##   --god                     调试/截图用无敌
 ##   --boss                    跳过波次直接进入首领战（调试/截图）
+##   --demo-inventory          填充演示用养成数据（书/装备/材料/三选一，固定种子）
+##   --open-panel=装备|功法     在 --open-at 秒（默认1.5）打开养成面板；--gongfa=GF_xxx 选中功法页签
 
 @onready var battle: Battle = $Battle
 @onready var hud: Hud = $HUD
@@ -27,8 +29,19 @@ func _ready() -> void:
 		battle.player.god_mode = true   # 调试/截图：无敌
 	if args.has("manual"):
 		PlayerState.set_auto_battle(false)
+	if args.has("demo-inventory"):
+		PlayerState.debug_fill_demo()
+		battle.refresh_player_stats()
+	if args.has("open-panel"):
+		_open_panel_later(str(args["open-panel"]), float(args.get("open-at", "1.5")), str(args.get("gongfa", "")))
 	if args.has("screenshot-dir"):
 		_screenshot_mode(str(args["screenshot-dir"]), str(args.get("shots", "3,8")), str(args.get("prefix", "shot")))
+
+func _open_panel_later(title: String, at_s: float, gongfa_id: String) -> void:
+	await get_tree().create_timer(at_s).timeout
+	if gongfa_id != "":
+		hud.gongfa_panel.gongfa_id = gongfa_id
+	hud.open_panel(title)
 
 func _screenshot_mode(dir: String, shots: String, prefix: String) -> void:
 	DirAccess.make_dir_recursive_absolute(dir)

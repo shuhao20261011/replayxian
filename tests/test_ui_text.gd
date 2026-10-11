@@ -47,17 +47,57 @@ func test_ui_texts_table_and_keys() -> void:
 	check(GameData.tables.ui_texts.size() >= 40, "主表已加载")
 	eq(UiText.t("BANNER_RETREAT", {"failed_level_name": "甲", "to_level_name": "乙"}), "暂难稳过甲，退守乙", "回退横幅来自表")
 	eq(UiText.t("HUD_WAVE", {"wave": 1, "wave_total": 4}), "第1/4波", "波次")
-	# 主表 key 优先于前端补充表；补充表 key 不得与主表重复（避免被策划改动遮蔽）
-	for r in CsvUtil.load_rows(UiText.LOCAL_PATH):
+	# 主表 key 优先于待收编表；待收编表 key 不得与主表重复（策划收编后应删掉对应行）
+	var main_keys := {}
+	for m in GameData.tables.ui_texts:
+		main_keys[CsvUtil.s(m, "key")] = true
+	check(not FileAccess.file_exists("res://data/ui_texts_local.csv"), "v5.3 已收编，本地补充表已删除")
+	for r in CsvUtil.load_rows(UiText.PENDING_PATH):
 		var k := CsvUtil.s(r, "key")
-		var dup := false
-		for m in GameData.tables.ui_texts:
-			if CsvUtil.s(m, "key") == k:
-				dup = true
-		check(not dup, "补充表 %s 与主表重复，应删除补充行" % k)
+		check(not main_keys.has(k), "待收编表 %s 已进主表，应删除该行" % k)
 		var mx := CsvUtil.i(r, "max_chars")
-		if mx > 0:
-			check(CsvUtil.s(r, "text").length() <= mx + 12, "%s 长度" % k)
+		var txt := CsvUtil.s(r, "text")
+		if mx > 0 and not txt.contains("{"):
+			check(txt.length() <= mx, "%s 长度 %d ≤ %d" % [k, txt.length(), mx])
+		var plain := txt
+		var ph := RegEx.new(); ph.compile("\\{[^}]*\\}")
+		plain = ph.sub(plain, "", true)
+		check(not plain.contains(" · ") and not plain.contains(":") and not plain.contains(","), "%s 标点全角（README 5.1）" % k)
+
+## 代码里用到的每个 UiText.t("KEY") 都必须在主表或待收编表里
+func test_all_used_keys_exist() -> void:
+	var re := RegEx.new(); re.compile("UiText\\.t\\(\"([A-Z0-9_]+)\"")
+	var missing := []
+	for p in _scripts():
+		for m in re.search_all(FileAccess.get_file_as_string(p)):
+			if not UiText.has(m.get_string(1)):
+				missing.append("%s:%s" % [p.get_file(), m.get_string(1)])
+	eq(missing, [], "所有文案 key 存在")
+
+## 上屏文字读表：UI/战斗脚本的字符串字面量里不得出现中文（日志 push_warning/print 与注释除外）
+func test_no_cjk_literals_in_ui_scripts() -> void:
+	var str_re := RegEx.new(); str_re.compile("\"([^\"\\\\]|\\\\.)*\"")
+	var cjk := RegEx.new(); cjk.compile("[\\x{4e00}-\\x{9fff}]")
+	var bad := []
+	for p in _scripts():
+		var n := 0
+		for line in FileAccess.get_file_as_string(p).split("\n"):
+			n += 1
+			var code := line.strip_edges()
+			if code.begins_with("#") or code.begins_with("push_warning") or code.begins_with("push_error") or code.begins_with("print") or code.begins_with("errors.append") or code.begins_with("_check_ref"):
+				continue
+			for m in str_re.search_all(line):
+				if cjk.search(m.get_string()) != null:
+					bad.append("%s:%d %s" % [p.get_file(), n, m.get_string()])
+	eq(bad, [], "无硬编码中文上屏文字")
+
+func _scripts() -> Array:
+	var out := []
+	for d in ["res://scripts/battle", "res://scripts/ui", "res://scripts/systems", "res://scripts"]:
+		for fn in DirAccess.get_files_at(d):
+			if fn.ends_with(".gd"):
+				out.append(d.path_join(fn))
+	return out
 
 func test_no_hardcoded_old_names() -> void:
 	# v5 改名：冠→头冠、鞋→鞋履、攻击%→攻击加成、生命%→生命加成、攻速→攻击速度、雷伤→御雷诀伤害、竹刺突→竹刺破土
