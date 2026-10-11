@@ -123,11 +123,18 @@ func test_bug006_dodge_exact_distance_and_cooldown() -> void:
 	var x0 := b.player.position.x
 	b.player.dodge(1)
 	var frames := 0
+	var iframes := 0
 	while b.player.is_dodging() and frames < 100:
 		b.player.step(DT)
 		frames += 1
+		if b.player.in_dodge_iframes():
+			iframes += 1
+	b.player.step(DT); frames += 1
+	if b.player.in_dodge_iframes():
+		iframes += 1
+	eq(iframes, int(round(GameData.const_f("DODGE_DURATION") * 60.0)), "免伤恰18帧（按下当帧推进后仍免伤，第19帧结束）")
 	near(b.player.position.x - x0, GameData.const_f("DODGE_DISTANCE"), 0.01, "闪避位移恰为 DODGE_DISTANCE")
-	eq(frames, int(round(GameData.const_f("DODGE_DURATION") * 60.0)), "免伤帧数")
+	eq(frames, int(round(GameData.const_f("DODGE_DURATION") * 60.0)) + 1, "位移帧数")
 	var cdf := frames
 	while b.player.dodge_cd > 0.0 and cdf < 1000:
 		b.player.step(DT)
