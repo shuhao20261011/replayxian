@@ -37,6 +37,16 @@ godot --path . -- --level=LV_1_3    # 调试：直接挑战某关；可加 --bos
 - **预警取色**：`boss_attacks.telegraph_color` → `maps.telegraph_color` → `TELEGRAPH_DEFAULT_COLOR`；玩家设置“统一预警白”（`PlayerState.telegraph_alt`，写存档）时一律 `TELEGRAPH_ALT_COLOR`。区域填充 = 预警色 × `TELEGRAPH_FILL_ALPHA`，描边外侧加 `TELEGRAPH_OUTLINE_PX` 宽、`TELEGRAPH_OUTLINE_COLOR`×`TELEGRAPH_OUTLINE_ALPHA` 的外描边。
 - 颜色分工：`gongfa.color`/`qualities.color` 是文字色，技能特效用 `gongfa.fx_color`，掉落光柱/品质框用 `qualities.beam_color`；图标按各表 `icon` 键加载；`note` 列只给策划看，不上屏。
 
+## Web 导出
+
+`export_presets.cfg` 含 “Web” 预设（单线程 nothreads 模板，无需 COOP/COEP 头，可直接放 GitHub Pages）：
+
+```bash
+godot --headless --path . --export-release "Web" build/web/index.html
+```
+
+Web 没有系统中文字体，主题默认字体为内嵌的思源黑体子集 `art/fonts/NotoSansSC-Regular-subset.otf`（SIL OFL 1.1，许可见同目录 `OFL-NotoSansSC.txt`）。改动上屏文字后若出现缺字，重跑 `python3 tools/subset_font.py <NotoSansSC-Regular.otf>`（字符集 = 项目全部文本 + GB2312 一级常用字）。构建产物只放 `build/`（已忽略），发布用本地 `gh-pages` 分支。
+
 ## Windows 导出
 
 已配置 `export_presets.cfg`（Windows Desktop，x86_64）。需要安装 4.7.2 导出模板：

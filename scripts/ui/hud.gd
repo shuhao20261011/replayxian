@@ -84,8 +84,20 @@ func _build() -> void:
 	mid.alignment = BoxContainer.ALIGNMENT_BEGIN
 	mid.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(mid)
-	wave_label = UiStyle.label("", 20); wave_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; mid.add_child(wave_label)
-	mode_label = UiStyle.label("", 14, Color(0.85, 0.85, 0.8)); mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; mid.add_child(mode_label)
+	# 波次/模式放在半透明墨色底牌上：亮色地图（青竹山天空）上也清晰可读
+	var plate := PanelContainer.new()
+	var psb := UiStyle.panel(14, UiStyle.GOLD)
+	psb.bg_color = Color(0.11, 0.12, 0.13, 0.62)
+	psb.border_color = Color(UiStyle.GOLD, 0.35)
+	psb.set_border_width_all(1)
+	psb.content_margin_left = 22; psb.content_margin_right = 22; psb.content_margin_top = 3; psb.content_margin_bottom = 4
+	plate.add_theme_stylebox_override("panel", psb)
+	plate.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var pv2 := VBoxContainer.new(); pv2.add_theme_constant_override("separation", 0); plate.add_child(pv2)
+	wave_label = UiStyle.label("", 20); wave_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; pv2.add_child(wave_label)
+	mode_label = UiStyle.label("", 14, Color(0.85, 0.85, 0.8)); mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; pv2.add_child(mode_label)
+	mid.add_child(plate)
 	boss_box = VBoxContainer.new(); mid.add_child(boss_box)
 	boss_name = UiStyle.label("", 18, UiStyle.CINNABAR.lightened(0.3)); boss_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; boss_box.add_child(boss_name)
 	boss_bar = UiStyle.bar(UiStyle.BLOOD); boss_bar.custom_minimum_size = Vector2(520, 14); boss_box.add_child(boss_bar)
