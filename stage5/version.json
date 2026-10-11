@@ -1,0 +1,15 @@
+{
+ "stage": "stage5",
+ "commit": "e250d90",
+ "built_at": "2026-10-11T08:20:32+00:00",
+ "files": [
+  "index.e250d90.apple-touch-icon.png",
+  "index.e250d90.audio.position.worklet.js",
+  "index.e250d90.audio.worklet.js",
+  "index.e250d90.icon.png",
+  "index.e250d90.js",
+  "index.e250d90.pck",
+  "index.e250d90.png",
+  "index.e250d90.wasm"
+ ]
+}

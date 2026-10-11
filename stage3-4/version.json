@@ -1,0 +1,15 @@
+{
+ "stage": "stage3-4",
+ "commit": "5760916",
+ "built_at": "2026-10-11T08:09:31+00:00",
+ "files": [
+  "index.5760916.apple-touch-icon.png",
+  "index.5760916.audio.position.worklet.js",
+  "index.5760916.audio.worklet.js",
+  "index.5760916.icon.png",
+  "index.5760916.js",
+  "index.5760916.pck",
+  "index.5760916.png",
+  "index.5760916.wasm"
+ ]
+}
