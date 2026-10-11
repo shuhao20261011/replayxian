@@ -306,9 +306,12 @@ func _on_enemy_died(e: Enemy) -> void:
 	if drops_enabled and level:
 		_show_loot(LootSystem.apply(LootSystem.roll_kill(level, e.is_boss(), rng)), e.position)
 	if e != boss:
+		if visual_fx and e.anim:
+			CreatureArt.spawn_death(effects_root, e.def, e.position, e.facing)
 		_free_node(e)
 	else:
 		# 首领死亡：结算展示期间淡出，下一轮 _clear_field 释放（BUG-001）
+		(e as Boss).play_death()
 		if visual_fx and e.is_inside_tree():
 			var tw := e.create_tween()
 			tw.tween_property(e, "modulate:a", 0.0, GameData.const_f("RESULT_SHOW_TIME", 2.0) * 0.8)
@@ -557,6 +560,7 @@ func on_shield_ended(s: Dictionary, broken: bool) -> void:
 
 # ---------- 首领招式 ----------
 func start_boss_attack(b: Boss, a: BossAttackDef) -> void:
+	b.play_skill(a)
 	for i in a.count:
 		var tg := Telegraph.new()
 		telegraph_root.add_child(tg)
@@ -671,6 +675,9 @@ func spawn_enemy_bolt(e: Enemy, dmg: float, speed: float) -> void:
 	bolt.dir = 1 if player.position.x > e.position.x else -1
 	bolt.travel_left = e.def.attack_range_px + 120.0
 	bolt.position = Vector2(e.position.x, ground_y)
+	if e.anim:   # 雷蟾 attack 索引 3：雷球在锚点 (-52,-68)（朝左）处离口
+		bolt.position.x += CreatureArt.TOAD_ORB_OFFSET.x * (-float(e.facing))
+		bolt.tex = load("res://art/fx/fx_toad_orb.png") if ResourceLoader.exists("res://art/fx/fx_toad_orb.png") else null
 	effects_root.add_child(bolt)
 
 func _setup_background() -> void:

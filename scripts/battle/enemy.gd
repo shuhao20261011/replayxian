@@ -32,6 +32,17 @@ var _dash_hit := false
 var _hits_landed := 0
 var _retreat_left := 0.0
 var _flash_t := 0.0
+# 正式图集（CreatureArt）：普攻在命中帧结算
+var anim: AnimatedSprite2D
+var _oneshot := ""
+var _hold_frame := -1     # 山魈蓄力：定格在该帧
+var _strike_t := -1.0     # >=0：普攻起手中，归零时结算
+var _strike_coef := 1.0
+var _strike_bolt := false
+var _strike_reach := -1.0   # 命中帧判定距离（<0 用 attack_range_px；首领普攻按站位距离）
+var _last_x := 0.0
+var _moving := false
+var _bob_t := 0.0
 
 @onready var sprite: Sprite2D = $Sprite2D
 
@@ -45,6 +56,13 @@ func setup(d: EnemyDef, hp_mult: float, atk_mult: float, b: Battle) -> void:
 	reward_mult = hp_mult
 	attack_cd = 0.3 + b.rng.randf() * 0.5
 	stand_offset = b.rng.randf_range(0.0, 0.35) * d.attack_range_px
+	anim = CreatureArt.make_sprite(d)
+	if anim:
+		add_child(anim)
+		if sprite:
+			sprite.visible = false
+		_last_x = position.x
+		return
 	var tex := load(d.texture_path()) as Texture2D if ResourceLoader.exists(d.texture_path()) else null
 	if sprite and tex:
 		sprite.texture = tex
@@ -75,6 +93,8 @@ func take_damage(raw: float, crit: bool, tag: String = "", ignore_def: bool = fa
 	dmg = maxf(dmg, 1.0)
 	hp -= dmg
 	_flash_t = 0.1
+	if anim and not is_super_armor() and _strike_t < 0.0 and _charge_state == 0:
+		_play_once("hit")   # 霸体（岩傀/首领）只闪白不打断
 	battle.show_damage_number(self, dmg, crit, tag)
 	if hp <= 0.0:
 		hp = 0.0
@@ -117,7 +137,9 @@ func step(delta: float) -> void:
 		knock_left -= k
 	elif stun_t <= 0.0 and battle.combat_active():
 		_behave(delta, p)
-	if sprite:
+	_step_strike(delta, p)
+	_update_anim(delta)
+	if sprite and anim == null:
 		sprite.flip_h = facing > 0   # style_guide：敌人素材面朝左，向右时翻转
 		sprite.modulate = Color(1.6, 1.6, 1.6) if _flash_t > 0.0 else Color.WHITE
 	queue_redraw()
@@ -147,14 +169,9 @@ func _behave_melee(delta: float, _p: Player, dx: float, dist: float) -> void:
 	var stop := minf(reach * 0.6 + stand_offset, reach * 0.95)
 	if dist > stop:
 		position.x += signf(dx) * minf(speed() * delta, dist - stop)
-	if dist <= reach + Player.HALF_WIDTH and attack_cd <= 0.0:
+	if dist <= reach + Player.HALF_WIDTH and attack_cd <= 0.0 and _strike_t < 0.0:
 		attack_cd = def.attack_interval_s
-		var coef := def.param_f("smash_coef", 1.0)
-		battle.enemy_contact_hit(self, atk * coef)
-		_hits_landed += 1
-		var after := int(def.param_f("retreat_after_hits", 0))
-		if def.behavior == "hit_and_run" and after > 0 and _hits_landed % after == 0:
-			_retreat_left = def.param_f("retreat_px", 200.0)
+		_begin_strike(def.param_f("smash_coef", 1.0), false)
 
 func _behave_charge(delta: float, p: Player, dx: float, dist: float) -> void:
 	match _charge_state:
@@ -163,6 +180,9 @@ func _behave_charge(delta: float, p: Player, dx: float, dist: float) -> void:
 				_charge_state = 1
 				_charge_t = 0.5
 				_dash_dir = 1 if dx > 0 else -1
+				if anim:   # 蓄力：播 attack 到索引 2 定格；冲刺时播 3~5（style_guide 5.1.2）
+					_play_once("attack")
+					_hold_frame = 2
 			else:
 				_behave_melee(delta, p, dx, dist)
 		1:
@@ -171,6 +191,9 @@ func _behave_charge(delta: float, p: Player, dx: float, dist: float) -> void:
 				_charge_state = 2
 				_dash_left = def.param_f("dash_px", 260.0)
 				_dash_hit = false
+				if anim:
+					_hold_frame = -1
+					anim.play(&"attack"); anim.frame = 3
 		2:
 			var m := minf(_dash_left, def.move_speed * 5.0 * delta)
 			position.x += _dash_dir * m
@@ -188,18 +211,88 @@ func _behave_ranged(delta: float, _p: Player, dx: float, dist: float) -> void:
 		position.x += signf(dx) * speed() * delta
 	elif dist < keep * 0.8:
 		position.x -= signf(dx) * speed() * 0.6 * delta
-	if dist <= def.attack_range_px and attack_cd <= 0.0:
+	if dist <= def.attack_range_px and attack_cd <= 0.0 and _strike_t < 0.0:
 		attack_cd = def.attack_interval_s
+		_begin_strike(1.0, true)
+
+## 普攻起手：播 attack，命中帧（CreatureArt.hit_delay）才结算伤害 / 吐出雷球；无图集时立即结算
+func _begin_strike(coef: float, bolt: bool) -> void:
+	_strike_coef = coef
+	_strike_bolt = bolt
+	_strike_t = CreatureArt.hit_delay(def) if anim else 0.0
+	if anim:
+		_play_once("attack")
+	if _strike_t <= 0.0:
+		_strike_t = 0.0
+		_resolve_strike(battle.player)
+
+func _step_strike(delta: float, p: Player) -> void:
+	if _strike_t < 0.0:
+		return
+	if stun_t > 0.0 or knock_left > 0.0:   # 被眩晕/击退打断
+		_strike_t = -1.0
+		return
+	_strike_t -= delta
+	if _strike_t <= 1e-6:
+		_resolve_strike(p)
+
+func _resolve_strike(p: Player) -> void:
+	_strike_t = -1.0
+	if not alive or not battle.combat_active():
+		return
+	if _strike_bolt:
 		battle.spawn_enemy_bolt(self, atk, def.param_f("projectile_speed", 350.0))
+		return
+	# 命中帧时仍在攻击距离内才算命中（起手后被闪开/拉开 = 落空）
+	var reach := _strike_reach if _strike_reach >= 0.0 else def.attack_range_px
+	if absf(p.position.x - position.x) <= reach + Player.HALF_WIDTH + 12.0:
+		battle.enemy_contact_hit(self, atk * _strike_coef)
+	_hits_landed += 1
+	var after := int(def.param_f("retreat_after_hits", 0))
+	if def.behavior == "hit_and_run" and after > 0 and _hits_landed % after == 0:
+		_retreat_left = def.param_f("retreat_px", 200.0)
+
+func _play_once(a: String) -> void:
+	if anim == null or not anim.sprite_frames.has_animation(StringName(a)):
+		return
+	_oneshot = a
+	anim.speed_scale = 1.0
+	anim.play(StringName(a))
+	anim.frame = 0
+
+func _update_anim(delta: float) -> void:
+	_moving = absf(position.x - _last_x) > 0.05
+	_last_x = position.x
+	if anim == null:
+		return
+	_bob_t += delta
+	CreatureArt.apply_facing(anim, def, facing, sin(_bob_t * 3.0) * 4.0 if CreatureArt.hovers(def) else 0.0)
+	anim.modulate = Color(1.6, 1.6, 1.6) if _flash_t > 0.0 else Color.WHITE
+	if _hold_frame >= 0 and anim.animation == &"attack" and anim.frame >= _hold_frame:
+		anim.frame = _hold_frame
+		anim.pause()
+		return
+	if _oneshot != "":
+		if anim.animation == StringName(_oneshot) and anim.is_playing():
+			return
+		_oneshot = ""
+	var want := &"move" if _moving else &"idle"
+	if anim.animation != want or not anim.is_playing():
+		anim.play(want)
 
 func _draw() -> void:
 	if not alive:
 		return
 	var w := 70.0
-	var top := -(sprite.texture.get_size().y - 8.0 if sprite and sprite.texture else 120.0) - 8.0
+	var top := -(CreatureArt.body_height(def) + 18.0) if anim else -(sprite.texture.get_size().y - 8.0 if sprite and sprite.texture else 120.0) - 8.0
 	if is_boss():
 		return   # 首领血条在 HUD 顶部
 	draw_rect(Rect2(-w / 2, top, w, 6), Color(0, 0, 0, 0.6))
 	draw_rect(Rect2(-w / 2, top, w * hp / max_hp, 6), Color("#C9433A"))
 	if stun_t > 0.0:
-		draw_string(UiStyle.world_font(), Vector2(-12, top - 4), UiText.t("FLOAT_STUN"), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color.YELLOW)
+		# 眩晕标记居中于血条上方，宽度按文字自适应（“眩晕”两字 ≈32px，血条 70px 内放得下）
+		var f := UiStyle.world_font()
+		var st := UiText.t("FLOAT_STUN")
+		var tw := f.get_string_size(st, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+		draw_string_outline(f, Vector2(-tw / 2.0, top - 4), st, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, 3, Color(0.1, 0.1, 0.1, 0.9))
+		draw_string(f, Vector2(-tw / 2.0, top - 4), st, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color.YELLOW)

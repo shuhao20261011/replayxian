@@ -145,7 +145,14 @@ class EnemyBolt extends FxBase:
 			finish(); return
 		if travel_left <= 0.0:
 			finish()
+	var tex: Texture2D
 	func _draw() -> void:
+		if tex:   # fx_toad_orb.png 朝左飞；向右时水平翻转
+			var sz := tex.get_size()
+			draw_set_transform(Vector2(0, -68), 0.0, Vector2(-1.0 if dir > 0 else 1.0, 1.0))
+			draw_texture(tex, -sz / 2.0)
+			draw_set_transform(Vector2.ZERO)
+			return
 		draw_circle(Vector2(0, -60), 12, Color("#BFD3FF"))
 		draw_circle(Vector2(0, -60), 6, Color.WHITE)
 

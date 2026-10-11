@@ -1,0 +1,224 @@
+[gd_resource type="SpriteFrames" load_steps=33 format=3]
+
+[ext_resource type="Texture2D" path="res://art/enemies/cave_bat/enm_cave_bat_idle_06f.png" id="1_enm_cave_bat_idle_06f"]
+[ext_resource type="Texture2D" path="res://art/enemies/cave_bat/enm_cave_bat_move_06f.png" id="2_enm_cave_bat_move_06f"]
+[ext_resource type="Texture2D" path="res://art/enemies/cave_bat/enm_cave_bat_attack_06f.png" id="3_enm_cave_bat_attack_06f"]
+[ext_resource type="Texture2D" path="res://art/enemies/cave_bat/enm_cave_bat_hit_03f.png" id="4_enm_cave_bat_hit_03f"]
+[ext_resource type="Texture2D" path="res://art/enemies/cave_bat/enm_cave_bat_death_06f.png" id="5_enm_cave_bat_death_06f"]
+
+[sub_resource type="AtlasTexture" id="A_idle_0"]
+atlas = ExtResource("1_enm_cave_bat_idle_06f")
+region = Rect2(0, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_idle_1"]
+atlas = ExtResource("1_enm_cave_bat_idle_06f")
+region = Rect2(192, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_idle_2"]
+atlas = ExtResource("1_enm_cave_bat_idle_06f")
+region = Rect2(384, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_idle_3"]
+atlas = ExtResource("1_enm_cave_bat_idle_06f")
+region = Rect2(576, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_idle_4"]
+atlas = ExtResource("1_enm_cave_bat_idle_06f")
+region = Rect2(768, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_idle_5"]
+atlas = ExtResource("1_enm_cave_bat_idle_06f")
+region = Rect2(960, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_move_0"]
+atlas = ExtResource("2_enm_cave_bat_move_06f")
+region = Rect2(0, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_move_1"]
+atlas = ExtResource("2_enm_cave_bat_move_06f")
+region = Rect2(192, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_move_2"]
+atlas = ExtResource("2_enm_cave_bat_move_06f")
+region = Rect2(384, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_move_3"]
+atlas = ExtResource("2_enm_cave_bat_move_06f")
+region = Rect2(576, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_move_4"]
+atlas = ExtResource("2_enm_cave_bat_move_06f")
+region = Rect2(768, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_move_5"]
+atlas = ExtResource("2_enm_cave_bat_move_06f")
+region = Rect2(960, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_attack_0"]
+atlas = ExtResource("3_enm_cave_bat_attack_06f")
+region = Rect2(0, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_attack_1"]
+atlas = ExtResource("3_enm_cave_bat_attack_06f")
+region = Rect2(192, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_attack_2"]
+atlas = ExtResource("3_enm_cave_bat_attack_06f")
+region = Rect2(384, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_attack_3"]
+atlas = ExtResource("3_enm_cave_bat_attack_06f")
+region = Rect2(576, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_attack_4"]
+atlas = ExtResource("3_enm_cave_bat_attack_06f")
+region = Rect2(768, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_attack_5"]
+atlas = ExtResource("3_enm_cave_bat_attack_06f")
+region = Rect2(960, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_hit_0"]
+atlas = ExtResource("4_enm_cave_bat_hit_03f")
+region = Rect2(0, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_hit_1"]
+atlas = ExtResource("4_enm_cave_bat_hit_03f")
+region = Rect2(192, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_hit_2"]
+atlas = ExtResource("4_enm_cave_bat_hit_03f")
+region = Rect2(384, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_death_0"]
+atlas = ExtResource("5_enm_cave_bat_death_06f")
+region = Rect2(0, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_death_1"]
+atlas = ExtResource("5_enm_cave_bat_death_06f")
+region = Rect2(192, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_death_2"]
+atlas = ExtResource("5_enm_cave_bat_death_06f")
+region = Rect2(384, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_death_3"]
+atlas = ExtResource("5_enm_cave_bat_death_06f")
+region = Rect2(576, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_death_4"]
+atlas = ExtResource("5_enm_cave_bat_death_06f")
+region = Rect2(768, 0, 192, 224)
+
+[sub_resource type="AtlasTexture" id="A_death_5"]
+atlas = ExtResource("5_enm_cave_bat_death_06f")
+region = Rect2(960, 0, 192, 224)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("A_idle_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_idle_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_idle_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_idle_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_idle_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_idle_5")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("A_move_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_move_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_move_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_move_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_move_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_move_5")
+}],
+"loop": true,
+"name": &"move",
+"speed": 15.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("A_attack_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_attack_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_attack_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_attack_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_attack_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_attack_5")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 15.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("A_hit_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_hit_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_hit_2")
+}],
+"loop": false,
+"name": &"hit",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("A_death_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_death_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_death_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_death_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_death_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("A_death_5")
+}],
+"loop": false,
+"name": &"death",
+"speed": 10.0
+}]

@@ -93,12 +93,34 @@ func _behave(delta: float, p: Player) -> void:
 	var stop := stand_distance()
 	for a in attacks:
 		if not a.is_danger and float(timers[a.id]) <= 0.0 and dist <= stop + Player.HALF_WIDTH:
+			if _strike_t >= 0.0:
+				return   # 上一记普攻还在起手
 			timers[a.id] = a.cd_s
 			if dist <= maxf(a.width_px, stop) + Player.HALF_WIDTH:
-				battle.enemy_contact_hit(self, atk * a.damage_coef)
+				_strike_reach = maxf(a.width_px, stop)
+				_begin_strike(a.damage_coef, false)   # 正式图集：普攻命中帧结算
 			return
 	# 3) 走位：靠近到站位距离；玩家贴得比最小间距还近时缓慢后退（不覆盖主角）
 	if dist > stop:
 		position.x += signf(dx) * minf(speed() * delta, dist - stop)
 	elif dist < min_spacing() - 1.0 and stun_t <= 0.0:
 		position.x -= signf(dx if dx != 0.0 else -1.0) * minf(speed() * delta, min_spacing() - dist)
+
+## 危险技能出手动画：skill_*（前摇 4 帧共 0.8s，索引 4 出手）。按本招预警时长缩放，出手帧与预警结算同一时刻。
+func play_skill(a: BossAttackDef) -> void:
+	if anim == null:
+		return
+	var name := CreatureArt.skill_anim(a.id)
+	if not anim.sprite_frames.has_animation(name):
+		name = &"attack"
+	_strike_t = -1.0
+	_play_once(String(name))
+	var warn := a.warn_s if a.warn_s > 0.0 else GameData.const_f("BOSS_WARN_TIME", 0.8)
+	anim.speed_scale = CreatureArt.BOSS_SKILL_WINDUP_S / maxf(warn, 0.05)
+
+## 死亡：播 death 并停在最后一帧（随后 battle 整体淡出）
+func play_death() -> void:
+	if anim and anim.sprite_frames.has_animation(&"death"):
+		anim.speed_scale = 1.0
+		anim.modulate = Color.WHITE
+		anim.play(&"death")
