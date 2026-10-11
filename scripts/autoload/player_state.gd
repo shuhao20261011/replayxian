@@ -1,7 +1,8 @@
 extends Node
 ## Autoload: 角色成长（境界、货币、已学技能、技能栏、自动设置、装备、关卡进度）。
 ## 战斗中的瞬时状态（生命、冷却、护盾）放在战斗场景；这里只放跨场景的成长数据。
-## 存档（JSON / user://）属于开发阶段6，本阶段只在内存中保存；to_dict()/from_dict() 已预留结构。
+## 存档（阶段6）：SaveSystem 把 to_dict() 包进带版本/校验的信封写 user://；读档 from_dict() 在 reset_new_game() 默认值上合并（docs/SAVE_FORMAT.md）。
+## 重要操作成功后发 important_change(reason)，SaveSystem 防抖后立即存档。
 
 signal currencies_changed
 signal skill_bar_changed
@@ -10,6 +11,8 @@ signal auto_battle_changed(enabled: bool)
 signal inventory_changed
 signal loot_notice(text: String)
 signal realm_broken(realm_id: String, unlock_map_id: String)   # 阶段5：突破成功（HUD 横幅 / 地图开放提示）
+signal important_change(reason: String)   # 阶段6：重要操作成功 → SaveSystem 防抖立即存档
+signal offline_changed   # 阶段6：pending_offline 生成 / 领取
 
 var realm_id := ""
 var lingshi := 0
@@ -34,6 +37,10 @@ var unstable_levels := {}
 var auto_fail_counts := {}
 ## 引导进度：step_id -> {shown, done}
 var tutorial := {}
+## 阶段6 离线收益（docs/SAVE_FORMAT.md 第5节）：上次结算时刻、见过的最大系统时间（unix 秒）、待领取（读档时生成，随机已定）
+var last_settle_at := 0
+var max_seen_at := 0
+var pending_offline := {}
 ## 测试/调试用属性倍率（不进存档）
 var debug_atk_mult := 1.0
 var debug_hp_mult := 1.0
@@ -57,6 +64,9 @@ func reset_new_game() -> void:
 	tutorial.clear()
 	auto_battle = true
 	telegraph_alt = false
+	last_settle_at = 0
+	max_seen_at = 0
+	pending_offline = {}
 	debug_atk_mult = 1.0
 	debug_hp_mult = 1.0
 	active_slots.clear(); slot_auto.clear()
@@ -116,6 +126,7 @@ func equip_skill(slot: int, skill_id: String) -> bool:
 	slot_auto[slot] = s.default_auto
 	skill_bar_changed.emit()
 	clear_unstable_marks("loadout_change")
+	important_change.emit("loadout")
 	return true
 
 ## 面板用：装配到指定格；若该技能已在其他格，则两格互换（不违反“同一技能不占两格”）
@@ -135,6 +146,7 @@ func place_skill(slot: int, skill_id: String) -> bool:
 		slot_auto[slot] = s.default_auto
 		skill_bar_changed.emit()
 		clear_unstable_marks("loadout_change")
+		important_change.emit("loadout")
 		return true
 	return equip_skill(slot, skill_id)
 
@@ -143,6 +155,7 @@ func unequip_skill(slot: int) -> void:
 		active_slots[slot] = ""
 		skill_bar_changed.emit()
 		clear_unstable_marks("loadout_change")
+		important_change.emit("loadout")
 
 func equip_passive(skill_id: String) -> bool:
 	var s := GameData.get_skill(skill_id)
@@ -151,6 +164,7 @@ func equip_passive(skill_id: String) -> bool:
 	passive_skill = skill_id
 	skill_bar_changed.emit()
 	clear_unstable_marks("loadout_change")
+	important_change.emit("loadout")
 	return true
 
 func set_slot_auto(slot: int, enabled: bool) -> void:
@@ -163,6 +177,14 @@ func set_auto_battle(enabled: bool) -> void:
 		return
 	auto_battle = enabled
 	auto_battle_changed.emit(enabled)
+	important_change.emit("settings")
+
+## 设置：统一预警白（阶段6 起设置页常显，写存档）
+func set_telegraph_alt(on: bool) -> void:
+	if telegraph_alt == on:
+		return
+	telegraph_alt = on
+	important_change.emit("settings")
 
 # ---------- 属性 ----------
 ## 战斗属性：境界 + 装备（底子×品质 + 词条） + 被动技能 + 核心橙装特效。
@@ -236,6 +258,7 @@ func mark_cleared(level_id: String) -> bool:
 		return false
 	cleared_levels[level_id] = true
 	progress_changed.emit()
+	important_change.emit("first_clear")
 	return true
 
 ## 最近已通关关卡 = 已通关中全局序号最大者；没有则返回 null
@@ -320,6 +343,7 @@ func learn_book(book_id: String) -> String:
 	books[book_id] = book_count(book_id) - 1
 	learned_skills[bk.skill_id] = 1
 	inventory_changed.emit(); skill_bar_changed.emit()
+	important_change.emit("learn")
 	return "ok"
 
 ## 升级：消耗 skill_levels.upgrade_cost_lingshi（当前级→下一级），上限 SKILL_MAX_LEVEL
@@ -341,6 +365,7 @@ func upgrade_skill(skill_id: String) -> String:
 	learned_skills[skill_id] = skill_level(skill_id) + 1
 	skill_bar_changed.emit()
 	clear_unstable_marks("skill_level_up")
+	important_change.emit("upgrade")
 	return "ok"
 
 ## 分解重复技能书 → 悟道残页（仅限已学技能的书；不自动分解）
@@ -354,6 +379,7 @@ func decompose_book(book_id: String, n: int = 1) -> String:
 		return "no_book"
 	books[book_id] = book_count(book_id) - n
 	add_item(PAGE_ID, bk.decompose_pages * n)
+	important_change.emit("book")
 	return "ok"
 
 ## 地图（区域）是否已解锁：当前境界 ≥ 地图所需境界
@@ -376,6 +402,7 @@ func exchange_book(book_id: String) -> String:
 		return "no_pages"
 	items[PAGE_ID] = item_count(PAGE_ID) - cost
 	add_book(book_id, 1)
+	important_change.emit("book")
 	return "ok"
 
 # ---------- 阶段4：装备 ----------
@@ -437,6 +464,7 @@ func equip_gear(uid: int) -> String:
 		bag.append(old)
 	inventory_changed.emit(); progress_changed.emit()
 	notify_equipment_changed()
+	important_change.emit("equip")
 	return "ok"
 
 ## 手动分解背包内装备
@@ -445,6 +473,7 @@ func decompose_gear(uid: int) -> String:
 		if g.uid == uid:
 			bag.erase(g)
 			add_item("MAT_REFINE", GearSystem.decompose_value(g))
+			important_change.emit("decompose")
 			return "ok"
 	return "not_in_bag"
 
@@ -487,6 +516,7 @@ func reroll_affix(uid: int, index: int) -> String:
 	inventory_changed.emit()
 	if is_equipped(g):
 		notify_equipment_changed()
+	important_change.emit("reroll")
 	return "ok"
 
 ## 与当前同槽装备比较基础属性（推荐换装只比较基础属性，流派特效由玩家判断）
@@ -515,6 +545,7 @@ func choose_orange(group_index: int, base_id: String) -> String:
 	var g := GearSystem.make_item(base_id, top, rng)
 	pending_orange_choices.remove_at(group_index)
 	add_gear(g)
+	important_change.emit("orange_pick")
 	return "ok"
 
 ## 调试/截图：填充一套演示用养成数据（固定种子，可复现）
@@ -612,6 +643,7 @@ func breakthrough() -> String:
 	currencies_changed.emit()
 	set_realm(nx.id)
 	realm_broken.emit(nx.id, nx.unlock_map_id)
+	important_change.emit("breakthrough")
 	return "ok"
 
 func is_unstable(level_id: String) -> bool:
@@ -623,6 +655,7 @@ func record_auto_failure(level_id: String) -> bool:
 	if int(auto_fail_counts[level_id]) >= GameData.const_i("AUTO_FAIL_RETREAT_COUNT", 1):
 		unstable_levels[level_id] = true
 		progress_changed.emit()
+		important_change.emit("auto_fail_mark")
 		return true
 	return false
 
@@ -647,17 +680,18 @@ func tutorial_state(step_id: String) -> Dictionary:
 func set_tutorial_state(step_id: String, st: Dictionary) -> void:
 	tutorial[step_id] = st
 
-## 存档结构（阶段6写入 user:// JSON；v3 标记/计数/引导进度已包含）
+## 存档数据（SaveSystem 信封里的 data；字段说明见 docs/SAVE_FORMAT.md 第3节）。debug_* 不存。
 func to_dict() -> Dictionary:
 	return {
 		"realm_id": realm_id, "lingshi": lingshi, "xiuwei": xiuwei, "learned_skills": learned_skills.duplicate(),
-		"active_slots": active_slots.duplicate(), "slot_auto": slot_auto.duplicate(), "passive_skill": passive_skill,
+		"active_slots": Array(active_slots), "slot_auto": Array(slot_auto), "passive_skill": passive_skill,
 		"equipped": _equipped_dict(), "bag": bag.map(func(g: GearItem) -> Dictionary: return g.to_dict()),
 		"books": books.duplicate(), "items": items.duplicate(), "auto_decompose": auto_decompose.duplicate(),
 		"pending_orange_choices": pending_orange_choices.duplicate(true), "next_uid": next_uid,
 		"cleared_levels": cleared_levels.keys(), "auto_battle": auto_battle,
 		"unstable_levels": unstable_levels.keys(), "auto_fail_counts": auto_fail_counts.duplicate(),
 		"tutorial": tutorial.duplicate(true), "telegraph_alt": telegraph_alt,
+		"last_settle_at": last_settle_at, "max_seen_at": max_seen_at, "pending_offline": pending_offline.duplicate(true),
 	}
 
 func _equipped_dict() -> Dictionary:
@@ -666,41 +700,57 @@ func _equipped_dict() -> Dictionary:
 		out[k] = (equipped[k] as GearItem).to_dict()
 	return out
 
+## 读档：先 reset_new_game() 取默认值，再用 d 覆盖（缺失的新字段自动有默认值）。
+## d 应已经过 SaveSystem.validate_data（类型 / 范围 / ID 校验），这里只做类型转换。
 func from_dict(d: Dictionary) -> void:
-	realm_id = str(d.get("realm_id", realm_id))
-	lingshi = int(d.get("lingshi", 0)); xiuwei = int(d.get("xiuwei", 0))
+	reset_new_game()
+	var m := to_dict()
+	m.merge(d, true)
+	realm_id = str(m.realm_id)
+	lingshi = int(m.lingshi); xiuwei = int(m.xiuwei)
 	learned_skills.clear()
-	var ld: Dictionary = d.get("learned_skills", {})
+	var ld: Dictionary = m.learned_skills
 	for k in ld:
 		learned_skills[str(k)] = int(ld[k])
-	active_slots.assign(d.get("active_slots", active_slots))
-	slot_auto.assign(d.get("slot_auto", slot_auto))
-	passive_skill = str(d.get("passive_skill", ""))
+	active_slots.assign((m.active_slots as Array).map(func(x: Variant) -> String: return str(x)))
+	slot_auto.assign((m.slot_auto as Array).map(func(x: Variant) -> bool: return bool(x)))
+	passive_skill = str(m.passive_skill)
 	equipped.clear()
-	var eq: Dictionary = d.get("equipped", {})
+	var eq: Dictionary = m.equipped
 	for k in eq:
 		equipped[str(k)] = GearItem.from_dict(eq[k])
 	bag.clear()
-	for gd in d.get("bag", []):
+	for gd in m.bag:
 		bag.append(GearItem.from_dict(gd))
 	books.clear(); items.clear()
-	var bd: Dictionary = d.get("books", {})
+	var bd: Dictionary = m.books
 	for k in bd:
 		books[str(k)] = int(bd[k])
-	var idd: Dictionary = d.get("items", {})
+	var idd: Dictionary = m.items
 	for k in idd:
 		items[str(k)] = int(idd[k])
-	auto_decompose = (d.get("auto_decompose", {}) as Dictionary).duplicate()
-	pending_orange_choices = (d.get("pending_orange_choices", []) as Array).duplicate(true)
-	next_uid = int(d.get("next_uid", 1))
+	auto_decompose.clear()
+	var ad: Dictionary = m.auto_decompose
+	for k in ad:
+		auto_decompose[str(k)] = bool(ad[k])
+	pending_orange_choices.clear()
+	for grp in m.pending_orange_choices:
+		pending_orange_choices.append((grp as Array).map(func(x: Variant) -> String: return str(x)))
+	next_uid = int(m.next_uid)
 	cleared_levels.clear()
-	for id in d.get("cleared_levels", []):
+	for id in m.cleared_levels:
 		cleared_levels[str(id)] = true
-	auto_battle = bool(d.get("auto_battle", true))
+	auto_battle = bool(m.auto_battle)
 	unstable_levels.clear()
-	for id in d.get("unstable_levels", []):
+	for id in m.unstable_levels:
 		unstable_levels[str(id)] = true
-	auto_fail_counts = (d.get("auto_fail_counts", {}) as Dictionary).duplicate()
-	tutorial = (d.get("tutorial", {}) as Dictionary).duplicate(true)
-	telegraph_alt = bool(d.get("telegraph_alt", false))
-	currencies_changed.emit(); skill_bar_changed.emit(); progress_changed.emit(); inventory_changed.emit()
+	auto_fail_counts.clear()
+	var af: Dictionary = m.auto_fail_counts
+	for k in af:
+		auto_fail_counts[str(k)] = int(af[k])
+	tutorial = (m.tutorial as Dictionary).duplicate(true)
+	telegraph_alt = bool(m.telegraph_alt)
+	last_settle_at = int(m.last_settle_at); max_seen_at = int(m.max_seen_at)
+	pending_offline = (m.pending_offline as Dictionary).duplicate(true)
+	currencies_changed.emit(); skill_bar_changed.emit(); progress_changed.emit(); inventory_changed.emit(); offline_changed.emit()
+	auto_battle_changed.emit(auto_battle)
