@@ -105,10 +105,14 @@ func tick(delta: float) -> void:
 	controller.update(d)
 	player.step(d)
 	skills.step(d)
+	# BUG-014：先取快照——首领本帧起手新建的预警不在同一帧推进，从下一帧开始计时（0.8 秒 = 恰好显示 48 帧）
+	var tg_snapshot := telegraphs.duplicate()
 	for e in enemies.duplicate():
 		if is_instance_valid(e) and e.alive:
 			e.step(d)
-	for tg in telegraphs.duplicate():
+	for tg in tg_snapshot:
+		if not is_instance_valid(tg) or not telegraphs.has(tg):
+			continue
 		tg.step(d)
 		if tg.done:
 			telegraphs.erase(tg)

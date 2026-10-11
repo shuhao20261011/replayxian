@@ -88,7 +88,7 @@ func step(delta: float) -> void:
 	if arena:
 		_fit_arena()
 	queue_redraw()
-	if t >= warn:
+	if t >= warn - 1e-6:   # 固定步长累加的浮点残差不应多拖一帧
 		done = true
 		resolved_hit = battle.resolve_telegraph(self)
 

@@ -251,3 +251,38 @@ func test_bug005_danger_gap_guard_after_stun() -> void:
 		check(mn >= Boss.min_danger_gap() - 1e-4, "%s 最小间隔 %.2f ≥ %.2f" % [lid, mn, Boss.min_danger_gap()])
 		check(b.boss.guard_delays > 0, "%s 保护确实推迟过释放" % lid)
 		free_battle(b)
+
+## BUG-014：首领自然起手的预警显示 0.8 秒 = 60 帧/秒下恰好 48 帧（原来少 1 帧，47 帧）
+func test_bug014_natural_cast_telegraph_shows_full_warn_frames() -> void:
+	PlayerState.set_tutorial_state("TUT_07_SKYFALL_DODGE", {"shown": 3, "done": true})
+	for lid in ["LV_1_3", "LV_2_3", "LV_3_4"]:
+		var b := make_battle()
+		b.start_run(GameData.get_level(lid), Battle.RunMode.CHALLENGE)
+		b.debug_force_boss()
+		b.player.god_mode = true
+		PlayerState.set_auto_battle(false)
+		var frames := {}     # 首个预警段 -> 帧结束时存在（被渲染）的帧数
+		var warn := {}
+		var resolved_at := {}
+		var created_at := {}
+		var tick := 0
+		while tick < int(30.0 / DT) and resolved_at.size() < 3:
+			b.tick(DT)
+			tick += 1
+			for tg in b.telegraphs:
+				if tg.delay > 0.0 or not tg.visible:
+					continue
+				var id := tg.get_instance_id()
+				if not frames.has(id):
+					frames[id] = 0; warn[id] = tg.warn; created_at[id] = b.sim_time
+				frames[id] += 1
+			var live := {}
+			for tg in b.telegraphs:
+				live[tg.get_instance_id()] = true
+			for id in frames.keys():
+				if not resolved_at.has(id) and not live.has(id):
+					resolved_at[id] = b.sim_time
+		check(resolved_at.size() >= 2, "%s 自然起手并结算了多次危险招式" % lid)
+		for id in resolved_at:
+			eq(frames[id], int(round(float(warn[id]) * 60.0)), "%s 预警显示 %.2f 秒 = %d 帧" % [lid, warn[id], int(round(float(warn[id]) * 60.0))])
+		free_battle(b)

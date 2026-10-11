@@ -25,11 +25,11 @@ func setup_boss(d: EnemyDef, lvl: LevelDef, b: Battle) -> void:
 static func min_danger_gap() -> float:
 	return GameData.const_f("DODGE_COOLDOWN", 3.0) + GameData.const_f("DANGER_MIN_GAP_MARGIN_S", 0.5)
 
-## 新预警在起手的同一帧就开始计时，实际判定时刻 = 起手时刻 + warn − 本帧步长（按保守估计）
-func danger_gap_ok(warn: float, delta: float = 0.0) -> bool:
+## 预警从起手的下一帧开始计时（BUG-014），判定时刻 = 起手时刻 + warn
+func danger_gap_ok(warn: float, _delta: float = 0.0) -> bool:
 	if battle.last_danger_resolve_t < 0.0:
 		return true
-	return battle.sim_time - delta + warn - battle.last_danger_resolve_t >= min_danger_gap() - 1e-6
+	return battle.sim_time + warn - battle.last_danger_resolve_t >= min_danger_gap() - 1e-6
 
 func has_attack(attack_id: String) -> bool:
 	for a in attacks:
