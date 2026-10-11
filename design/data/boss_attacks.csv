@@ -1,0 +1,11 @@
+attack_id,boss_id,name,is_danger,warn_s,shape,anchor,offset_x,width_px,height_px,radius_px,count,damage_type,damage_coef,damage_maxhp_pct,cd_s,first_cast_s,min_level_index,telegraph_color,telegraph_style,desc,desc_tpl,note
+BA_ZHUMEI_SLASH,BOSS_ZHUMEI,竹鞭横扫,false,0,rect,facing,0,140,100,0,1,atk_coef,1.0,0,1.6,0.8,1,,,竹鞭横抽，近身普攻。,竹鞭横抽，近身普攻。,普通近战攻击，无预警
+BA_ZHUMEI_THORN,BOSS_ZHUMEI,竹刺破土,true,0.8,rect,facing,0,520,80,0,1,atk_coef,3.0,0,8.0,4.0,1,#B8382C,dashed,身前一线竹刺破土，见预警即闪。,身前一线竹刺破土，见预警即闪。,地面显示前方长条预警0.8秒后竹刺破土，可闪避或走出范围
+BA_ZHUMEI_LEAF,BOSS_ZHUMEI,竹叶旋风,true,0.8,circle,self,0,0,0,220,1,atk_coef,3.3,0,16.0,8.0,3,#B8382C,dashed,周身卷起竹叶旋风，速离其侧。,周身卷起竹叶旋风，速离其侧。,以自身为中心圆形预警0.8秒后旋风爆发；第3关起出现
+BA_KUINIU_HORN,BOSS_KUINIU,角顶,false,0,rect,facing,0,160,110,0,1,atk_coef,1.0,0,1.8,0.9,1,,,低头一顶，近身普攻。,低头一顶，近身普攻。,普通近战攻击，无预警
+BA_KUINIU_STOMP,BOSS_KUINIU,雷霆践踏,true,0.8,circle,self,0,0,0,260,1,atk_coef,3.0,0,9.0,4.5,1,#F4F1EA,dashed,重蹄踏地，雷光四溅，远离其身。,重蹄踏地，雷光四溅，远离其身。,以自身为中心大圆预警0.8秒后践踏
+BA_KUINIU_BOLTS,BOSS_KUINIU,天雷三连,true,0.8,circle,player,0,0,0,90,3,atk_coef,2.4,0,18.0,8.5,3,#F4F1EA,dashed,天雷追身连落3道，且走且避。,天雷追身连落{count}道，且走且避。,在玩家当前位置依次标记3个小圆（间隔0.4秒），各自预警0.8秒后落雷；第3关起出现
+BA_YANMO_FIST,BOSS_YANMO,岩拳,false,0,rect,facing,0,170,120,0,1,atk_coef,1.0,0,2.0,1.0,1,,,岩拳直捣，近身普攻。,岩拳直捣，近身普攻。,普通近战攻击，无预警
+BA_YANMO_CHARGE,BOSS_YANMO,碎岩冲撞,true,0.8,rect,facing,0,900,120,0,1,atk_coef,3.5,0,10.0,5.0,1,#F4F1EA,dashed,横贯全场的冲撞，唯有闪避可免。,横贯全场的冲撞，唯有闪避可免。,横贯战场的长条预警0.8秒后冲撞，只能靠闪避免伤（宽度覆盖可走动区域）
+BA_YANMO_QUAKE,BOSS_YANMO,地裂,true,0.8,circle,player,0,0,0,150,2,atk_coef,3.4,0,20.0,10.0,3,#F4F1EA,dashed,地脉追着脚下连裂2处，速速挪步。,地脉追着脚下连裂{count}处，速速挪步。,以玩家当前位置为圆心的圆形预警，0.4秒后在玩家当时位置再落一处，各自0.8秒后地裂；第3关起出现（v5 修正：原写“脚下及其前方”与 offset_x=0 不符）
+BA_YANMO_SKYFALL,BOSS_YANMO,玄岩天坠,true,0.8,rect,arena,0,1280,720,0,1,true_maxhp,0,0.7,20.0,20.0,4,#F4F1EA,dashed,巨岩坠满全场，造成最大生命70%的真实伤害，唯闪避或护盾可挡。,巨岩坠满全场，造成最大生命{damage_maxhp_pct:pct}的真实伤害，唯闪避或护盾可挡。,岩魔举岩蓄力，全场预警0.8秒后巨岩坠落：造成玩家最大生命×（damage_maxhp_pct）的真实伤害（无视防御与减伤，先扣护盾），走位无法躲开，只能闪避免伤或靠护盾硬扛；第4关起出现

@@ -1,0 +1,16 @@
+level_id,map_id,index,global_index,name,enemy_hp_mult,enemy_atk_mult,boss_id,boss_hp_mult,boss_atk_mult,boss_time_limit_s,wave_count,unlock_level_id,unlock_realm_id,normal_drop_table_id,boss_drop_table_id,first_clear_reward_id,offline_reward_id,desc,note
+LV_1_1,MAP_QINGZHU,1,1,竹径初行,0.6,0.6,BOSS_ZHUMEI,0.4,0.4,60,4,,RL_LIANQI,DT_NORMAL_T1,DT_BOSS_T1,FC_LV_1_1,OFF_LV_1_1,竹径清幽，初试身手。,青竹山第1关
+LV_1_2,MAP_QINGZHU,2,2,听涛竹海,0.68,0.68,BOSS_ZHUMEI,0.52,0.52,60,4,LV_1_1,,DT_NORMAL_T1,DT_BOSS_T1,FC_LV_1_2,OFF_LV_1_2,风过竹海，涛声里藏着妖影。,青竹山第2关
+LV_1_3,MAP_QINGZHU,3,3,山魈岭,0.8,0.8,BOSS_ZHUMEI,0.67,0.67,60,4,LV_1_2,,DT_NORMAL_T1,DT_BOSS_T1,FC_LV_1_3,OFF_LV_1_3,山魈出没，留神它的冲撞。,青竹山第3关
+LV_1_4,MAP_QINGZHU,4,4,断竹崖,0.9,0.9,BOSS_ZHUMEI,0.84,0.84,60,4,LV_1_3,,DT_NORMAL_T1,DT_BOSS_T1,FC_LV_1_4,OFF_LV_1_4,崖边竹断，妖群渐密。,青竹山第4关
+LV_1_5,MAP_QINGZHU,5,5,竹魅幽谷,1.0,1.0,BOSS_ZHUMEI,1.0,1.0,60,4,LV_1_4,,DT_NORMAL_T1,DT_BOSS_T1,FC_LV_1_5,OFF_LV_1_5,幽谷深处，竹魅候你多时。,青竹山第5关
+LV_2_1,MAP_LEIZE,1,6,泽畔雷鸣,0.6,0.6,BOSS_KUINIU,0.4,0.4,60,4,LV_1_5,RL_ZHUJI,DT_NORMAL_T2,DT_BOSS_T2,FC_LV_2_1,OFF_LV_2_1,泽畔闷雷，初入雷泽。,雷泽谷第1关
+LV_2_2,MAP_LEIZE,2,7,鬼火沼,0.68,0.68,BOSS_KUINIU,0.52,0.52,60,4,LV_2_1,,DT_NORMAL_T2,DT_BOSS_T2,FC_LV_2_2,OFF_LV_2_2,鬼火成群，宜以雷法连锁。,雷泽谷第2关
+LV_2_3,MAP_LEIZE,3,8,雷蟾坡,0.8,0.8,BOSS_KUINIU,0.67,0.67,60,4,LV_2_2,,DT_NORMAL_T2,DT_BOSS_T2,FC_LV_2_3,OFF_LV_2_3,雷蟾远啐雷球，须近身而战。,雷泽谷第3关
+LV_2_4,MAP_LEIZE,4,9,裂电滩,0.9,0.9,BOSS_KUINIU,0.74,0.84,60,4,LV_2_3,,DT_NORMAL_T2,DT_BOSS_T2,FC_LV_2_4,OFF_LV_2_4,裂电横滩，妖物愈发凶悍。,雷泽谷第4关
+LV_2_5,MAP_LEIZE,5,10,夔牛雷台,1.0,1.0,BOSS_KUINIU,0.82,1.0,60,4,LV_2_4,,DT_NORMAL_T2,DT_BOSS_T2,FC_LV_2_5,OFF_LV_2_5,夔牛踞台，一足震雷。,雷泽谷第5关
+LV_3_1,MAP_XUANYAN,1,11,洞口回风,0.6,0.6,BOSS_YANMO,0.4,0.4,60,4,LV_2_5,RL_JINDAN,DT_NORMAL_T3,DT_BOSS_T3,FC_LV_3_1,OFF_LV_3_1,阴风回旋，初入玄岩。,玄岩洞第1关
+LV_3_2,MAP_XUANYAN,2,12,蝠影长廊,0.68,0.68,BOSS_YANMO,0.52,0.52,60,4,LV_3_1,,DT_NORMAL_T3,DT_BOSS_T3,FC_LV_3_2,OFF_LV_3_2,蝠影掠廊，来去无踪。,玄岩洞第2关
+LV_3_3,MAP_XUANYAN,3,13,岩傀石阵,0.8,0.8,BOSS_YANMO,0.67,0.67,60,4,LV_3_2,,DT_NORMAL_T3,DT_BOSS_T3,FC_LV_3_3,OFF_LV_3_3,岩傀列阵，坚不可摧，宜先破甲。,玄岩洞第3关
+LV_3_4,MAP_XUANYAN,4,14,地脉深渊,0.9,0.9,BOSS_YANMO,0.72,0.84,60,4,LV_3_3,,DT_NORMAL_T3,DT_BOSS_T3,FC_LV_3_4,OFF_LV_3_4,地脉翻涌，岩魔初试天坠。,玄岩洞第4关
+LV_3_5,MAP_XUANYAN,5,15,岩魔玄窟,1.0,1.0,BOSS_YANMO,0.78,1.0,60,4,LV_3_4,,DT_NORMAL_T3,DT_BOSS_T3,FC_LV_3_5,OFF_LV_3_5,玄窟尽头，岩魔镇守。,玄岩洞第5关

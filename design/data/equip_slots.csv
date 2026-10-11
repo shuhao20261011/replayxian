@@ -1,0 +1,7 @@
+slot_id,name,order
+SLOT_WEAPON,武器,1
+SLOT_ROBE,衣袍,2
+SLOT_CROWN,头冠,3
+SLOT_SHOES,鞋履,4
+SLOT_RING,戒指,5
+SLOT_ARTIFACT,法器,6

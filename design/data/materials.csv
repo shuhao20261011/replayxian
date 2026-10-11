@@ -1,0 +1,7 @@
+item_id,name,item_type,map_id,desc,note,icon
+CUR_LINGSHI,灵石,currency,,修士通货，用于技能升级、突破与重铸。,通用货币：技能升级、突破、重铸,ui_icon_item_cur_lingshi
+CUR_XIUWEI,修为,currency,,斩妖所积的道行，突破境界所需。,境界突破消耗，击杀与通关获得,ui_icon_item_cur_xiuwei
+MAT_REFINE,炼器材料,material,,分解装备所得，用于重铸词条。,装备分解/背包溢出获得，用于重铸词条,ui_icon_item_mat_refine
+MAT_PAGE,悟道残页,material,,分解重复技能书所得，集满可兑换技能书。,重复技能书分解获得，10张兑换一本已解锁区域指定技能书,ui_icon_item_mat_page
+MAT_BT_QINGZHU,青竹灵髓,breakthrough,MAP_QINGZHU,竹魅初次伏诛所遗，炼气突破筑基所需。,青竹山首领首次击败（第1-5关首通）掉落，炼气→筑基突破材料,ui_icon_item_mat_bt_qingzhu
+MAT_BT_LEIZE,雷泽雷晶,breakthrough,MAP_LEIZE,夔牛初次伏诛所遗，筑基突破金丹所需。,雷泽谷首领首次击败（第2-5关首通）掉落，筑基→金丹突破材料,ui_icon_item_mat_bt_leize

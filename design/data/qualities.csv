@@ -1,0 +1,6 @@
+quality_id,name,order,color,affix_count,base_mult,decompose_refine,reroll_refine,reroll_lingshi,can_reroll,auto_decompose_allowed,beam,beam_color
+Q_WHITE,白,1,#CACAC9,0,1.0,1,0,0,false,true,none,#CACAC9
+Q_GREEN,绿,2,#62BB73,1,1.1,2,4,100,true,true,none,#62BB73
+Q_BLUE,蓝,3,#5A9BE6,2,1.25,4,8,300,true,true,short,#347DD2
+Q_PURPLE,紫,4,#B07BE0,3,1.4,8,16,800,true,true,tall,#934DC5
+Q_ORANGE,橙,5,#D89522,4,1.6,25,30,2000,true,false,tall_gold,#D89522

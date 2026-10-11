@@ -1,0 +1,4 @@
+gongfa_id,name,role,build_dir,book_map_id,color,desc,fx_color,note,icon
+GF_SWORD,飞剑诀,单体·首领,攻击速度、暴击率、追加飞剑,MAP_QINGZHU,#63BD9D,以神御剑，一剑快过一剑。专精单体，斩首领最快。,#63BD9D,以飞剑高频点杀单体，首领战输出最高,ui_icon_gongfa_sword
+GF_THUNDER,御雷诀,连锁·群攻,御雷诀伤害、连锁目标、冷却缩减,MAP_LEIZE,#9A93E0,引九天之雷，一击连成一片。专精群攻，清怪最快。,#7872C3,雷法连锁与范围伤害，成群敌人清怪最快,ui_icon_gongfa_thunder
+GF_GANG,玄罡诀,护盾·反伤,生命加成、护盾强度、反伤,MAP_XUANYAN,#CEA445,罡气护身，以守代攻。护盾反伤兼备，最耐久战。,#CEA445,护盾与反伤，容错最高，输出偏低但持续稳定,ui_icon_gongfa_gang
