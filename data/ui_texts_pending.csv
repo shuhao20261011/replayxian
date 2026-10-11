@@ -60,3 +60,9 @@ LOOT_ITEM_COUNT,{item_name}×{count},item_name:materials.name;count:int3,8,拾�
 LOOT_AUTO_DECOMPOSED,{gear_name}已化为{item_name},gear_name:ui_texts.GEAR_NAME;item_name:materials.name,14,命中自动分解的掉落（阶段3-4 待收编）
 LOOT_BAG_FULL,行囊已满，{gear_name}化为{item_name}×{count},gear_name:ui_texts.GEAR_NAME;item_name:materials.name;count:int2,22,背包满时掉落转材料（阶段3-4 待收编）
 LOOT_ORANGE_PENDING,核心橙装三选一，入【装备】领取,,15,终关首通三选一掉落提示（阶段3-4 待收编）
+HUD_SAVE_SHORT,存,,1,右上存档圆章单字（书法体，第3批效果图；阶段3-4 待收编）
+HUD_CD_SEC,{sec}秒,sec:float1,5,技能格冷却剩余时间（与 HUD_BOSS_TIMER 同用“秒”；效果图写作 6.2s，由策划定）（阶段3-4 待收编）
+HUD_COOLDOWN_SEC,冷却{sec}秒,sec:float1,7,闪避圆钮冷却小字（阶段3-4 待收编）
+LOOT_TOAST_GET,获得,,2,左侧拾取提示小字（第3批效果图；阶段3-4 待收编）
+SETTING_TELEGRAPH_WHITE,统一预警白,,5,设置开关：所有地图首领预警都用预警白（BUG-016，入口默认隐藏，待制作人定稿；阶段3-4 待收编）
+TIP_TELEGRAPH_WHITE,所有地图的首领预警都改用白色,,14,上一项的悬停说明（阶段3-4 待收编）

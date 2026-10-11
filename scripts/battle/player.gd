@@ -141,8 +141,26 @@ func shield_counter_coef() -> float:
 		c = maxf(c, float(s.get("counter_coef", 0.0)))
 	return c
 
+const SHIELD_FX_SCENE := "res://art/fx/shield_fx.tscn"
+## 护盾正式特效（第 3 批 shield_fx.tscn）：原点在身体中心（脚底上方约 90px），有盾时显示，护盾吸收伤害时 hit()
+var shield_fx: Node2D
+
+func _sync_shield_fx(hit := false) -> void:
+	var on := shield_total() > 0.0
+	if shield_fx == null:
+		if not on or battle == null or not battle.visual_fx or not ResourceLoader.exists(SHIELD_FX_SCENE):
+			return
+		shield_fx = load(SHIELD_FX_SCENE).instantiate()
+		shield_fx.position = Vector2(0, -90)
+		shield_fx.scale = Vector2.ONE * 0.85
+		add_child(shield_fx)
+	shield_fx.visible = on
+	if hit and on and shield_fx.has_method("hit"):
+		shield_fx.call("hit")
+
 ## 用护盾吸收伤害，返回剩余伤害（新盾先吸收）
 func absorb(dmg: float) -> float:
+	var hit_shield := dmg > 0.0 and shield_total() > 0.0
 	var i := shields.size() - 1
 	while i >= 0 and dmg > 0.0:
 		var s: Dictionary = shields[i]
@@ -154,6 +172,8 @@ func absorb(dmg: float) -> float:
 			_end_shield(s, true)
 		i -= 1
 	_emit_shield()
+	if hit_shield:
+		_sync_shield_fx(true)
 	return dmg
 
 func _end_shield(s: Dictionary, broken: bool) -> void:
@@ -164,6 +184,7 @@ func _end_shield(s: Dictionary, broken: bool) -> void:
 
 func _emit_shield() -> void:
 	shield_changed.emit(shield_total(), max_hp)
+	_sync_shield_fx()
 
 func damage_reduce() -> float:
 	return dmg_reduce_v if dmg_reduce_t > 0.0 else 0.0
@@ -301,6 +322,6 @@ func _update_visual(_delta: float) -> void:
 
 func _draw() -> void:
 	var sh := shield_total()
-	if sh > 0.0:
+	if sh > 0.0 and shield_fx == null:   # 无正式特效（测试/缺件）时的程序护盾圈
 		draw_arc(Vector2(0, -80), 95, 0, TAU, 48, Color("#F2C14E"), 4.0)
 		draw_circle(Vector2(0, -80), 95, Color(0.95, 0.76, 0.3, 0.12))

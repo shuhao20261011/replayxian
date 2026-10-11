@@ -10,231 +10,231 @@
 
 [sub_resource type="AtlasTexture" id="A_idle_0"]
 atlas = ExtResource("1_boss_yanmo_idle_06f")
-region = Rect2(0, 0, 352, 480)
+region = Rect2(0, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_idle_1"]
 atlas = ExtResource("1_boss_yanmo_idle_06f")
-region = Rect2(352, 0, 352, 480)
+region = Rect2(448, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_idle_2"]
 atlas = ExtResource("1_boss_yanmo_idle_06f")
-region = Rect2(704, 0, 352, 480)
+region = Rect2(896, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_idle_3"]
 atlas = ExtResource("1_boss_yanmo_idle_06f")
-region = Rect2(1056, 0, 352, 480)
+region = Rect2(1344, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_idle_4"]
 atlas = ExtResource("1_boss_yanmo_idle_06f")
-region = Rect2(1408, 0, 352, 480)
+region = Rect2(0, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_idle_5"]
 atlas = ExtResource("1_boss_yanmo_idle_06f")
-region = Rect2(0, 480, 352, 480)
+region = Rect2(448, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_move_0"]
 atlas = ExtResource("2_boss_yanmo_move_08f")
-region = Rect2(0, 0, 352, 480)
+region = Rect2(0, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_move_1"]
 atlas = ExtResource("2_boss_yanmo_move_08f")
-region = Rect2(352, 0, 352, 480)
+region = Rect2(448, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_move_2"]
 atlas = ExtResource("2_boss_yanmo_move_08f")
-region = Rect2(704, 0, 352, 480)
+region = Rect2(896, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_move_3"]
 atlas = ExtResource("2_boss_yanmo_move_08f")
-region = Rect2(1056, 0, 352, 480)
+region = Rect2(1344, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_move_4"]
 atlas = ExtResource("2_boss_yanmo_move_08f")
-region = Rect2(1408, 0, 352, 480)
+region = Rect2(0, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_move_5"]
 atlas = ExtResource("2_boss_yanmo_move_08f")
-region = Rect2(0, 480, 352, 480)
+region = Rect2(448, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_move_6"]
 atlas = ExtResource("2_boss_yanmo_move_08f")
-region = Rect2(352, 480, 352, 480)
+region = Rect2(896, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_move_7"]
 atlas = ExtResource("2_boss_yanmo_move_08f")
-region = Rect2(704, 480, 352, 480)
+region = Rect2(1344, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_attack_0"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(0, 0, 352, 480)
+region = Rect2(0, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_attack_1"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(352, 0, 352, 480)
+region = Rect2(448, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_attack_2"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(704, 0, 352, 480)
+region = Rect2(896, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_attack_3"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(1056, 0, 352, 480)
+region = Rect2(1344, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_attack_4"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(1408, 0, 352, 480)
+region = Rect2(0, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_attack_5"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(0, 480, 352, 480)
+region = Rect2(448, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_attack_6"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(352, 480, 352, 480)
+region = Rect2(896, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_attack_7"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(704, 480, 352, 480)
+region = Rect2(1344, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_charge_0"]
 atlas = ExtResource("4_boss_yanmo_skill_charge_08f")
-region = Rect2(0, 0, 352, 480)
+region = Rect2(0, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_charge_1"]
 atlas = ExtResource("4_boss_yanmo_skill_charge_08f")
-region = Rect2(352, 0, 352, 480)
+region = Rect2(448, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_charge_2"]
 atlas = ExtResource("4_boss_yanmo_skill_charge_08f")
-region = Rect2(704, 0, 352, 480)
+region = Rect2(896, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_charge_3"]
 atlas = ExtResource("4_boss_yanmo_skill_charge_08f")
-region = Rect2(1056, 0, 352, 480)
+region = Rect2(1344, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_charge_4"]
 atlas = ExtResource("4_boss_yanmo_skill_charge_08f")
-region = Rect2(1408, 0, 352, 480)
+region = Rect2(0, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_charge_5"]
 atlas = ExtResource("4_boss_yanmo_skill_charge_08f")
-region = Rect2(0, 480, 352, 480)
+region = Rect2(448, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_charge_6"]
 atlas = ExtResource("4_boss_yanmo_skill_charge_08f")
-region = Rect2(352, 480, 352, 480)
+region = Rect2(896, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_charge_7"]
 atlas = ExtResource("4_boss_yanmo_skill_charge_08f")
-region = Rect2(704, 480, 352, 480)
+region = Rect2(1344, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_skyfall_0"]
 atlas = ExtResource("5_boss_yanmo_skill_skyfall_08f")
-region = Rect2(0, 0, 352, 480)
+region = Rect2(0, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_skyfall_1"]
 atlas = ExtResource("5_boss_yanmo_skill_skyfall_08f")
-region = Rect2(352, 0, 352, 480)
+region = Rect2(448, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_skyfall_2"]
 atlas = ExtResource("5_boss_yanmo_skill_skyfall_08f")
-region = Rect2(704, 0, 352, 480)
+region = Rect2(896, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_skyfall_3"]
 atlas = ExtResource("5_boss_yanmo_skill_skyfall_08f")
-region = Rect2(1056, 0, 352, 480)
+region = Rect2(1344, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_skyfall_4"]
 atlas = ExtResource("5_boss_yanmo_skill_skyfall_08f")
-region = Rect2(1408, 0, 352, 480)
+region = Rect2(0, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_skyfall_5"]
 atlas = ExtResource("5_boss_yanmo_skill_skyfall_08f")
-region = Rect2(0, 480, 352, 480)
+region = Rect2(448, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_skyfall_6"]
 atlas = ExtResource("5_boss_yanmo_skill_skyfall_08f")
-region = Rect2(352, 480, 352, 480)
+region = Rect2(896, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_skyfall_7"]
 atlas = ExtResource("5_boss_yanmo_skill_skyfall_08f")
-region = Rect2(704, 480, 352, 480)
+region = Rect2(1344, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_hit_0"]
 atlas = ExtResource("6_boss_yanmo_hit_03f")
-region = Rect2(0, 0, 352, 480)
+region = Rect2(0, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_hit_1"]
 atlas = ExtResource("6_boss_yanmo_hit_03f")
-region = Rect2(352, 0, 352, 480)
+region = Rect2(448, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_hit_2"]
 atlas = ExtResource("6_boss_yanmo_hit_03f")
-region = Rect2(704, 0, 352, 480)
+region = Rect2(896, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_death_0"]
 atlas = ExtResource("7_boss_yanmo_death_08f")
-region = Rect2(0, 0, 352, 480)
+region = Rect2(0, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_death_1"]
 atlas = ExtResource("7_boss_yanmo_death_08f")
-region = Rect2(352, 0, 352, 480)
+region = Rect2(448, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_death_2"]
 atlas = ExtResource("7_boss_yanmo_death_08f")
-region = Rect2(704, 0, 352, 480)
+region = Rect2(896, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_death_3"]
 atlas = ExtResource("7_boss_yanmo_death_08f")
-region = Rect2(1056, 0, 352, 480)
+region = Rect2(1344, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_death_4"]
 atlas = ExtResource("7_boss_yanmo_death_08f")
-region = Rect2(1408, 0, 352, 480)
+region = Rect2(0, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_death_5"]
 atlas = ExtResource("7_boss_yanmo_death_08f")
-region = Rect2(0, 480, 352, 480)
+region = Rect2(448, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_death_6"]
 atlas = ExtResource("7_boss_yanmo_death_08f")
-region = Rect2(352, 480, 352, 480)
+region = Rect2(896, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_death_7"]
 atlas = ExtResource("7_boss_yanmo_death_08f")
-region = Rect2(704, 480, 352, 480)
+region = Rect2(1344, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_quake_0"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(0, 0, 352, 480)
+region = Rect2(0, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_quake_1"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(352, 0, 352, 480)
+region = Rect2(448, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_quake_2"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(704, 0, 352, 480)
+region = Rect2(896, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_quake_3"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(704, 0, 352, 480)
+region = Rect2(896, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_quake_4"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(1056, 0, 352, 480)
+region = Rect2(1344, 0, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_quake_5"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(1408, 0, 352, 480)
+region = Rect2(0, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_quake_6"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(0, 480, 352, 480)
+region = Rect2(448, 480, 448, 480)
 
 [sub_resource type="AtlasTexture" id="A_skill_quake_7"]
 atlas = ExtResource("3_boss_yanmo_attack_08f")
-region = Rect2(352, 480, 352, 480)
+region = Rect2(896, 480, 448, 480)
 
 [resource]
 animations = [{

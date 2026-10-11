@@ -170,6 +170,8 @@ func _execute(s: SkillDef, lv: SkillLevelDef) -> bool:
 			for i in mini(targets.size(), s.max_targets):
 				battle.player_hit_enemy(targets[i], lv.damage_coef, _opts(s, lv))
 			battle.spawn_flash("rect", PackedVector2Array([Vector2(r.x, p.position.y - 100), Vector2(r.y, p.position.y - 60)]), color)
+			if s.gongfa_id == "GF_SWORD":
+				battle.spawn_fx(&"sword_slash", Vector2((r.x + r.y) / 2.0, p.position.y - 90), p.facing < 0)
 			return true
 		"chain":
 			var first := nearest_front(s.range_px)

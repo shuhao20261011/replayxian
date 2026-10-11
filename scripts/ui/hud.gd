@@ -5,6 +5,8 @@ extends CanvasLayer
 ## 屏幕中央情境引导；底部一行：生命/护盾框、4 格技能栏 + 闪避圆章、自动战斗开关 + 装备/功法/地图/突破圆章。
 ## 上屏文字全部来自 ui_texts（UiText.t）；打开养成面板时暂停战斗（get_tree().paused），HUD 本身 process_mode=ALWAYS 仍可操作。
 
+## 暗金次要文字（style_guide 2.1：#C8BA96，字号 ≥ 13）
+const DIM_GOLD := Color("#C8BA96")
 const SLOT_SCENE := preload("res://scenes/ui/skill_slot.tscn")
 ## 面板：[内部 ID, 入口文案 key]。内部 ID 只用于代码，绝不上屏；标题一律用入口文案（NAV_*）。
 const NAV := [["gear", "NAV_GEAR"], ["gongfa", "NAV_GONGFA"], ["map", "NAV_MAP"], ["break", "NAV_BREAK"]]
@@ -12,6 +14,19 @@ const NAV := [["gear", "NAV_GEAR"], ["gongfa", "NAV_GONGFA"], ["map", "NAV_MAP"]
 var battle: Battle
 var root: Control
 var realm_label: Label
+var realm_badge: Control
+var loot_toast: PanelContainer
+var loot_icon: TextureRect
+var loot_frame: TextureRect
+var loot_name: Label
+var dodge_cd: Label
+var auto_key: TextureRect
+var gongfa_dot: TextureRect
+var _loot_t := 0.0
+var _top_left: Control
+var _top_center: Control
+## BUG-016：“统一预警白”设置入口，等制作人定稿前默认隐藏。开启：项目设置 xxhbgj/ui/show_telegraph_white_toggle=true 或命令行 -- --telegraph-white-toggle
+const TELEGRAPH_WHITE_TOGGLE_SETTING := "xxhbgj/ui/show_telegraph_white_toggle"
 var lingshi_label: Label
 var xiuwei_label: Label
 var level_label: Label
@@ -27,13 +42,13 @@ var banner_label: Label
 var hint_label: Label
 var hint_sub: Label
 var hint_key: PanelContainer
-var hp_bar: ProgressBar
+var hp_bar: Range
 var hp_text: Label
-var shield_bar: ProgressBar
+var shield_bar: Range
 var shield_text: Label
 var slots: Array[SkillSlotUI] = []
 var dodge_btn: Button
-var dodge_plaque: Control
+var dodge_plaque: TextureRect
 var auto_btn: Button
 var challenge_btn: Button
 var bottom_row: HBoxContainer
@@ -66,6 +81,8 @@ func bind(b: Battle) -> void:
 	_on_shield(b.player.shield_total(), b.player.max_hp)
 	PlayerState.currencies_changed.connect(_refresh_top)
 	PlayerState.progress_changed.connect(_refresh_top)
+	PlayerState.inventory_changed.connect(_refresh_top)
+	PlayerState.skill_bar_changed.connect(_refresh_top)
 	PlayerState.auto_battle_changed.connect(func(_e: bool) -> void: _refresh_auto())
 	PlayerState.loot_notice.connect(show_banner)
 	b.loot_dropped.connect(_on_loot)
@@ -93,67 +110,112 @@ func _framed(min_size: Vector2, sb: StyleBox = null, cloud := false) -> PanelCon
 	pc.add_child(fr)
 	return pc
 
-## 顶部资源药丸：图标 + 文案（HUD_LINGSHI / HUD_XIUWEI 自带名称与数值）
-func _pill(kind: String) -> Array:
-	var pc := PanelContainer.new()
-	pc.add_theme_stylebox_override("panel", UiStyle.pill_box(38))
-	pc.custom_minimum_size = Vector2(176, 38)
-	var h := HBoxContainer.new(); h.add_theme_constant_override("separation", 8); pc.add_child(h)
-	h.add_child(GlyphIcon.new(kind, 28))
+## 顶部资源药丸：货币图标压在左端 + 文案（HUD_LINGSHI / HUD_XIUWEI 自带名称与数值）
+func _pill(item_id: String) -> Array:
+	var pc := PanelContainer.new(); pc.theme_type_variation = &"PillPanel"
+	pc.add_theme_stylebox_override("panel", ArtUi.box("ui_pill_9p", [44, 4, 18, 4]))
+	pc.custom_minimum_size = Vector2(190, 44)
+	pc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var v := UiStyle.label("", 18, UiStyle.GOLD_TEXT); v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	v.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	h.add_child(v)
+	v.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT; v.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	pc.add_child(v)
+	var ic := TextureRect.new(); ic.texture = ArtUi.item_icon(item_id)
+	ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	ic.size = Vector2(46, 46); ic.position = Vector2(-52, -1)   # 相对内容区：压出药丸左端（效果图 x-8）
+	ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var holder := Control.new(); holder.mouse_filter = Control.MOUSE_FILTER_IGNORE   # PanelContainer 会撑满子节点，图标包一层才能自由摆放
+	pc.add_child(holder); holder.add_child(ic)
 	return [pc, v]
 
+## 圆章（ui_roundbtn）+ 书法单字，固定尺寸不可点
+func _round_badge(text: String, sz: Vector2, font_size: int) -> Control:
+	var t := TextureRect.new(); t.texture = ArtUi.tex("ui_roundbtn")
+	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	t.custom_minimum_size = sz; t.size = sz
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var l := Label.new(); l.text = text
+	l.add_theme_font_override("font", UiStyle.TITLE_FONT); l.add_theme_font_size_override("font_size", font_size)
+	l.add_theme_color_override("font_color", UiStyle.GOLD_TEXT)
+	l.add_theme_color_override("font_outline_color", UiStyle.INK_DARK); l.add_theme_constant_override("outline_size", 4)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	l.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); l.offset_top = -3
+	l.name = "Glyph"
+	t.add_child(l)
+	return t
+
+## 按键图标（ui_icon_key_*，按下时换 _pressed）
+func _key_icon(key: String, sz: Vector2) -> TextureRect:
+	var t := TextureRect.new(); t.texture = ArtUi.key_icon(key)
+	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	t.custom_minimum_size = sz
+	t.set_meta("key", key)
+	return t
+
 func _build() -> void:
-	# ---- 左上：境界圆章 + 牌匾 ----
-	var tl := HBoxContainer.new(); tl.add_theme_constant_override("separation", -10)
+	root.theme = ArtUi.theme()   # 第 3 批 ui_theme.tres（Noto Serif SC、金字 #EAD7A8、12 个类型变体）
+	# ---- 左上：境界圆章（书法单字）+ 药丸框境界名 ----
+	var tl := Control.new(); tl.custom_minimum_size = Vector2(300, 80)
 	tl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_anchored(tl, Control.PRESET_TOP_LEFT, Vector2(14, 10))
-	var med := PanelContainer.new()
-	var msb := UiStyle.panel(32, UiStyle.GOLD_LINE, 0.95); msb.set_border_width_all(2)
-	msb.set_content_margin_all(8)
-	med.add_theme_stylebox_override("panel", msb)
-	med.add_child(GlyphIcon.new("taiji", 46))
-	med.z_index = 1
-	tl.add_child(med)
-	var rp := _framed(Vector2(170, 50))
-	var rsb := UiStyle.panel(4, UiStyle.GOLD_LINE, 0.85); rsb.content_margin_left = 24; rsb.content_margin_right = 18
-	rp.add_theme_stylebox_override("panel", rsb)
-	rp.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	realm_label = UiStyle.title("", 28); realm_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	rp.add_child(realm_label); rp.move_child(realm_label, 0)
-	tl.add_child(rp)
-	# ---- 顶部居中：灵石 / 修为 ----
-	var tc := HBoxContainer.new(); tc.add_theme_constant_override("separation", 22)
+	_top_left = tl
+	var rpill := PanelContainer.new(); rpill.theme_type_variation = &"PillPanel"
+	rpill.add_theme_stylebox_override("panel", ArtUi.box("ui_pill_9p", [52, 6, 22, 6]))
+	rpill.position = Vector2(44, 13); rpill.custom_minimum_size = Vector2(250, 50)
+	rpill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tl.add_child(rpill)
+	realm_label = UiStyle.label("", 20, UiStyle.GOLD_TEXT); realm_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	rpill.add_child(realm_label)
+	realm_badge = _round_badge("", Vector2(80, 75), 38)
+	tl.add_child(realm_badge)
+	# ---- 顶部居中：灵石 / 修为（图标压在药丸左端）----
+	var tc := HBoxContainer.new(); tc.add_theme_constant_override("separation", 26)
 	tc.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_anchored(tc, Control.PRESET_CENTER_TOP, Vector2(0, 16))
-	var p1 := _pill("jade"); tc.add_child(p1[0]); lingshi_label = p1[1]
-	var p2 := _pill("taiji"); tc.add_child(p2[0]); xiuwei_label = p2[1]
-	# ---- 右上：关卡牌匾 + 存档圆章；挑战按钮 ----
-	var tr := VBoxContainer.new(); tr.add_theme_constant_override("separation", 6)
-	_anchored(tr, Control.PRESET_TOP_RIGHT, Vector2(-14, 8))
-	var trh := HBoxContainer.new(); trh.add_theme_constant_override("separation", 10); tr.add_child(trh)
-	var lp := _framed(Vector2(250, 62), UiStyle.panel(6, UiStyle.GOLD_LINE, 0.88), true)
-	var lv := VBoxContainer.new(); lv.add_theme_constant_override("separation", -2); lv.alignment = BoxContainer.ALIGNMENT_CENTER
-	level_label = UiStyle.title("", 21); level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; lv.add_child(level_label)
-	mode_label = UiStyle.label("", 13, Color(UiStyle.GOLD_TEXT, 0.8)); mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; lv.add_child(mode_label)
-	lp.add_child(lv); lp.move_child(lv, 0)
+	_anchored(tc, Control.PRESET_CENTER_TOP, Vector2(0, 18))
+	_top_center = tc
+	var p1 := _pill("CUR_LINGSHI"); tc.add_child(p1[0]); lingshi_label = p1[1]
+	var p2 := _pill("CUR_XIUWEI"); tc.add_child(p2[0]); xiuwei_label = p2[1]
+	# ---- 右上：祥云横幅关卡名 + 存档圆章；模式小字；挑战按钮 ----
+	var tr := VBoxContainer.new(); tr.add_theme_constant_override("separation", 4)
+	_anchored(tr, Control.PRESET_TOP_RIGHT, Vector2(-12, 10))
+	var trh := HBoxContainer.new(); trh.add_theme_constant_override("separation", 8); tr.add_child(trh)
+	var lp := PanelContainer.new(); lp.theme_type_variation = &"TitleBanner"
+	lp.add_theme_stylebox_override("panel", ArtUi.box("ui_banner_9p", [40, 10, 40, 12]))
+	lp.custom_minimum_size = Vector2(330, 70)
+	level_label = UiStyle.label("", 18, UiStyle.GOLD_TEXT); level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	level_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lp.add_child(level_label)
 	trh.add_child(lp)
-	var sv := VBoxContainer.new(); sv.add_theme_constant_override("separation", 2); sv.alignment = BoxContainer.ALIGNMENT_CENTER
-	var sbtn := UiStyle.medallion("", 52, 18)
-	sbtn.tooltip_text = UiText.t("HUD_SAVE_PENDING")
-	var sg := GlyphIcon.new("save", 30); sg.set_anchors_and_offsets_preset(Control.PRESET_CENTER); sg.position -= Vector2(15, 15)
-	sbtn.add_child(sg)
-	sv.add_child(sbtn)
-	save_label = UiStyle.label(UiText.t("HUD_SAVE_PENDING"), 12, Color(0.78, 0.75, 0.66)); save_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var sv := VBoxContainer.new(); sv.add_theme_constant_override("separation", 0); sv.alignment = BoxContainer.ALIGNMENT_BEGIN
+	var sbadge := _round_badge(UiText.t("HUD_SAVE_SHORT"), Vector2(62, 58), 28)
+	sbadge.tooltip_text = UiText.t("HUD_SAVE_PENDING"); sbadge.mouse_filter = Control.MOUSE_FILTER_PASS
+	sv.add_child(sbadge)
+	save_label = UiStyle.label(UiText.t("HUD_SAVE_PENDING"), 12, UiStyle.GOLD_TEXT); save_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	save_label.theme_type_variation = &"DimLabel"
 	sv.add_child(save_label)
 	trh.add_child(sv)
+	mode_label = UiStyle.label("", 15, DIM_GOLD); mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	mode_label.custom_minimum_size = Vector2(330, 0); mode_label.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	tr.add_child(mode_label)
 	challenge_btn = UiStyle.accent_button(UiText.t("BTN_CHALLENGE_NONE"), 16)
-	challenge_btn.custom_minimum_size = Vector2(250, 34)
+	challenge_btn.custom_minimum_size = Vector2(330, 34)
 	challenge_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	challenge_btn.pressed.connect(_on_challenge_next)
 	tr.add_child(challenge_btn)
+	# ---- 左侧：拾取提示（品质框图标 + “获得” + 品质色名称）----
+	loot_toast = PanelContainer.new()
+	loot_toast.add_theme_stylebox_override("panel", ArtUi.box("ui_panel_9p_translucent", [18, 12, 22, 12]))
+	loot_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_anchored(loot_toast, Control.PRESET_TOP_LEFT, Vector2(14, 128))
+	var lth := HBoxContainer.new(); lth.add_theme_constant_override("separation", 10); loot_toast.add_child(lth)
+	var ic := Control.new(); ic.custom_minimum_size = Vector2(64, 64); lth.add_child(ic)
+	loot_icon = TextureRect.new(); loot_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; loot_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	loot_icon.position = Vector2(4, 4); loot_icon.size = Vector2(56, 56); ic.add_child(loot_icon)
+	loot_frame = TextureRect.new(); loot_frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	loot_frame.size = Vector2(64, 64); ic.add_child(loot_frame)
+	var ltv := VBoxContainer.new(); ltv.add_theme_constant_override("separation", 0); ltv.alignment = BoxContainer.ALIGNMENT_CENTER; lth.add_child(ltv)
+	var lget := UiStyle.label(UiText.t("LOOT_TOAST_GET"), 13, DIM_GOLD); ltv.add_child(lget)
+	loot_name = UiStyle.label("", 19, UiStyle.GOLD_TEXT); ltv.add_child(loot_name)
+	loot_toast.visible = false
 	# ---- 中上：波次 / 首领 / 横幅 ----
 	var mid := VBoxContainer.new()
 	mid.add_theme_constant_override("separation", 4)
@@ -205,25 +267,21 @@ func _build() -> void:
 	bottom_row = HBoxContainer.new(); bottom_row.add_theme_constant_override("separation", 10)
 	bottom_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bottom.add_child(bottom_row)
-	# 左：生命 / 护盾框（hp_bar → bars → 框 → 底部一行）
-	var bl := _framed(Vector2(330, 0), UiStyle.panel(10, UiStyle.GOLD_LINE, 0.84))
-	var blsb := UiStyle.panel(10, UiStyle.GOLD_LINE, 0.84); blsb.content_margin_left = 66; blsb.content_margin_top = 10; blsb.content_margin_bottom = 10
-	bl.add_theme_stylebox_override("panel", blsb)
+	# 左：生命 / 护盾框（hp_bar → bars → 框 → 底部一行；QA 依赖这条父链）。条用 TextureProgressBar 正式切图
+	var bl := PanelContainer.new()
+	bl.add_theme_stylebox_override("panel", ArtUi.box("ui_panel_9p_translucent", [24, 22, 24, 22]))
 	bl.size_flags_vertical = Control.SIZE_SHRINK_END
+	bl.custom_minimum_size = Vector2(330, 0)
 	bottom_row.add_child(bl)
 	var bars := VBoxContainer.new(); bars.add_theme_constant_override("separation", 6)
-	bl.add_child(bars); bl.move_child(bars, 0)
-	hp_bar = UiStyle.bar(UiStyle.HP.lightened(0.1)); hp_bar.custom_minimum_size = Vector2(250, 24); bars.add_child(hp_bar)
-	hp_text = _bar_text(hp_bar, 15, UiStyle.GOLD_TEXT)
-	shield_bar = UiStyle.bar(UiStyle.SHIELD_C); shield_bar.custom_minimum_size = Vector2(250, 20); bars.add_child(shield_bar)
-	shield_text = _bar_text(shield_bar, 13, UiStyle.MIST)
-	var emblem := GlyphIcon.new("shield", 46)
-	hp_bar.add_child(emblem)   # 进度条不是容器：徽记可放在框左侧留白处，横跨两条
-	emblem.position = Vector2(-56, 0)
-	bars.add_child(UiStyle.label(UiText.t("HUD_CONTROLS"), 12, Color(UiStyle.GOLD_TEXT, 0.6)))
+	bl.add_child(bars)
+	hp_bar = ArtUi.bar("hp", Vector2(280, 32)); bars.add_child(hp_bar)
+	hp_text = _bar_text(hp_bar, 16, UiStyle.GOLD_TEXT)
+	shield_bar = ArtUi.bar("shield", Vector2(280, 32)); bars.add_child(shield_bar)
+	shield_text = _bar_text(shield_bar, 15, UiStyle.GOLD_TEXT)
 	bottom_row.add_child(UiStyle.spacer())
-	# 中：4 格技能 + 闪避圆章
-	var bc := HBoxContainer.new(); bc.add_theme_constant_override("separation", 12)
+	# 中：4 格技能（下方按键图标 1~4）+ 闪避大圆钮（冷却小字、下方空格键图标）
+	var bc := HBoxContainer.new(); bc.add_theme_constant_override("separation", 6)
 	bc.size_flags_vertical = Control.SIZE_SHRINK_END
 	bottom_row.add_child(bc)
 	for i in PlayerState.slot_count():
@@ -235,37 +293,77 @@ func _build() -> void:
 				battle.controller.request_skill(slot))
 		s.auto_toggled.connect(func(slot: int) -> void: PlayerState.set_slot_auto(slot, not PlayerState.slot_auto[slot]))
 		slots.append(s)
-	var dv := VBoxContainer.new(); dv.add_theme_constant_override("separation", -8)
-	dodge_btn = UiStyle.medallion(UiText.t("BTN_DODGE"), 84, 30)
+	var dv := VBoxContainer.new(); dv.add_theme_constant_override("separation", 0)
+	dv.size_flags_vertical = Control.SIZE_SHRINK_END
+	dodge_btn = Button.new(); dodge_btn.theme_type_variation = &"DodgeButton"
+	dodge_btn.text = UiText.t("BTN_DODGE"); dodge_btn.focus_mode = Control.FOCUS_NONE
+	dodge_btn.custom_minimum_size = Vector2(111, 110)
+	dodge_btn.add_theme_font_size_override("font_size", 24)
+	dodge_btn.add_theme_constant_override("outline_size", 3)
+	dodge_btn.add_theme_color_override("font_outline_color", UiStyle.INK_DARK)
 	dodge_btn.pressed.connect(func() -> void:
 		if battle and not get_tree().paused:
 			battle.controller.request_dodge())
+	UiStyle.add_press_fx(dodge_btn)
 	dv.add_child(dodge_btn)
-	dodge_plaque = UiStyle.plaque(UiText.t("HUD_KEY_SPACE"), 13); dodge_plaque.size_flags_horizontal = Control.SIZE_SHRINK_CENTER; dodge_plaque.z_index = 1
+	dodge_cd = UiStyle.label("", 13, DIM_GOLD); dodge_cd.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	dodge_cd.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM); dodge_cd.offset_top = -40; dodge_cd.offset_bottom = -22
+	dodge_cd.offset_left = -50; dodge_cd.offset_right = 50
+	dodge_btn.add_child(dodge_cd)
+	dodge_plaque = _key_icon("space", Vector2(80, 30))
+	dodge_plaque.tooltip_text = UiText.t("HUD_KEY_SPACE")
+	dodge_plaque.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	dv.add_child(dodge_plaque)
 	bc.add_child(dv)
 	bottom_row.add_child(UiStyle.spacer())
-	# 右：自动战斗开关 + 四个圆章入口（与左侧同宽，技能栏保持居中）
-	var br := VBoxContainer.new(); br.add_theme_constant_override("separation", 8); br.alignment = BoxContainer.ALIGNMENT_END
+	# 右：自动开关（药丸框：文字 + 开关图 + Q 键）+ 四个圆章入口（书法单字 + 下方入口名，功法有可学技能书时亮红点）
+	var br := VBoxContainer.new(); br.add_theme_constant_override("separation", 10); br.alignment = BoxContainer.ALIGNMENT_END
 	br.custom_minimum_size = Vector2(330, 0)
 	br.size_flags_vertical = Control.SIZE_SHRINK_END
 	bottom_row.add_child(br)
-	auto_btn = UiStyle.button(UiText.t("BTN_AUTO_ON"), 16)
-	auto_btn.custom_minimum_size = Vector2(140, 32)
-	auto_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
+	var ap := PanelContainer.new(); ap.add_theme_stylebox_override("panel", ArtUi.box("ui_pill_9p", [18, 4, 10, 4]))
+	ap.size_flags_horizontal = Control.SIZE_SHRINK_END
+	br.add_child(ap)
+	var ah := HBoxContainer.new(); ah.add_theme_constant_override("separation", 6); ap.add_child(ah)
+	auto_btn = Button.new(); auto_btn.flat = true; auto_btn.focus_mode = Control.FOCUS_NONE
+	auto_btn.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	auto_btn.add_theme_font_size_override("font_size", 16)
+	auto_btn.add_theme_constant_override("h_separation", 8)
 	auto_btn.pressed.connect(func() -> void: PlayerState.set_auto_battle(not PlayerState.auto_battle))
-	br.add_child(auto_btn)
-	var meds := HBoxContainer.new(); meds.add_theme_constant_override("separation", 12); meds.alignment = BoxContainer.ALIGNMENT_END
+	ah.add_child(auto_btn)
+	auto_key = _key_icon("q", Vector2(30, 30)); auto_key.size_flags_vertical = Control.SIZE_SHRINK_CENTER; ah.add_child(auto_key)
+	var meds := HBoxContainer.new(); meds.add_theme_constant_override("separation", 10); meds.alignment = BoxContainer.ALIGNMENT_END
 	br.add_child(meds)
 	for pair in NAV:
-		var v := VBoxContainer.new(); v.add_theme_constant_override("separation", -6)
-		var b := UiStyle.medallion(UiText.t(pair[1] + "_SHORT"), 60, 30)
+		var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 0)
+		var b := Button.new(); b.theme_type_variation = &"RoundButton"
+		b.text = UiText.t(pair[1] + "_SHORT"); b.focus_mode = Control.FOCUS_NONE
+		b.tooltip_text = UiText.t(pair[1])
+		b.custom_minimum_size = Vector2(76, 71)
+		b.add_theme_font_override("font", UiStyle.TITLE_FONT)
+		b.add_theme_font_size_override("font_size", 36)
+		# 第 3.1 批菜单图标：_fg 版缩放到 50×50 放在圆钮内腔居中；缺图时保留书法单字
+		var mk := ArtUi.icon_key_for_ref("ui_texts:" + str(pair[1]))
+		var fg := ArtUi.icon(mk + "_fg") if mk != "" else null
+		if fg:
+			b.text = ""
+			var ti := TextureRect.new(); ti.texture = fg
+			ti.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; ti.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			ti.size = Vector2(50, 50); ti.position = (b.custom_minimum_size - ti.size) / 2.0
+			ti.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			b.add_child(ti)
 		var id: String = pair[0]
 		b.pressed.connect(func() -> void: open_panel(id))
+		UiStyle.add_press_fx(b)
 		v.add_child(b)
-		var pl := UiStyle.plaque(UiText.t(pair[1]), 13); pl.size_flags_horizontal = Control.SIZE_SHRINK_CENTER; pl.z_index = 1
+		var pl := UiStyle.label(UiText.t(pair[1]), 15, UiStyle.GOLD_TEXT); pl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		v.add_child(pl)
 		meds.add_child(v)
+		if id == "gongfa":
+			gongfa_dot = TextureRect.new(); gongfa_dot.texture = ArtUi.tex("ui_reddot")
+			# style_guide 5.4：红点在按钮右上角外 4px（22×22）
+			gongfa_dot.position = Vector2(b.custom_minimum_size.x - 22 + 4, -4); gongfa_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			b.add_child(gongfa_dot)
 	# ---- 面板遮罩（打开养成面板时压暗战斗画面） ----
 	dim = ColorRect.new(); dim.color = Color(0.03, 0.04, 0.03, 0.55)
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -295,7 +393,7 @@ func _build() -> void:
 	gongfa_panel = GongfaPanel.new(); gongfa_panel.visible = false; root.add_child(gongfa_panel)
 	gongfa_panel.closed.connect(close_panel)
 
-func _bar_text(bar: ProgressBar, size: int, color: Color) -> Label:
+func _bar_text(bar: Control, size: int, color: Color) -> Label:
 	var l := UiStyle.label("", size, color)
 	l.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -325,6 +423,24 @@ static func panel_title_text(id: String) -> String:
 	var k := nav_key(id)
 	return UiText.t("PANEL_TITLE_PAUSED", {"title": UiText.t(k)}) if k != "" else ""
 
+## 可见战场区（屏幕坐标）：左上境界/顶部资源栏下沿 ～ 底栏上沿。全场预警描边内收到这里（BUG-015）
+func safe_rect() -> Rect2:
+	var vs := root.get_viewport_rect().size
+	var top := maxf(_top_left.get_global_rect().end.y, _top_center.get_global_rect().end.y) + 4.0
+	var bottom := bottom_row.get_global_rect().position.y - 4.0
+	if bottom - top < 120.0:
+		return Rect2(Vector2.ZERO, vs)
+	return Rect2(0.0, top, vs.x, bottom - top)
+
+## Esc（ui_cancel）关闭养成面板；HUD 为 PROCESS_MODE_ALWAYS，暂停中也能响应（Web 同样走 ui_cancel）
+func _input(ev: InputEvent) -> void:
+	if ev.is_action_pressed("ui_cancel") and is_panel_open():
+		close_panel()
+		get_viewport().set_input_as_handled()
+
+static func telegraph_white_toggle_enabled() -> bool:
+	return bool(ProjectSettings.get_setting(TELEGRAPH_WHITE_TOGGLE_SETTING, false)) or "--telegraph-white-toggle" in OS.get_cmdline_user_args()
+
 func is_panel_open() -> bool:
 	return panel.visible or gear_panel.visible or gongfa_panel.visible
 
@@ -336,6 +452,8 @@ func open_panel(id: String) -> void:
 	panel.visible = false; gear_panel.visible = false; gongfa_panel.visible = false
 	open_id = pid
 	dim.visible = true
+	if battle:
+		battle.set_telegraph_overlay_visible(false)
 	get_tree().paused = true
 	if pid == "gear" or pid == "gongfa":
 		var pc: Control = gear_panel if pid == "gear" else gongfa_panel
@@ -348,6 +466,14 @@ func open_panel(id: String) -> void:
 	if pid == "map":
 		for l in GameData.levels_ordered:
 			panel_body.add_child(_map_row(l))
+		if telegraph_white_toggle_enabled():
+			panel_body.add_child(UiStyle.hsep())
+			var cb := CheckButton.new()
+			cb.text = UiText.t("SETTING_TELEGRAPH_WHITE")
+			cb.tooltip_text = UiText.t("TIP_TELEGRAPH_WHITE")
+			cb.button_pressed = PlayerState.telegraph_alt
+			cb.toggled.connect(func(on: bool) -> void: PlayerState.telegraph_alt = on)
+			panel_body.add_child(cb)
 	else:
 		var l := UiStyle.subtitle(UiText.t("PANEL_BREAK_SOON"), 26, UiStyle.GOLD_TEXT)
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -395,6 +521,8 @@ func close_panel() -> void:
 	open_id = ""
 	get_tree().paused = false
 	if battle:
+		battle.set_telegraph_overlay_visible(true)
+	if battle:
 		battle.refresh_player_stats()   # 换装/升级/换被动立即生效（保持当前生命比例）
 
 func _on_loot(entries: Array) -> void:
@@ -404,6 +532,23 @@ func _on_loot(entries: Array) -> void:
 			parts.append(str(e.text))
 	if not parts.is_empty():
 		show_banner(UiText.t("BANNER_LOOT", {"items": "、".join(parts)}))
+	# 左侧拾取提示：本次掉落里品质最高的一件（有光柱的物品）
+	var best: Dictionary = {}
+	for e in entries:
+		if int(e.get("quality", 0)) > int(best.get("quality", 0)):
+			best = e
+	if not best.is_empty():
+		show_loot_toast(best)
+
+func show_loot_toast(e: Dictionary) -> void:
+	var q := int(e.get("quality", 1))
+	loot_icon.texture = ArtUi.item_icon(str(e.get("icon", "")))
+	loot_frame.texture = ArtUi.quality_frame(q)
+	loot_name.text = str(e.get("text", ""))
+	loot_name.add_theme_color_override("font_color", e.get("color", UiStyle.GOLD_TEXT))
+	loot_toast.visible = true
+	loot_toast.modulate.a = 1.0
+	_loot_t = 4.0
 
 func _on_challenge_next() -> void:
 	if is_panel_open():
@@ -442,14 +587,16 @@ func _on_shield(total: float, max_hp: float) -> void:
 func _refresh_auto() -> void:
 	var on := PlayerState.auto_battle
 	auto_btn.text = UiText.t("BTN_AUTO_ON" if on else "BTN_AUTO_OFF")
-	auto_btn.add_theme_stylebox_override("normal", UiStyle._btn_box(Color("#2F5A47") if on else Color(UiStyle.INK, 0.9), UiStyle.GOLD_TEXT if on else UiStyle.GOLD_LINE, 16, 2 if on else 1))
-	auto_btn.add_theme_color_override("font_color", Color("#BFF0D8") if on else UiStyle.GOLD_TEXT)
+	auto_btn.icon = ArtUi.tex("ui_toggle_on" if on else "ui_toggle_off")
 
 func _refresh_top() -> void:
 	if realm_label == null:
 		return
 	var rl := GameData.get_realm(PlayerState.realm_id)
 	realm_label.text = UiText.t("HUD_REALM", {"realm_name": rl.name if rl else ""})
+	# 圆章单字取境界名首字（效果图“炼”）；待策划在 realms 表加 badge 列后改读表
+	(realm_badge.get_node("Glyph") as Label).text = rl.name.left(1) if rl else ""
+	gongfa_dot.visible = has_learnable_book()
 	lingshi_label.text = UiText.t("HUD_LINGSHI", {"value": PlayerState.lingshi})
 	xiuwei_label.text = UiText.t("HUD_XIUWEI", {"value": PlayerState.xiuwei})
 	var nxt := PlayerState.next_challenge_level()
@@ -461,9 +608,32 @@ func _refresh_top() -> void:
 	mode_label.text = UiText.t(["HUD_MODE_CHALLENGE", "HUD_MODE_FARM", "HUD_MODE_FARM_NORMALS"][battle.mode])
 	boss_box.visible = battle.phase == Battle.Phase.BOSS and battle.boss != null
 
+## 功法红点：持有尚未学会的技能书（可去功法面板学习）
+static func has_learnable_book() -> bool:
+	for bid in PlayerState.books.keys():
+		var bk := GameData.get_book(bid)
+		if bk and PlayerState.book_count(bid) > 0 and not PlayerState.learned_skills.has(bk.skill_id):
+			return true
+	return false
+
+## 按键图标按下态（对应输入动作按住时换 _pressed 图）
+const KEY_ACTIONS := {"space": "dodge", "q": "toggle_auto"}
+func _key_state(t: TextureRect) -> void:
+	var k: String = t.get_meta("key", "")
+	var act: String = KEY_ACTIONS.get(k, "")
+	var down := act != "" and InputMap.has_action(act) and Input.is_action_pressed(act)
+	t.texture = ArtUi.key_icon(k, down)
+
 func _process(delta: float) -> void:
+	if _loot_t > 0.0:
+		_loot_t -= delta
+		loot_toast.modulate.a = clampf(_loot_t / 0.5, 0.0, 1.0)
+		if _loot_t <= 0.0:
+			loot_toast.visible = false
 	if battle == null:
 		return
+	battle.hud_safe_rect = safe_rect()
+	_key_state(dodge_plaque); _key_state(auto_key)
 	var p := battle.phase
 	if p == Battle.Phase.BOSS and battle.boss:
 		wave_label.text = UiText.t("HUD_BOSS_FIGHT", {"timer": UiText.t("HUD_BOSS_TIMER", {"sec": int(ceil(maxf(battle.boss_time_left, 0.0)))})})
@@ -489,8 +659,7 @@ func _process(delta: float) -> void:
 		slots[i].refresh(battle.skills.skill_in_slot(i), PlayerState.slot_auto[i], battle.skills.cds[i], cdt)
 	var pl := battle.player
 	var on_cd := pl.dodge_cd > 0.0
-	dodge_btn.text = ("%.1f" % pl.dodge_cd) if on_cd else UiText.t("BTN_DODGE")
-	dodge_btn.add_theme_font_size_override("font_size", 26 if on_cd else 30)
+	dodge_cd.text = UiText.t("HUD_COOLDOWN_SEC", {"sec": "%.1f" % pl.dodge_cd}) if on_cd else ""
 	dodge_btn.disabled = on_cd
 	if hint_label.text != "":
 		_hint_pulse += delta

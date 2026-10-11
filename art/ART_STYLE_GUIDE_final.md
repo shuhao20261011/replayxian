@@ -28,9 +28,9 @@
 | --- | --- |
 | `enemies/<id>/enm_<id>_{idle_06f,move_06f,attack_06f,hit_03f,death_06f}.png` | 6 种普通怪图集：`bamboo_imp` 竹灵、`mountain_ape` 山魈、`marsh_wisp` 泽灵、`thunder_toad` 雷蟾、`cave_bat` 洞蝠、`rock_golem` 岩傀。格子尺寸按体型定，见 5.1.2 |
 | `enemies/<id>/enm_<id>.tres` | 每种普通怪一个 SpriteFrames（5 个动作） |
-| `bosses/zhumei/boss_zhumei_{idle_06f,move_08f,attack_08f,skill_thorn_08f,skill_leaf_08f,hit_03f,death_08f}.png` + `boss_zhumei.tres` | 竹魅：竹刺突 `skill_thorn`、竹叶旋风 `skill_leaf` |
-| `bosses/kuiniu/boss_kuiniu_{idle_06f,move_08f,attack_08f,skill_stomp_08f,hit_03f,death_08f}.png` + `boss_kuiniu.tres` | 夔牛：雷霆践踏 `skill_stomp`；天雷三连 `skill_bolts` 是 .tres 里的别名动画（复用践踏图集） |
-| `bosses/yanmo/boss_yanmo_{idle_06f,move_08f,attack_08f,skill_charge_08f,skill_skyfall_08f,hit_03f,death_08f}.png` + `boss_yanmo.tres` | 岩魔：碎岩冲撞 `skill_charge`、玄岩天坠 `skill_skyfall`；地裂 `skill_quake` 是 .tres 里的别名动画（复用岩拳图集） |
+| `bosses/zhumei/boss_zhumei_{idle_06f,move_08f,attack_08f,skill_thorn_08f,skill_leaf_08f,hit_03f,death_08f}.png` + `boss_zhumei.tres` | 竹魅：竹刺突 `skill_thorn`、竹叶旋风 `skill_leaf`（两者第 2.1 批重做；格子改为 736×416） |
+| `bosses/kuiniu/boss_kuiniu_{idle_06f,move_08f,attack_08f,skill_stomp_08f,hit_03f,death_08f}.png` + `boss_kuiniu.tres` | 夔牛：雷霆践踏 `skill_stomp`；天雷三连 `skill_bolts` 是 .tres 里的别名动画（复用践踏图集）；`hit` 第 2.1 批重做（四蹄着地后缩） |
+| `bosses/yanmo/boss_yanmo_{idle_06f,move_08f,attack_08f,skill_charge_08f,skill_skyfall_08f,hit_03f,death_08f}.png` + `boss_yanmo.tres` | 岩魔：碎岩冲撞 `skill_charge`、玄岩天坠 `skill_skyfall`（两者第 2.1 批重做；格子改为 448×480）；地裂 `skill_quake` 是 .tres 里的别名动画（复用岩拳图集） |
 | `fx/fx_toad_orb.png` | 雷蟾弹道雷球 91×79（从攻击行的独立雷球切出，按雷蟾同比例缩放，朝左飞） |
 | `fx/fx_zhumei_thorn_02f.png` | 竹魅竹刺破土 2 帧，单帧 320×352，底部锚点 (160,344)，沿竹刺突预警长条摆放 |
 | `preview/batch2_preview.png` | 实际比例阵容（青竹山背景，与主角同一地平线）+ 每种怪的全部帧（金框＝攻击命中帧，朱砂框＝前摇定格帧） |
@@ -54,6 +54,7 @@
 | `ui/ui_frame_quality_{white,green,blue,purple,orange}.png`、`ui_frame_quality_white_mod.png` | 品质框 72×72（beam_color 着色版 5 张 + 白框 modulate 版） |
 | `ui/ui_theme.tres` | Godot Theme（Noto Serif SC，金字 #EAD7A8） |
 | `ui/icons/*.png` | 54 个图标（文件名 = icon_list.csv 的 icon_key）+ 6 个按键按下态 `*_pressed.png` |
+| `ui/icons/ui_icon_menu_{equip,gongfa,map,breakthrough}.png` + `_fg.png`（第 3.1 批） | 菜单图标：标准版 128×128；`_fg` 透明版 128×128，放进圆按钮 `ui_roundbtn` |
 | `fonts/NotoSerifSC-Regular.otf`、`NotoSerifSC-Bold.otf`、`OFL_notoserifcjk.txt` | UI 正文/数值字体 |
 | `preview/batch3_maps_contrast.png`、`batch3_vfx.png`、`batch3_warning.png`、`batch3_icons.png`、`batch3_battle_ui.png` | 预览（不进游戏） |
 
@@ -120,7 +121,7 @@
 
 | 部件 | 地平线圆形 / 矩形预警 | 全场预警（天坠） |
 | --- | --- | --- |
-| 主线 | **4px** 虚线，划 12 / 空 12 | **6px** 虚线 |
+| 主线 | **4px** 虚线，划 12 / 空 12 | **6px** 虚线，划 24 / 空 16 |
 | 外描边 | **2px** 连续 `#1C1E21` × **70%** | **3px** `#1C1E21` × 70% |
 | 填充 | 预警色 × **15%**（进度内圈 30%） | 中心 15% → 四边 35% |
 | 闪烁 | 引擎做，0.8s | 同左 |
@@ -203,14 +204,14 @@
 | `thunder_toad` | 雷蟾 | 256×160 | (128, 152) | 身体质心 x + 脚底 y | 标准格，未改 |
 | `cave_bat` | 洞蝠 | 192×224 | (72, 216) | **悬浮**：身体质心在锚点正上方 118px | 飞在主角胸口高度，扑咬时正对主角上半身 |
 | `rock_golem` | 岩傀 | 320×288 | (160, 280) | 双脚中点 | 明显大于主角，举双拳帧高约 273px |
-| `zhumei` | 竹魅 | 736×352 | (352, 330) | 底部（根须）中点 | 普攻竹鞭向前甩出约 340px，前摇向后甩出约 370px，必须加宽；每行 2 帧 |
+| `zhumei` | 竹魅 | **736×416**（第 2.1 批由 736×352 加高） | **(352, 394)** | 底部（根须）中点 | 普攻竹鞭向前甩出约 340px，前摇向后甩出约 370px，必须加宽；每行 2 帧。2.1 批新竹刺突举臂蓄力、竹叶旋风卷到头顶以上，最高约 380px，原 352 高放不下，加高 64px |
 | `kuiniu` | 夔牛 | 384×480 | (192, 466) | 身体质心 x + 蹄底 y | 人立前摇加头顶雷光，高约 430px |
-| `yanmo` | 岩魔 | 352×480 | (200, 472) | 双脚中点 | 天坠举起的巨石高约 435px |
+| `yanmo` | 岩魔 | **448×480**（第 2.1 批由 352×480 加宽） | **(296, 472)** | 双脚中点 | 天坠举起的巨石高约 435px。2.1 批碎岩冲撞出手帧在格内向前（左）冲出最多 112px，锚点左侧需要约 290px，所以格子向左加宽 96px，锚点 x 同步右移 96 |
 
 - **死亡动画**的横向改按身体质心对齐（倒地、化灰后“脚底”不可靠），并整体平移，让第 1 帧和受击、待机的锚点完全一致，切换时不跳。
 - **悬浮怪锚点规则**：节点原点仍放在地面（y=585，用于排序、碰撞和阴影），精灵按“身体质心在锚点正上方 hover px”对齐；所有动作（含死亡）都按质心对齐，所以死亡是在空中化散。需要上下浮动时，前端在 `offset.y` 上叠加 `sin(t)*4px`，不要改节点 y。
 - 同一张原图里，个别行被生图画小了（竹魅移动行、岩魔移动行，宽高同比缩小，不是姿势变化），已按行补偿 1.15 / 1.12 倍。
-- 图集：单张宽 ≤2048，列数＝floor(2048/单帧宽)（竹魅每行 2 帧，夔牛、岩魔每行 5 帧，其余单行）。
+- 图集：单张宽 ≤2048，列数＝floor(2048/单帧宽)（竹魅每行 2 帧，夔牛每行 5 帧，岩魔每行 4 帧，其余单行）。
 
 **动作、fps 与关键帧**（索引从 0 起）：
 
@@ -230,12 +231,12 @@
 
 | 技能 attack_id | 动画名 | 图集 | 内容 |
 | --- | --- | --- | --- |
-| BA_ZHUMEI_THORN 竹刺突 | `skill_thorn` | `boss_zhumei_skill_thorn_08f.png` | 伏身蓄力 4 帧 → 化作竹刺破土 2 帧 → 由竹刺重新聚形 2 帧（取自死亡行倒放）。前方 520px 长条里的竹刺用 `fx_zhumei_thorn_02f.png` 沿预警条摆放 |
-| BA_ZHUMEI_LEAF 竹叶旋风 | `skill_leaf` | `boss_zhumei_skill_leaf_08f.png` | 同一套前摇 4 帧 → 竹叶旋风 2 帧，播两遍 |
+| BA_ZHUMEI_THORN 竹刺突 | `skill_thorn` | `boss_zhumei_skill_thorn_08f.png` | **第 2.1 批重做（v3 图，v2 作废）**：0~3 举臂蓄力 → **4 插地（出手）** → 5~6 脚下青光地裂（绿色发光已保留）→ 7 收回举臂。前方 520px 长条里的竹刺仍用 `fx_zhumei_thorn_02f.png` 沿预警条摆放 |
+| BA_ZHUMEI_LEAF 竹叶旋风 | `skill_leaf` | `boss_zhumei_skill_leaf_08f.png` | **第 2.1 批重做**：0~3 聚叶（竹叶渐起、青色气流绕身）→ 4~7 旋风逐帧变大，最宽约 210px、最高到锚点上方约 378px，完整保留在格内（格子四周留边 ≥16px） |
 | BA_KUINIU_STOMP 雷霆践踏 | `skill_stomp` | `boss_kuiniu_skill_stomp_08f.png` | 人立蓄雷 4 帧 → 落地雷爆 4 帧 |
 | BA_KUINIU_BOLTS 天雷三连 | `skill_bolts`（别名） | 复用 `skill_stomp` 全部 8 帧 | 没有单独生图；人立蓄雷正好对应“引天雷”，落雷由特效层在玩家位置生成 |
-| BA_YANMO_CHARGE 碎岩冲撞 | `skill_charge` | `boss_yanmo_skill_charge_08f.png` | 站姿蓄力 4 帧 → 熔岩冲拳 3 帧 → 收势 1 帧；横向位移由程序做 |
-| BA_YANMO_SKYFALL 玄岩天坠 | `skill_skyfall` | `boss_yanmo_skill_skyfall_08f.png` | 举岩 4 帧 → 巨岩迸碎石 4 帧（巨石下落由特效层做） |
+| BA_YANMO_CHARGE 碎岩冲撞 | `skill_charge` | `boss_yanmo_skill_charge_08f.png` | **第 2.1 批重做**：0~3 压低蓄力 → 4~7 低头肩撞前冲，脚下带熔岩火星。出手 4 帧在格内相对锚点依次前移 **24 / 56 / 88 / 112px**（朝左），做出冲出去的位移感；横贯全场的大位移仍由程序做，见 5.7 |
+| BA_YANMO_SKYFALL 玄岩天坠 | `skill_skyfall` | `boss_yanmo_skill_skyfall_08f.png` | **第 2.1 批重做**：0~3 举岩 → 4~7 掷出，巨石离手飞向左上，保留在帧内（不裁），身体逐帧收势。全场砸落仍由特效层做 |
 | BA_YANMO_QUAKE 地裂 | `skill_quake`（别名） | 复用 `attack` 帧序 [0,1,2,2,3,4,5,6] | **地裂映射**：没有单独生图，复用岩拳的“举拳 3 帧（第 3 帧重复一次作定格）+ 砸下 4 帧”。举拳前摇比天坠举岩更短促，和全场的天坠区分开 |
 
 普通攻击（BA_*_SLASH / HORN / FIST）没有预警，直接播 `attack`。
@@ -254,7 +255,7 @@
 
 - 地平线统一 **y=585**；角色脚底锚点放在 y=585。
 - 第 3 批两张图的近景放置：雷泽谷 `bg_leize_near.png` 2560×195 放 (0,525)；玄岩洞 `bg_xuanyan_near.png` 2560×145 放 (0,575)，都已在 `.tscn` 里写好。
-- 玄岩洞远景：原图四周有暗框，取中段 (230~1050, 从 y=100 起) 放大后重建左右无缝；近景原图底部不规则，取地面以下镜像补齐到 y=720 并压暗。
+- 玄岩洞远景（第 3.1 批换 v2 原图）：v2 没有暗框但四周仍偏暗，先做去暗角（大半径模糊得到低频亮度场，按行取中段亮度为目标做增益校正，限幅 0.75~2.4，只动低频），再做半宽错位交叉淡化无缝。原生 1280 不放大，细节量（拉普拉斯方差）41.8，旧版 23.7；左右亮度差由 69~94 缩到 81~87。近景原图底部不规则，取地面以下镜像补齐到 y=720 并压暗。
 - **暗底对比度（第 3 批实测）**：雷泽谷、玄岩洞在中景层的战斗带（y≈280~600）烘了一层亮雾，雷泽谷淡紫 `#C4B8E2` 峰值 50%，玄岩洞熔岩逆光 `#E2AC68` 峰值 55%，熔岩等发光像素处自动减弱。墨色怪（泽灵、雷蟾、洞蝠、岩傀、夔牛、岩魔）和主角在战斗带上都能看清（`preview/batch3_maps_contrast.png`），**怪物图集未改动**，也不需要描边 shader。备用方案 `shaders/sprite_paper_outline.gdshader`（纸色 `#F4F1EA` 55%，1.5px）已给出，如以后加了更暗的地图或怪物再挂。
 - 白底图层抠图方法：alpha = 最大通道暗度（去 JPEG 底噪 3~4.5%），再反预乘还原颜色，墨色晕染保留为半透明，不会有白边。
 
@@ -304,6 +305,9 @@
 | `ui_frame_quality_*.png` | 72×72 | 固定 | 品质框，用 beam_color 着色；`ui_frame_quality_white_mod.png` 是白框，可 `modulate` beam_color；图标 64×64 放在框内居中 |
 
 - 图标：`ui/icons/`，源图 128×128（显示 64×64），统一古金细描边、深色底、左上光源；按键 96×96，空格 256×96（显示一半），各有 `_pressed` 按下态。
+- **菜单图标（第 3.1 批，键名暂定，待策划加入 icon_list）**：`ui_icon_menu_equip`（装备）、`ui_icon_menu_gongfa`（功法）、`ui_icon_menu_map`（地图）、`ui_icon_menu_breakthrough`（突破）。标准版和其他图标同规格；`_fg` 版透明底，主体占 128 的 86%（突破为柔边圆形取景，直径约 118），放进 `ui_roundbtn` 时缩到 **50×50**，中心对准圆钮内腔中心（源图 (37.5, 32.5)，内腔直径约 54）。用 `TextureButton` 时：底 = `ui_roundbtn*.png` 各状态，图标作为子 `TextureRect`。
+- 红点 `ui_reddot.png`（22×22）挂在圆钮右上角：左上角相对圆钮左上角 (57, -1)，压住金边外沿。
+- 资源栏图标（灵石、修为）在效果图里做成圆钮小徽章：圆钮缩到内腔 50px，图标取中心 72% 后圆形遮罩，与左上境界徽章统一。
 - 技能书 `ui_icon_book_*` 的题签已校到功法 fx_color（飞剑青 `#63BD9D`、御雷 `#7872C3`、玄罡金 `#CEA445`）并加纸纹，书名由 UI 叠字。
 - 字体：**标题/Logo 用书法体 Ma Shan Zheng**；UI 正文和数值用 **Noto Serif SC**（`fonts/NotoSerifSC-Regular.otf` / `-Bold.otf`，已打包进 Theme）。打包时建议子集化，或用 MSDF。伤害数字 Bold 40，字色 `#FFECC4`，描边 `#78140E` 8px（Theme 变体 `DamageLabel`）。
 - 标题 Logo 已做成图片（`ui/title_logo*.png`）。
@@ -359,14 +363,16 @@
 | thunder_toad | 256×160 | (-128, -152) | (-128, -152) |
 | cave_bat | 192×224 | (-72, -216) | (-120, -216) |
 | rock_golem | 320×288 | (-160, -280) | (-160, -280) |
-| zhumei | 736×352 | (-352, -330) | (-384, -330) |
+| zhumei | **736×416** | **(-352, -394)** | **(-384, -394)** |
 | kuiniu | 384×480 | (-192, -466) | (-192, -466) |
-| yanmo | 352×480 | (-200, -472) | (-152, -472) |
+| yanmo | **448×480** | **(-296, -472)** | (-152, -472) |
 
 - 伤害和出手时机：用 `frame_changed` 判断 5.1.2 里的命中帧；首领危险技能在 `skill_*` 播到索引 4 时结算，这时 0.8s 预警正好结束。前摇定格已写进 .tres（索引 3 的 duration=5），不需要手动暂停；如果以后改了预警时长，只改索引 3 的 duration：duration = (warn_s - 0.3) × 10。
 - 受击：岩傀和三个首领是霸体（见 enemies.csv），受击时可以只闪白、不打断当前动作；普通怪播完 `hit` 后回到 `idle` / `move`。
 - 死亡：播完停在最后一帧（最后 1~2 帧已经是淡出），再把节点淡出或回收。
 - 雷蟾雷球：`fx/fx_toad_orb.png` 是弹道贴图（91×79，中心作为旋转和碰撞中心），在 attack 索引 3 时于锚点 (-52,-68) 处生成，速度 350px/s（见 enemies.csv）。贴图已带 alpha，用 Add 或 Mix 混合都可以。
+- **第 2.1 批 offset 变更**：竹魅 offset.y 由 -330 改为 -394（格子加高），岩魔 offset.x 由 -200 改为 -296（格子加宽），上表已更新；朝右时岩魔 offset 不变。两者所有动作共用新格子，节点位置和脚底不变，只改 offset。
+- **岩魔碎岩冲撞**：出手 4 帧（索引 4~7）在格内已向前冲出 24 / 56 / 88 / 112px。程序冲撞位移照常做；动画结束切回 `idle` 前，把节点沿朝向前移 112px（朝左时 `position.x -= 112`），或者把冲撞 tween 的终点扣掉这 112px，否则会向后弹回一下。帧内位移数值在 `src/_enemy_build_report.json` 的 `yanmo.charge_dx`。
 - 竹魅竹刺：`fx/fx_zhumei_thorn_02f.png`（2 帧，320×352，底部锚点 (160,344)）。从 `skill_thorn` 索引 4 开始，沿 520px 预警条每隔约 120px 放一簇，逐簇延迟 0.05s。
 - 悬浮怪（泽灵、洞蝠）：按 5.1.2 的悬浮锚点规则；阴影（如果有）放在节点原点。
 - 第 2 批的 9 个 .tres 已用 Godot 4.7.2 headless 加载验证，所有动作的帧数、fps、循环和总时长都正确。
@@ -423,14 +429,18 @@
 | `enemies/rock_golem/enm_rock_golem_*.png`（全部动作（左侧英文行标签已去掉；death +2 帧淡出）） | AI生图（抠白保留发光 + 分帧 + 统一体型 + 锚点对齐） | `assets/31097b59eca3a23537bae6626ec8e8e32e39842eed1b6dd54a81691b8d5ce36e.jpg` | `src/make_enemies.py` |
 | `enemies/rock_golem/enm_rock_golem.tres` | 程序生成（Godot SpriteFrames） | — | `src/make_enemies.py` |
 | `bosses/zhumei/boss_zhumei_*.png`（idle、move） | AI生图（抠白保留发光 + 分帧 + 统一体型 + 锚点对齐） | `assets/f2b858da218d727b93f4411eab929e364b4618df5117dded8c01fef65d81de68.jpg` | `src/make_enemies.py` |
-| `bosses/zhumei/boss_zhumei_*.png`（attack、skill_thorn、skill_leaf、hit、death（+2 帧淡出）） | AI生图（抠白保留发光 + 分帧 + 统一体型 + 锚点对齐） | `assets/3b83971bd982da863539adafefe5e5f3fcd8562150e7e4c86ba58e49273092df.jpg` | `src/make_enemies.py` |
+| `bosses/zhumei/boss_zhumei_*.png`（attack、hit、death（+2 帧淡出）） | AI生图（抠白保留发光 + 分帧 + 统一体型 + 锚点对齐） | `assets/3b83971bd982da863539adafefe5e5f3fcd8562150e7e4c86ba58e49273092df.jpg` | `src/make_enemies.py` |
 | `bosses/zhumei/boss_zhumei.tres` | 程序生成（Godot SpriteFrames） | — | `src/make_enemies.py` |
 | `bosses/kuiniu/boss_kuiniu_*.png`（idle、move） | AI生图（抠白保留发光 + 分帧 + 统一体型 + 锚点对齐） | `assets/47f366ee7ee2438509ab29107fa7a1aae8d676bfb2fc50b79294d5da625e22e6.jpg` | `src/make_enemies.py` |
-| `bosses/kuiniu/boss_kuiniu_*.png`（attack、skill_stomp、hit、death（+2 帧淡出）） | AI生图（抠白保留发光 + 分帧 + 统一体型 + 锚点对齐） | `assets/14618be672d3a56d10d2b108db25a36bb254bc875c4a5eac18c3d87758b301b5.jpg` | `src/make_enemies.py` |
+| `bosses/kuiniu/boss_kuiniu_*.png`（attack、skill_stomp、death（+2 帧淡出）） | AI生图（抠白保留发光 + 分帧 + 统一体型 + 锚点对齐） | `assets/14618be672d3a56d10d2b108db25a36bb254bc875c4a5eac18c3d87758b301b5.jpg` | `src/make_enemies.py` |
 | `bosses/kuiniu/boss_kuiniu.tres` | 程序生成（Godot SpriteFrames） | — | `src/make_enemies.py` |
 | `bosses/yanmo/boss_yanmo_*.png`（idle、move、attack） | AI生图（抠白保留发光 + 分帧 + 统一体型 + 锚点对齐） | `assets/2cb8f6f3113ed456b9d21560f48b0e11544320ee59aa4b7d29bdf89661a6e6b9.jpg` | `src/make_enemies.py` |
-| `bosses/yanmo/boss_yanmo_*.png`（skill_charge、skill_skyfall、hit、death（+2 帧淡出）） | AI生图（抠白保留发光 + 分帧 + 统一体型 + 锚点对齐） | `assets/8548cf9c2c3ed2c55ca7482462669dbaf58c04748ba8e05bfa08eb1a57ce5951.jpg` | `src/make_enemies.py` |
+| `bosses/yanmo/boss_yanmo_*.png`（hit、death（+2 帧淡出）） | AI生图（抠白保留发光 + 分帧 + 统一体型 + 锚点对齐） | `assets/8548cf9c2c3ed2c55ca7482462669dbaf58c04748ba8e05bfa08eb1a57ce5951.jpg` | `src/make_enemies.py` |
 | `bosses/yanmo/boss_yanmo.tres` | 程序生成（Godot SpriteFrames） | — | `src/make_enemies.py` |
+| `bosses/zhumei/boss_zhumei_skill_leaf_08f.png`（第 2.1 批） | AI生图（抠白保留青绿发光 + 分帧 + 按待机帧对齐身高） | `assets/a42a826384f3cacbad93410db07aa5427589616a325714d44c772dc9b3e3242b.jpg` | `src/make_enemies.py`、`src/make_boss21.py` |
+| `bosses/zhumei/boss_zhumei_skill_thorn_08f.png`（第 2.1 批，v3） | AI生图（同上；v2 图 43bb23cd… 作废未用） | `assets/5ae29d777da91108a444c88b50a79c1f07443df964f9f0bc04ab817effe36d29.jpg` | `src/make_enemies.py`、`src/make_boss21.py` |
+| `bosses/kuiniu/boss_kuiniu_hit_03f.png`（第 2.1 批） | AI生图（抠白保留雷光 + 分帧 + 按待机帧对齐身高） | `assets/085a1562a52548cb479812cbd6021340ae6c8827cecedbf46e03ac542a81c02e.jpg` | `src/make_enemies.py`、`src/make_boss21.py` |
+| `bosses/yanmo/boss_yanmo_skill_charge_08f.png`、`boss_yanmo_skill_skyfall_08f.png`（第 2.1 批） | AI生图（抠白保留熔岩 + 分帧 + 按待机帧对齐身高；冲撞出手帧程序加格内前移） | `assets/fe655bee8460142193f5234ca37d3a403fac9c848aca2d560c522732acd29dd0.jpg` | `src/make_enemies.py`、`src/make_boss21.py` |
 | `fx/fx_toad_orb.png` | AI生图（雷蟾攻击行第 3 格独立雷球，抠白 + 白芯填充） | `assets/1c109d7204354c59fb0f3ab6eb1645d820737ab43d648aad735e26f8f1c1f9eb.jpg` | `src/make_enemies.py` |
 | `fx/fx_zhumei_thorn_02f.png` | AI生图（竹魅技能行第 5、6 帧竹刺） | `assets/3b83971bd982da863539adafefe5e5f3fcd8562150e7e4c86ba58e49273092df.jpg` | `src/make_enemies.py` |
 | `preview/batch2_preview.png、batch2_lineup.png` | 程序合成（预览用，不进游戏） | 由上述资源和第 1 批背景、主角合成 | `src/make_preview2.py` |
@@ -438,7 +448,7 @@
 | `bg/leize/bg_leize_mid.png` | AI生图（抠白 + 无缝）+ 程序亮雾带 | `assets/28de99b57157353afae4a859cf2151f62b913b3e574c371c833f337a1d190bb2.jpg` | `src/make_bg_maps.py` |
 | `bg/leize/bg_leize_near.png` | AI生图（抠白 + 对齐 y=585 + 无缝） | `assets/a1eb5bc38791d5c4b8983b3a0a34859fcff080713ccde741ca05410af9d8fe23.jpg` | `src/make_bg_maps.py` |
 | `bg/leize/bg_leize_fore*.png` | AI生图（抠白 + 拆件 + 战斗区羽化） | `assets/9b075eb83121ab6c888703c00d60e1d7af1dd1896f66950fc0645ddfccf6d0e2.jpg` | `src/make_bg_maps.py` |
-| `bg/xuanyan/bg_xuanyan_far.png` | AI生图（取中段去暗框 + 重建无缝） | `assets/c73ccb36cb70540212598f8866d3a6f7562702ad2f41ddb2e4654b8f00376ffc.jpg` | `src/make_bg_maps.py` |
+| `bg/xuanyan/bg_xuanyan_far.png`（第 3.1 批换 v2） | AI生图（去暗角：按行目标亮度做低频增益校正 + 半宽错位交叉淡化无缝；原生 1280 不放大）。v1 原图 c73ccb36… 已停用 | `assets/c044151e9b42e7f4897c651310af89697daf9b61eea237aa9448511ac5c0ec1e.jpg` | `src/make_bg_maps.py` |
 | `bg/xuanyan/bg_xuanyan_mid.png` | AI生图（抠白保留熔岩发光 + 无缝）+ 程序逆光雾带 | `assets/f3f69d8ba1dfa02c935983ed83b120fda3cb40b669aff57e4ad46f8a3462275a.jpg` | `src/make_bg_maps.py` |
 | `bg/xuanyan/bg_xuanyan_near.png` | AI生图（抠白 + 底部镜像补齐 + 无缝） | `assets/7c8279e046ec46cdd695b3c5e1081f1ff4cc330011b9c93d1411ee786b29bdcd.jpg` | `src/make_bg_maps.py` |
 | `bg/xuanyan/bg_xuanyan_fore*.png` | AI生图（抠白 + 拆件 + 战斗区羽化） | `assets/0b4f30556d7275b3f7d902296e76e84b41b80694c4d7aa9ed8ac91aee52b8235.jpg` | `src/make_bg_maps.py` |
@@ -456,6 +466,7 @@
 | `ui/icons/ui_icon_equip_*_t1.png`、`*_t2.png` | AI生图（切格 + 描边） | `assets/69978771452b7a3e89372620f879b3c0803b9a4674831ebf5553195171d07c2a.jpg` | `src/make_icons.py` |
 | `ui/icons/ui_icon_equip_*_t3.png`、`ui_icon_equip_core_*.png` | AI生图（切格 + 描边） | `assets/8d49de5410557e3e2a562f8d2f295ae6e6602207b36ff3d4e1726b400a9adbbf.jpg` | `src/make_icons.py` |
 | `ui/icons/ui_icon_key_*.png`（含 `_pressed`） | AI生图空白键帽 + 字体（Noto Serif SC 金字） | `assets/619eb843d1532fabf164fed0846d8be1988e4bdd858ec2117fd2776f8b9c2ed9.jpg` | `src/make_icons.py` |
+| `ui/icons/ui_icon_menu_{equip,gongfa,map,breakthrough}.png`、`*_fg.png`（第 3.1 批） | AI生图（标准版：切格 + 古金描边；_fg 版：GrabCut 抠主体 + 辉光亮度转 alpha + 1px 墨缘，突破为柔边圆形取景） | `assets/cce35d3cb859b595661e8b180c3b9bce3cfea06e901f5f81433b9b47f50cda7d.jpg` | `src/make_icons_menu.py`（依赖 opencv-python-headless） |
 | `fonts/NotoSerifSC-*.otf`、`OFL_notoserifcjk.txt` | 字体（SIL OFL 1.1） | — | 下载自 Google Noto CJK |
 | `preview/batch3_*.png` | 程序合成（预览用，不进游戏） | 由上述资源合成 | `src/contrast3.py`、`make_preview_fx.py`、`make_preview_warn.py`、`make_preview_icons.py`、`make_preview_battle_ui.py` |
 
@@ -480,13 +491,17 @@
 ## 9. 待确认 / 风险（第 2 批）
 1. **AI 生图商用许可**：同第 6 节，第 2 批全部怪物图集也属于 AI 生图，上线前需用户确认。
 2. **补帧和程序补动作**：竹灵受击、洞蝠受击由程序变形生成；泽灵死亡、岩傀死亡、三个首领的死亡末帧是淡出补帧；夔牛移动原图只有 7 帧（重复 1 帧补到 8）；竹魅普攻原图 7 帧（前扫帧重复 1 次）。
-3. **首领技能**：竹刺突、竹叶旋风共用同一套前摇，出手各只有 2 张不同的画（各重复一次）；岩魔冲撞的前摇 4 帧几乎是静止站姿（看不出蓄力），出手是冲拳而不是冲撞；天坠出手 4 帧仍举着巨石，下落靠特效层。夔牛受击是人立姿势，和践踏前摇（也是人立）相近，玩家可能误读成要放技能。
+3. **首领技能**（第 2.1 批已重做竹刺突、竹叶旋风、岩魔冲撞和天坠、夔牛受击，下列问题已解决，仅留作记录）：竹刺突、竹叶旋风共用同一套前摇，出手各只有 2 张不同的画（各重复一次）；岩魔冲撞的前摇 4 帧几乎是静止站姿（看不出蓄力），出手是冲拳而不是冲撞；天坠出手 4 帧仍举着巨石，下落靠特效层。夔牛受击是人立姿势，和践踏前摇（也是人立）相近，玩家可能误读成要放技能。
 4. **墨色怪在深色地图上**：泽灵、洞蝠、山魈、夔牛主体是浓墨加灰色毛发，在雷泽谷、玄岩洞的暗底上对比度偏低，靠眼睛和雷光识别。第 3 批出地图后统一检查，必要时给怪物加 1~2px 纸色外描边（shader）。
 5. **格子尺寸**：竹魅格子 736×352，主要是给竹鞭留位置；夔牛、岩魔格子高 480，主要是给雷光和巨石留位置。都在 2048 限制内，显存影响很小。
 
 ## 10. 待确认 / 风险（第 3 批）
 1. **AI 生图商用许可**：第 3 批的背景、特效、UI 部件、图标都属于 AI 生图，同第 6 节，上线前需用户确认。
-2. **背景重复周期**：雷泽谷、玄岩洞中景/近景同青竹山，每 1280px 内容重复一次；玄岩洞远景是从原图中段放大重建的，清晰度略低于另两张（远景视差 0.15，实际观感影响小）。
-3. **功能按钮图标**：icon_list.csv 里没有「装备 / 功法 / 地图 / 突破」菜单图标，效果图里用 Ma Shan Zheng 单字（装/功/图/破）代替；如需要手绘图标，请在 icon_list 里加键并生图。
+2. **背景重复周期**：雷泽谷、玄岩洞中景/近景同青竹山，每 1280px 内容重复一次。（玄岩洞远景清晰度问题已在第 3.1 批用 v2 原图解决。）
+3. **菜单图标**：第 3.1 批已出 `ui_icon_menu_*`（键名暂定，等策划加入 icon_list.csv；如键名有变，只需改文件名）。效果图已替换书法单字。功法图标原图的书皮左右贴着格子边，`_fg` 版书皮在左右边缘是直切；地图卷轴下端略有裁切，放进 50px 圆钮里看不出。
 4. **效果图比例**：`batch3_battle_ui.png` 用的是游戏内真实比例（主角约 170px 高），所以画面不像 v2 的 07 那样角色占半屏；UI 部件和文字质量与 v2 持平。
 5. **预警椭圆**：`fx_warn_circle.png` 只是半径 256 的标准件，其他半径缩放后线宽会变；精确线宽建议继续由 telegraph.gd 程序绘制，参数按 2.2。
+
+## 11. 第 2.1 / 3.1 批变更记录
+- 第 2.1 批：竹魅 `skill_thorn`（v3）、`skill_leaf`，夔牛 `hit`，岩魔 `skill_charge`、`skill_skyfall` 换新图。动画名、帧数、fps 不变，索引 3 定格（duration 5 → 0.8s），索引 4 出手。新图按同一首领待机第 1 帧对齐身高：切换时身体高度差 ≤3%，脚底 y 差 ≤2px。竹魅格子 736×352→736×416，岩魔 352×480→448×480（offset 见 5.7）；夔牛格子不变。三个 .tres 已用 Godot 4.7.2 headless 加载，帧数、fps、循环和定格时长都核对过；`preview/batch2_preview.png`、`batch2_lineup.png` 已重出。
+- 第 3.1 批：菜单图标 4 个（标准版和 _fg 版）；玄岩洞远景换 v2；`preview/batch3_battle_ui.png` 重拼：菜单圆钮换成图标，红点移到「突破」右上角，资源栏图标改成圆钮徽章，「推荐战力」放进药丸框（不再直接压在前景竹子上），拾取提示框收窄并去掉多余的品质字。`batch3_maps_contrast.png`、`batch3_warning.png` 按新远景重出，预警对比度结论不变（见 `_warn_contrast.json`）。

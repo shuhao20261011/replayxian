@@ -188,10 +188,23 @@ constants = [
     ("TELEGRAPH_DEFAULT_COLOR", TELEGRAPH_DEFAULT_COLOR, "颜色", "首领危险攻击预警兜底颜色：朱砂（v5.1 以美术 v2 规范为唯一来源，原 #C8312B）。实际按 boss_attacks.telegraph_color → maps.telegraph_color → 本值 的优先级取色"),
     ("TELEGRAPH_ALT_COLOR", TELEGRAPH_ALT_COLOR, "颜色", "预警白（v5.1 以美术 v2 规范为准，原 #FFFFFF）：雷泽谷、玄岩洞的地图预警色；玩家设置“统一用预警白”时所有地图都用本值"),
     ("TELEGRAPH_DEFAULT_STYLE", "dashed", "枚举", "预警描边样式：dashed 虚线（默认）/ solid 实线"),
-    ("TELEGRAPH_OUTLINE_PX", 2, "像素", "v5.1（美术实测）：预警主描边外侧再加一圈暗色外描边的宽度，保证在亮背景与熔岩高光上都能分辨"),
-    ("TELEGRAPH_OUTLINE_COLOR", "#1C1E21", "颜色", "v5.1（美术实测）：预警外描边颜色"),
-    ("TELEGRAPH_OUTLINE_ALPHA", 0.6, "比例", "v5.1（美术实测）：预警外描边不透明度"),
-    ("TELEGRAPH_FILL_ALPHA", 0.15, "比例", "v5.1（美术实测）：预警区域内部填充=预警色×本不透明度"),
+    # v5.4：预警绘制参数对齐美术 style_guide 2.2（第3批实测定稿）；全场版用于 anchor=arena（玄岩天坠）
+    ("TELEGRAPH_LINE_PX", 4, "像素", "v5.4：普通预警（圆形/矩形）主线宽，虚线（美术 2.2：由 3px 加粗到 4px）"),
+    ("TELEGRAPH_DASH_PX", 12, "像素", "v5.4：主线虚线每段长度（划）"),
+    ("TELEGRAPH_GAP_PX", 12, "像素", "v5.4：普通预警主线虚线间隔（空）"),
+    ("TELEGRAPH_OUTLINE_PX", 2, "像素", "v5.1：主线外侧连续外描边宽度（普通预警）"),
+    ("TELEGRAPH_OUTLINE_COLOR", "#1C1E21", "颜色", "v5.1：外描边颜色（普通与全场共用）"),
+    ("TELEGRAPH_OUTLINE_ALPHA", 0.7, "比例", "v5.4：外描边不透明度 0.6→0.7（美术 2.2：60% 时与玄岩洞熔岩高光对比不足）"),
+    ("TELEGRAPH_FILL_ALPHA", 0.15, "比例", "v5.1：普通预警内部填充=预警色×本不透明度"),
+    ("TELEGRAPH_PROGRESS_FILL_ALPHA", 0.3, "比例", "v5.4：普通预警“进度内圈”填充不透明度（美术 2.2：随预警进度扩大的内圈）"),
+    ("TELEGRAPH_ARENA_LINE_PX", 6, "像素", "v5.4：全场预警（天坠）主线宽，虚线"),
+    ("TELEGRAPH_ARENA_DASH_PX", 24, "像素", "v5.5：全场预警主线虚线每段长度（划），美术 2.2 定稿；纹理 fx_warn_dash_screen.png / fx_warn_rect_9p_screen.png 按 24/16 制作"),
+    ("TELEGRAPH_ARENA_GAP_PX", 16, "像素", "v5.5：全场预警主线虚线间隔（空），美术 2.2 定稿"),
+    ("TELEGRAPH_ARENA_OUTLINE_PX", 3, "像素", "v5.4：全场预警外描边宽度（颜色同 TELEGRAPH_OUTLINE_COLOR）"),
+    ("TELEGRAPH_ARENA_OUTLINE_ALPHA", 0.7, "比例", "v5.4：全场预警外描边不透明度"),
+    ("TELEGRAPH_ARENA_FILL_ALPHA_CENTER", 0.15, "比例", "v5.4：全场预警底色中心不透明度（中心→四边渐变）"),
+    ("TELEGRAPH_ARENA_FILL_ALPHA_EDGE", 0.35, "比例", "v5.4：全场预警底色四边不透明度"),
+    ("TELEGRAPH_BLINK_MIN_ALPHA", 0.45, "比例", "v5.4：预警闪烁时 modulate.a 在 1.0 与本值间往返，0.8 秒内2~3次（美术 5.8）"),
     ("DANGER_MIN_GAP_MARGIN_S", 0.5, "秒", "v5（BUG-005）：同一首领任意两次危险招式的伤害判定间隔（前者末段判定→后者首段判定）至少为 DODGE_COOLDOWN + 本值，保证完美操作能躲开每一招；validate.py 逐帧模拟60秒检查，前端可用作运行时保护"),
     ("BOSS_MULTI_AREA_INTERVAL", 0.4, "秒", "v5：多段危险招式（anchor=player，如天雷三连、地裂）相邻两段预警的出现间隔（与前端代码默认一致；validate.py 排招模拟读取）"),
     ("REFLECT_COUNTER_ICD", 0.8, "秒", "护体反震：全局内置触发间隔（每0.8秒最多反震1次）"),
@@ -906,10 +919,10 @@ _gf = {g["gongfa_id"]: g for g in _rows("gongfa.csv")}
 _slot = {r["slot_id"]: r["name"] for r in _rows("equip_slots.csv")}
 def _first(t): return t.replace("。", "").split("，")[0]
 icons = {}
-def _add(key, cat, ref, name, prompt, size):
+def _add(key, cat, ref, name, prompt, size, variants=""):
     if key in icons:
         icons[key]["refs"] += "|" + ref; icons[key]["name"] += "、" + name; return
-    icons[key] = dict(icon_key=key, category=cat, refs=ref, name=name, prompt=prompt, size=size)
+    icons[key] = dict(icon_key=key, category=cat, refs=ref, name=name, prompt=prompt, size=size, variants=variants)
 SZ = "源图128×128，显示64×64"
 for g in _gf.values():
     _add(g["icon"], "功法", "gongfa:" + g["gongfa_id"], g["name"], "%s徽记：%s；主色%s；%s" % (g["name"], g["desc"].rstrip("。"), FX_NAME[g["fx_color"]], ICON_STYLE), SZ)
@@ -933,8 +946,17 @@ for key, name, size, use in [("ui_icon_key_space", "空格", "源图256×96，�
                              ("ui_icon_key_4", "4", "源图96×96，显示48×48", "技能栏第4格")]:
     kref = {"ui_icon_key_space": "key:SPACE|tutorial_steps:TUT_06_BOSS|tutorial_steps:TUT_07_SKYFALL_DODGE",
             "ui_icon_key_q": "key:Q|tutorial_steps:TUT_07_SKYFALL_DODGE", "ui_icon_key_1": "key:1|tutorial_steps:TUT_04_CAST"}.get(key, "key:" + name)
-    _add(key, "按键", kref, name + "键", "%s，键面“%s”；用途：%s" % (KEY_STYLE, "空格" if name == "空格" else name, use), size)
-ICON_FIELDS = ["icon_key", "category", "refs", "name", "prompt", "size"]
+    _add(key, "按键", kref, name + "键", "%s，键面“%s”；用途：%s" % (KEY_STYLE, "空格" if name == "空格" else name, use), size,
+         variants=key + "_pressed")
+# v5.4：菜单（右下入口）图标——固定 UI 图标，不来自数据表 icon 列；键名采用美术暂定名；关联 ui_texts 的 NAV_* 文案
+MENU_STYLE = "写实手绘，统一深色底、左上光源，古金细描边；另出透明底前景版 _fg 供圆章按钮叠放"
+for key, nav, name, pic in [("ui_icon_menu_equip", "NAV_GEAR", "装备", "一只束口布袋，袋口露出剑柄与玉佩"),
+                            ("ui_icon_menu_gongfa", "NAV_GONGFA", "功法", "一卷翻开的线装古籍，书页墨字隐现"),
+                            ("ui_icon_menu_map", "NAV_MAP", "地图", "半展的山水地图卷，几枚金钉标出关隘"),
+                            ("ui_icon_menu_breakthrough", "NAV_BREAK", "突破", "层叠山峰，峰顶金光破云而出")]:
+    _add(key, "菜单", "ui_texts:%s|ui_texts:%s_SHORT" % (nav, nav), name, "%s：%s；%s" % (name, pic, MENU_STYLE), SZ,
+         variants=key + "_fg")
+ICON_FIELDS = ["icon_key", "category", "refs", "name", "prompt", "size", "variants"]
 with open(os.path.join(os.path.dirname(OUT), "icon_list.csv"), "w", newline="", encoding="utf-8") as f:
     w = csv.DictWriter(f, fieldnames=ICON_FIELDS); w.writeheader(); w.writerows(icons.values())
 print("generated ->", OUT)

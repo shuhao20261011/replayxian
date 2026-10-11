@@ -68,7 +68,7 @@ start_kit ──► equip_bases / qualities
 
 v5 新增：`DANGER_MIN_GAP_MARGIN_S`=0.5 秒（BUG-005：同一首领任意两次危险招式判定间隔 ≥ DODGE_COOLDOWN + 本值 = 3.5 秒，validate.py 检查）；`BOSS_MULTI_AREA_INTERVAL`=0.4 秒（多段危险招式相邻两段的出现间隔，与前端代码默认一致，validate.py 排招模拟读取）。
 
-关键常量：普攻系数1.0/间隔0.8秒/射程150；基础暴击5%、暴伤1.5倍；闪避0.3秒/冷却3秒/位移160；预警0.8秒；首领限时60秒；DEF_CONST=100；冷却缩减上限40%；暴击率上限75%；反伤上限60%；护体反震全局内置间隔0.8秒（REFLECT_COUNTER_ICD）；危险攻击预警色按地图配置（v5.1，见 3.7「预警绘制」）：朱砂 #B8382C（TELEGRAPH_DEFAULT_COLOR）/ 预警白 #F4F1EA（TELEGRAPH_ALT_COLOR），虚线（TELEGRAPH_DEFAULT_STYLE），外描边 2px #1C1E21 60%、填充 15%（TELEGRAPH_OUTLINE_* / TELEGRAPH_FILL_ALPHA）；10残页换1书；背包100；离线上限480分钟；自动存档10秒；自动模式同关连续失败1次即回退（AUTO_FAIL_RETREAT_COUNT，规则见第4节）；反伤/反震吃防御（REFLECT_IGNORE_DEF=0、COUNTER_IGNORE_DEF=0，公式见第4节）。
+关键常量：普攻系数1.0/间隔0.8秒/射程150；基础暴击5%、暴伤1.5倍；闪避0.3秒/冷却3秒/位移160；预警0.8秒；首领限时60秒；DEF_CONST=100；冷却缩减上限40%；暴击率上限75%；反伤上限60%；护体反震全局内置间隔0.8秒（REFLECT_COUNTER_ICD）；危险攻击预警色按地图配置（v5.1，见 3.7「预警绘制」）：朱砂 #B8382C（TELEGRAPH_DEFAULT_COLOR）/ 预警白 #F4F1EA（TELEGRAPH_ALT_COLOR），虚线（TELEGRAPH_DEFAULT_STYLE），线宽/虚线/外描边/填充/全场版参数见 3.7「预警绘制」（TELEGRAPH_* 常量，v5.4 对齐美术 2.2）；10残页换1书；背包100；离线上限480分钟；自动存档10秒；自动模式同关连续失败1次即回退（AUTO_FAIL_RETREAT_COUNT，规则见第4节）；反伤/反震吃防御（REFLECT_IGNORE_DEF=0、COUNTER_IGNORE_DEF=0，公式见第4节）。
 
 节奏常量（v4，与前端代码同名、默认值一致；前端读表覆盖代码默认值，balance.py 也从这里读，改一处两边同时生效）：
 
@@ -236,7 +236,17 @@ v5 新增：`DANGER_MIN_GAP_MARGIN_S`=0.5 秒（BUG-005：同一首领任意两�
 
 **预警绘制（v5.1，美术实测定案）**
 - 取色优先级：`boss_attacks.telegraph_color`（非空）→ 所属地图 `maps.telegraph_color` → `constants.TELEGRAPH_DEFAULT_COLOR`。表里危险招式已显式填好地图色，所以前端现有逻辑（招式色非空就用招式色，否则用默认色）**不改代码即可按地图生效**；maps 列供以后新增招式留空时使用。玩家设置“统一用预警白”时一律用 TELEGRAPH_ALT_COLOR。
-- 样式：主线条=预警色，虚线（telegraph_style），0.8 秒闪烁；主线条外侧加外描边 TELEGRAPH_OUTLINE_PX=2 像素、颜色 TELEGRAPH_OUTLINE_COLOR=#1C1E21、不透明度 TELEGRAPH_OUTLINE_ALPHA=0.6；区域内部填充=预警色、不透明度 TELEGRAPH_FILL_ALPHA=0.15。
+- 样式（v5.4，对齐美术 style_guide 2.2 第3批定稿；三张地图结构相同，只换颜色）：
+
+| 部件 | 普通预警（圆形/矩形） | 全场预警（anchor=arena，玄岩天坠） |
+|---|---|---|
+| 主线 | 预警色，TELEGRAPH_LINE_PX=4 像素虚线，划 TELEGRAPH_DASH_PX=12 / 空 TELEGRAPH_GAP_PX=12 | 预警色，TELEGRAPH_ARENA_LINE_PX=6 像素虚线，划 TELEGRAPH_ARENA_DASH_PX=24 / 空 TELEGRAPH_ARENA_GAP_PX=16（v5.5 美术定稿） |
+| 纹理（用贴图时） | art/final/fx/fx_warn_dash.png、fx_warn_rect_9p.png、fx_warn_circle.png（按 12/12 制作） | fx_warn_dash_screen.png、fx_warn_rect_9p_screen.png（按 24/16 制作）、fx_warn_screen_fill.png（底色） |
+| 外描边 | 连续，TELEGRAPH_OUTLINE_PX=2 像素，TELEGRAPH_OUTLINE_COLOR=#1C1E21 × TELEGRAPH_OUTLINE_ALPHA=0.7 | TELEGRAPH_ARENA_OUTLINE_PX=3 像素，#1C1E21 × TELEGRAPH_ARENA_OUTLINE_ALPHA=0.7 |
+| 填充 | 预警色 × TELEGRAPH_FILL_ALPHA=0.15；进度内圈 × TELEGRAPH_PROGRESS_FILL_ALPHA=0.3 | 预警色，中心 TELEGRAPH_ARENA_FILL_ALPHA_CENTER=0.15 → 四边 TELEGRAPH_ARENA_FILL_ALPHA_EDGE=0.35 渐变 |
+| 闪烁 | 0.8 秒（BOSS_WARN_TIME）内 modulate.a 在 1.0 与 TELEGRAPH_BLINK_MIN_ALPHA=0.45 间往返 2~3 次 | 同左 |
+
+  美术实测：外描边 70% 时与玄岩洞熔岩高光对比度 3.4~4.4、白线与暗描边 7.8~9.0；青竹山亮地面上朱砂主线 4.2、外描边 5.3。资源与样例见 art/final/fx/warn_samples.tscn、preview/batch3_warning.png。
 - validate：两个常量必须等于美术规范值；maps.telegraph_color 只能取这两个值；危险招式颜色为空或等于所属地图色；普攻不得有预警色。
 
 ### 3.8 maps.csv 地图（3行）
@@ -447,11 +457,12 @@ entry_type（equipment 开局已装备 / tutorial_drop 引导固定掉落）、r
 | 字段 | 含义 |
 |---|---|
 | icon_key | 图标资源键（= 各表 icon 列；按键为 ui_icon_key_space / q / 1–4），去重 |
-| category | 功法 / 技能 / 技能书 / 货币材料 / 装备 / 按键 |
+| category | 功法 / 技能 / 技能书 / 货币材料 / 装备 / 按键 / 菜单（v5.4：右下入口装备/功法/地图/突破，固定 UI 图标，不来自数据表 icon 列，refs 关联 ui_texts 的 NAV_* 与 NAV_*_SHORT） |
 | refs | 对应表与ID，`表:ID` 用 `|` 分隔（同功法技能书共用一张书皮，所以一行对多本书）；按键写 `key:键名`，并列出用到它的引导步骤 |
 | name | 中文名（多个用“、”） |
 | prompt | 简短画面提示，取自上屏文案意象 + 功法特效色 + 统一画风（写实手绘、深色底、左上光源、古金细描边） |
 | size | 建议尺寸：图标源图 128×128、显示 64×64（美术规范 5 节）；按键 96×96→48×48，空格键 256×96→128×48 |
+| variants | v5.4 追加列：同一图标的变体文件键（`|` 分隔，文件名=键.png）。按键必有 `_pressed`（按下态），菜单必有 `_fg`（透明底前景版，叠在圆章按钮上）；validate 检查，并把清单（含变体）与 art/final/ui/icons/ 实际文件比对，缺图/多图只告警 |
 
 ## 4. 实现备注（给程序）
 - 每关首领的危险攻击按 min_level_index 逐步加入；同一时刻最多1个危险攻击在预警中。
@@ -535,5 +546,5 @@ entry_type（equipment 开局已装备 / tutorial_drop 引导固定掉落）、r
 - 图标键 ✔：`icon` 列统一 `ui_icon_<类>_<id小写>`（gongfa/skill/book/item/equip），美术按键名出图，缺图时前端显示功法色水墨圆点占位。
 - 反馈文案入表：横幅、飘字、按钮、Toast、离线收益标题全部走 ui_texts，不在代码里写死中文；首领倒计时、波次等数字由前端拼进占位符。
 - 预警 ✔（v5.1）：颜色只取美术 v2 规范两色，按地图配置（青竹山朱砂 #B8382C，雷泽谷/玄岩洞预警白 #F4F1EA），加暗色外描边与 15% 填充；玩家可见文案统一称“预警”“预警区域”，不用颜色指代。
-- 图标清单 ✔（v5.1）：`design/icon_list.csv` 汇总全部 icon 键与按键图标（空格、Q、1–4），给美术出图用。
+- 图标清单 ✔（v5.1，v5.4 增菜单图标与变体列）：`design/icon_list.csv` 汇总全部 icon 键、按键图标（空格、Q、1–4）与菜单图标，给美术出图用。
 - 首领危险招式间隔 ✔（BUG-005）：任意两次危险判定 ≥ DODGE_COOLDOWN + DANGER_MIN_GAP_MARGIN_S，保证“看得见、躲得开”。

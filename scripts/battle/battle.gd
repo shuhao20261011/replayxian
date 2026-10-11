@@ -70,7 +70,32 @@ var gang_bursts := 0       # 调试/测试：金刚核心冲击次数
 var drops_enabled := true  # 测试可关闭掉落
 var last_loot: Array = []  # 调试/测试：最近一次掉落/首通显示条目
 
+## BUG-015：地面预警画在 HUD 之上的跟随视口图层（layer 11 > HUD 10），下沿与圆的下半圈不再被底栏挡住；
+## 打开养成面板时隐藏（面板也在 HUD 层）。全场预警留在世界层（底色不染 HUD），描边内收到 HUD 让出的可见战场区。
+var telegraph_over_layer: CanvasLayer
+var telegraph_over_root: Node2D
+## HUD 每帧上报的可见战场区（屏幕坐标：顶栏下沿～底栏上沿）；空 = 整个视口
+var hud_safe_rect := Rect2()
+
+func safe_view_rect() -> Rect2:
+	var vr := view_rect()
+	if hud_safe_rect.size.x <= 0.0 or hud_safe_rect.size.y <= 0.0:
+		return vr
+	return Rect2(vr.position + hud_safe_rect.position, hud_safe_rect.size)
+
+func set_telegraph_overlay_visible(v: bool) -> void:
+	if telegraph_over_layer:
+		telegraph_over_layer.visible = v
+
 func _ready() -> void:
+	telegraph_over_layer = CanvasLayer.new()
+	telegraph_over_layer.name = "TelegraphOverlay"
+	telegraph_over_layer.layer = 11
+	telegraph_over_layer.follow_viewport_enabled = true
+	add_child(telegraph_over_layer)
+	telegraph_over_root = Node2D.new()
+	telegraph_over_root.name = "Telegraphs"
+	telegraph_over_layer.add_child(telegraph_over_root)
 	ground_y = GameData.const_f("GROUND_Y", 585.0)
 	rng.seed = rng_seed if rng_seed != 0 else int(Time.get_ticks_usec())
 	skills = SkillSystem.new(self)
@@ -450,6 +475,12 @@ func player_hit_enemy(e: Enemy, coef: float, opts: Dictionary = {}) -> float:
 	if gf != "":
 		e.last_hit_gongfa = gf
 	var dealt := e.take_damage(raw, crit)
+	if visual_fx and gf != "":
+		var body := e.position + Vector2(0, -CreatureArt.body_height(e.def) * 0.5)
+		match str(opts.get("fx", "")) if opts.has("fx") else ("sword_hit" if gf == "GF_SWORD" else ("thunder_strike" if gf == "GF_THUNDER" else "")):
+			"sword_hit": spawn_fx(&"sword_hit", body)
+			"thunder_strike": spawn_fx(&"thunder_strike", Vector2(e.position.x, ground_y))
+			"thunder_ground": spawn_fx(&"thunder_ground", Vector2(e.position.x, ground_y))
 	if opts.has("effect") and e.alive:
 		var ef: Array = opts.effect
 		e.apply_effect(ef[0], ef[1], ef[2])
@@ -494,7 +525,7 @@ func _show_loot(entries: Array, pos: Vector2) -> void:
 	if visual_fx:
 		var i := 0
 		for en in entries:
-			spawn_loot_beam(pos + Vector2(i * 46 - 40, 0), en.color, str(en.beam), str(en.text))
+			spawn_loot_beam(pos + Vector2(i * 46 - 40, 0), en.color, str(en.beam), str(en.text), int(en.get("quality", 0)))
 			i += 1
 
 ## 敌人近战/接触攻击（触发反伤与护体反震）
@@ -563,7 +594,7 @@ func start_boss_attack(b: Boss, a: BossAttackDef) -> void:
 	b.play_skill(a)
 	for i in a.count:
 		var tg := Telegraph.new()
-		telegraph_root.add_child(tg)
+		(telegraph_root if a.anchor == "arena" else telegraph_over_root).add_child(tg)
 		tg.setup(self, b, a, i)
 		telegraphs.append(tg)
 		if i == 0:
@@ -591,6 +622,8 @@ func time_until_next_true_damage_attack() -> float:
 func resolve_telegraph(tg: Telegraph) -> bool:
 	if tg.attack.is_danger:
 		last_danger_resolve_t = sim_time
+	if visual_fx and tg.attack.id == "BA_ZHUMEI_THORN":
+		spawn_thorns(tg.position.x + tg.x0, tg.position.x + tg.x1)
 	var dodged := player.in_dodge_iframes()
 	var inside := tg.player_inside()
 	var hit := inside and not player.is_invulnerable()
@@ -623,13 +656,112 @@ func show_damage_number(e: Enemy, dmg: float, crit: bool, tag: String) -> void:
 	float_text(e.position + Vector2(rng.randf_range(-25, 25), -h), UiText.t("FLOAT_CRIT", {"value": round(dmg)}) if crit else "-%d" % int(round(dmg)), col, 30 if crit else 22)
 
 ## 掉落光柱 + 名称（颜色/样式来自 qualities.beam）
-func spawn_loot_beam(pos: Vector2, color: Color, beam: String, text: String) -> void:
+const LOOT_BEAM_SCENE := "res://art/fx/loot_beam.tscn"
+
+## 掉落光柱：正式件 loot_beam.tscn 只设 quality（1~5，颜色/高度/粒子/橙装放射光由它自己按 beam_color 配）；
+## 停留 LOOT_BEAM_TIME 秒后淡出。缺件时退回程序画线。
+func spawn_loot_beam(pos: Vector2, color: Color, beam: String, text: String, quality: int = 0) -> void:
 	if not visual_fx:
 		return
-	if beam != "" and beam != "none":
+	if quality > 0 and ResourceLoader.exists(LOOT_BEAM_SCENE):
+		var lb: Node2D = load(LOOT_BEAM_SCENE).instantiate()
+		lb.position = Vector2(pos.x, ground_y)
+		lb.set("quality", quality)
+		effects_root.add_child(lb)
+		var tw := lb.create_tween()
+		tw.tween_interval(GameData.const_f("LOOT_BEAM_TIME", 1.6))
+		tw.tween_property(lb, "modulate:a", 0.0, 0.4)
+		tw.tween_callback(lb.queue_free)
+	elif beam != "" and beam != "none":
 		var h := 260.0 if (beam.begins_with("tall") or beam == "book") else 160.0
 		spawn_flash("line", PackedVector2Array([pos, pos + Vector2(0, -h)]), Color(color, 0.85))
 	float_text(pos + Vector2(0, -120), text, color, 16)
+
+const FX_FRAMES := "res://art/fx/fx_frames.tres"
+## fx_frames.tres 的锚点（style_guide 5.3）：sword_slash / sword_hit / shield_hit 居中；落雷 (80,440)、地雷 (144,232) = 地面落点
+const FX_ANCHORS := {&"thunder_strike": Vector2(80, 440), &"thunder_ground": Vector2(144, 232)}
+var _fx_frames: SpriteFrames
+var _fx_mat: Material
+var _fx_mat_map := ""
+
+## 当前地图的发光特效材质：亮底（青竹山）fx_on_light.gdshader（Mix + 墨晕，不发白）；暗底（雷泽谷、玄岩洞）Add
+func fx_material() -> Material:
+	var mid := level.map_id if level else ""
+	if _fx_mat == null or _fx_mat_map != mid:
+		_fx_mat_map = mid
+		var m := GameData.get_map(mid) if mid != "" else null
+		var light := m != null and m.art_key() == "qingzhu"
+		if light and ResourceLoader.exists("res://art/fx/shaders/fx_on_light.gdshader"):
+			var sm := ShaderMaterial.new()
+			sm.shader = load("res://art/fx/shaders/fx_on_light.gdshader")
+			_fx_mat = sm
+		else:
+			var cm := CanvasItemMaterial.new()
+			cm.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+			_fx_mat = cm
+	return _fx_mat
+
+## 播一次帧特效（不循环，播完释放）；pos 为锚点位置（落雷/地雷 = 地面点，其余 = 中心）
+func spawn_fx(anim: StringName, pos: Vector2, flip := false, tint := Color.WHITE) -> AnimatedSprite2D:
+	if not visual_fx:
+		return null
+	if _fx_frames == null:
+		if not ResourceLoader.exists(FX_FRAMES):
+			return null
+		_fx_frames = load(FX_FRAMES)
+	if not _fx_frames.has_animation(anim):
+		return null
+	var a := AnimatedSprite2D.new()
+	a.sprite_frames = _fx_frames
+	a.material = fx_material()
+	a.modulate = tint
+	if FX_ANCHORS.has(anim):
+		a.centered = false
+		a.offset = -FX_ANCHORS[anim]
+	a.flip_h = flip
+	a.position = pos
+	a.z_index = 5
+	effects_root.add_child(a)
+	a.play(anim)
+	a.animation_finished.connect(a.queue_free)
+	return a
+
+## 竹魅竹刺（style_guide 5.7）：fx_zhumei_thorn_02f.png 两帧（320×352，底部锚点 (160,344)），
+## 从 skill_thorn 索引 4（= 预警结算）起沿预警条每约 120px 放一簇，逐簇延迟 0.05s
+const THORN_TEX := "res://art/fx/fx_zhumei_thorn_02f.png"
+var _thorn_frames: SpriteFrames
+func spawn_thorns(xa: float, xb: float) -> void:
+	if not ResourceLoader.exists(THORN_TEX):
+		return
+	if _thorn_frames == null:
+		var tex: Texture2D = load(THORN_TEX)
+		_thorn_frames = SpriteFrames.new()
+		_thorn_frames.set_animation_loop(&"default", false)
+		_thorn_frames.set_animation_speed(&"default", 10.0)
+		for i in 2:
+			var at := AtlasTexture.new(); at.atlas = tex; at.region = Rect2(i * 320, 0, 320, 352)
+			_thorn_frames.add_frame(&"default", at, 2.0 if i == 1 else 1.0)
+	var n := maxi(int(absf(xb - xa) / 120.0), 1)
+	var step := (xb - xa) / float(n)
+	var from := xa + step * 0.5
+	if boss and boss.position.x > (xa + xb) / 2.0:   # 从首领一侧向外逐簇破土
+		from = xb - step * 0.5; step = -step
+	for i in n:
+		var a := AnimatedSprite2D.new()
+		a.sprite_frames = _thorn_frames
+		a.centered = false
+		a.offset = -Vector2(160, 344)
+		a.flip_h = step > 0.0
+		a.position = Vector2(from + step * i, ground_y)
+		a.z_index = 4
+		a.visible = false
+		effects_root.add_child(a)
+		var tw := a.create_tween()
+		tw.tween_interval(0.05 * i)
+		tw.tween_callback(func() -> void: a.visible = true; a.play(&"default"))
+		tw.tween_interval(0.3)
+		tw.tween_property(a, "modulate:a", 0.0, 0.25)
+		tw.tween_callback(a.queue_free)
 
 func spawn_flash(kind: String, pts: PackedVector2Array, color: Color, radius: float = 100.0) -> void:
 	if not visual_fx:

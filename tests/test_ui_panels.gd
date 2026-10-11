@@ -70,3 +70,73 @@ func test_gongfa_panel_learn_upgrade_equip() -> void:
 	hud.close_panel()
 	check(not runner.get_tree().paused, "关闭恢复")
 	runner.remove_child(m); m.queue_free()
+
+func _main() -> Array:
+	var m: Node = MAIN.instantiate()
+	runner.add_child(m)
+	await runner.get_tree().process_frame
+	await runner.get_tree().process_frame
+	return [m, m.get_node("HUD"), m.get_node("Battle")]
+
+func _end(m: Node) -> void:
+	runner.get_tree().paused = false
+	runner.remove_child(m)
+	m.queue_free()
+
+func test_esc_closes_panel() -> void:
+	var r: Array = await _main()
+	var hud: Hud = r[1]
+	for id in ["gear", "gongfa", "map", "break"]:
+		hud.open_panel(id)
+		check(hud.is_panel_open() and runner.get_tree().paused, "%s 打开" % id)
+		var ev := InputEventAction.new(); ev.action = "ui_cancel"; ev.pressed = true
+		hud._input(ev)
+		check(not hud.is_panel_open() and not runner.get_tree().paused, "Esc 关闭 %s 并恢复战斗" % id)
+	_end(r[0])
+
+func test_bug015_telegraphs_readable_above_hud() -> void:
+	var r: Array = await _main()
+	var hud: Hud = r[1]
+	var b: Battle = r[2]
+	b.start_run(GameData.get_level("LV_3_4"), Battle.RunMode.CHALLENGE)
+	var bs := b.debug_force_boss()
+	bs.stun_t = 100.0
+	b.start_boss_attack(bs, GameData.get_boss_attack("BA_YANMO_QUAKE"))
+	b.start_boss_attack(bs, GameData.get_boss_attack("BA_YANMO_SKYFALL"))
+	await runner.get_tree().process_frame
+	var hud_layer := (hud as CanvasLayer).layer
+	for tg: Telegraph in b.telegraphs:
+		if tg.arena:
+			check(tg.get_parent() == b.telegraph_root, "全场预警底色留在世界层（不染 HUD）")
+		else:
+			check(tg.get_parent() == b.telegraph_over_root and b.telegraph_over_layer.layer > hud_layer, "地面预警画在 HUD 之上")
+	var safe := hud.safe_rect()
+	var vs := hud.root.get_viewport_rect().size
+	check(safe.position.y > 40.0 and safe.end.y < vs.y - 100.0, "可见战场区避开顶栏与底栏（%s）" % str(safe))
+	var sv := b.safe_view_rect()
+	var vr := b.view_rect()
+	near(sv.position.y - vr.position.y, safe.position.y, 0.5, "全场描边上沿 = 顶栏下沿")
+	near(vr.end.y - sv.end.y, vs.y - safe.end.y, 0.5, "全场描边下沿 = 底栏上沿")
+	hud.open_panel("gear")
+	check(not b.telegraph_over_layer.visible, "打开面板时隐藏 HUD 之上的预警层")
+	hud.close_panel()
+	check(b.telegraph_over_layer.visible, "关闭面板后恢复")
+	_end(r[0])
+
+func test_bug016_white_toggle_hidden_by_default() -> void:
+	var r: Array = await _main()
+	var hud: Hud = r[1]
+	check(not Hud.telegraph_white_toggle_enabled(), "默认不显示统一预警白开关")
+	hud.open_panel("map")
+	check(hud.panel_body.find_children("*", "CheckButton", true, false).is_empty(), "地图面板里没有设置开关")
+	ProjectSettings.set_setting(Hud.TELEGRAPH_WHITE_TOGGLE_SETTING, true)
+	hud.open_panel("map")
+	var cbs := hud.panel_body.find_children("*", "CheckButton", true, false)
+	check(cbs.size() == 1, "打开开关后地图面板出现“统一预警白”")
+	if cbs.size() == 1:
+		(cbs[0] as CheckButton).button_pressed = true
+		check(PlayerState.telegraph_alt, "切换后 PlayerState.telegraph_alt=true")
+	ProjectSettings.set_setting(Hud.TELEGRAPH_WHITE_TOGGLE_SETTING, false)
+	PlayerState.telegraph_alt = false
+	hud.close_panel()
+	_end(r[0])

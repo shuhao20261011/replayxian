@@ -79,7 +79,7 @@ static func roll_first_clear(level: LevelDef, rng: RandomNumberGenerator) -> Arr
 		out.append({"type": "orange_choice", "choices": choices, "count": 1})
 	return out
 
-## 写入背包/货币；返回显示条目 [{text, color, beam}]
+## 写入背包/货币；返回显示条目 [{text, color, beam, icon(物品 id), quality(品质序 1~5，0=无光柱)}]
 static func apply(grants: Array, lingshi_gain_pct: float = 0.0) -> Array:
 	var shown: Array = []
 	for gr in grants:
@@ -87,17 +87,17 @@ static func apply(grants: Array, lingshi_gain_pct: float = 0.0) -> Array:
 			"lingshi":
 				var v := int(round(int(gr.count) * (1.0 + lingshi_gain_pct)))
 				PlayerState.add_rewards(v, 0)
-				shown.append({"text": UiText.t("FLOAT_LINGSHI", {"value": v}), "color": Color(1, 0.86, 0.4), "beam": ""})
+				shown.append({"text": UiText.t("FLOAT_LINGSHI", {"value": v}), "color": Color(1, 0.86, 0.4), "beam": "", "icon": "CUR_LINGSHI", "quality": 0})
 			"xiuwei":
 				PlayerState.add_rewards(0, int(gr.count))
-				shown.append({"text": UiText.t("FLOAT_XIUWEI", {"value": int(gr.count)}), "color": Color(0.6, 0.85, 1), "beam": ""})
+				shown.append({"text": UiText.t("FLOAT_XIUWEI", {"value": int(gr.count)}), "color": Color(0.6, 0.85, 1), "beam": "", "icon": "CUR_XIUWEI", "quality": 0})
 			"material":
 				PlayerState.add_item(gr.id, int(gr.count))
-				shown.append({"text": UiText.t("LOOT_ITEM_COUNT", {"item_name": GameData.material_name(gr.id), "count": int(gr.count)}), "color": Color(0.8, 0.9, 0.8), "beam": ""})
+				shown.append({"text": UiText.t("LOOT_ITEM_COUNT", {"item_name": GameData.material_name(gr.id), "count": int(gr.count)}), "color": Color(0.8, 0.9, 0.8), "beam": "", "icon": str(gr.id), "quality": 0})
 			"book":
 				PlayerState.add_book(gr.id, int(gr.count))
 				var bk := GameData.get_book(gr.id)
-				shown.append({"text": (bk.name if bk else ""), "color": Color(0.75, 0.6, 1), "beam": "book"})
+				shown.append({"text": (bk.name if bk else ""), "color": Color(0.75, 0.6, 1), "beam": "book", "icon": str(gr.id), "quality": 4})
 			"equipment":
 				var g: GearItem = gr.item
 				var res := PlayerState.add_gear(g)
@@ -107,8 +107,8 @@ static func apply(grants: Array, lingshi_gain_pct: float = 0.0) -> Array:
 					t = UiText.t("LOOT_AUTO_DECOMPOSED", {"gear_name": t, "item_name": GameData.material_name("MAT_REFINE")})
 				elif res == "overflow":
 					t = UiText.t("LOOT_BAG_FULL", {"gear_name": t, "item_name": GameData.material_name("MAT_REFINE"), "count": GearSystem.decompose_value(g)})
-				shown.append({"text": t, "color": g.color(), "beam": q.beam if q else ""})
+				shown.append({"text": t, "color": g.color(), "beam": q.beam if q else "", "icon": g.base_id, "quality": (q.order if q and q.beam != "none" else 0)})
 			"orange_choice":
 				PlayerState.add_orange_choice(gr.choices)
-				shown.append({"text": UiText.t("LOOT_ORANGE_PENDING"), "color": GameData.qualities_ordered().back().color, "beam": "tall_gold"})
+				shown.append({"text": UiText.t("LOOT_ORANGE_PENDING"), "color": GameData.qualities_ordered().back().color, "beam": "tall_gold", "icon": "", "quality": 5})
 	return shown

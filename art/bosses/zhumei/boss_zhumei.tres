@@ -10,199 +10,199 @@
 
 [sub_resource type="AtlasTexture" id="A_idle_0"]
 atlas = ExtResource("1_boss_zhumei_idle_06f")
-region = Rect2(0, 0, 736, 352)
+region = Rect2(0, 0, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_idle_1"]
 atlas = ExtResource("1_boss_zhumei_idle_06f")
-region = Rect2(736, 0, 736, 352)
+region = Rect2(736, 0, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_idle_2"]
 atlas = ExtResource("1_boss_zhumei_idle_06f")
-region = Rect2(0, 352, 736, 352)
+region = Rect2(0, 416, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_idle_3"]
 atlas = ExtResource("1_boss_zhumei_idle_06f")
-region = Rect2(736, 352, 736, 352)
+region = Rect2(736, 416, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_idle_4"]
 atlas = ExtResource("1_boss_zhumei_idle_06f")
-region = Rect2(0, 704, 736, 352)
+region = Rect2(0, 832, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_idle_5"]
 atlas = ExtResource("1_boss_zhumei_idle_06f")
-region = Rect2(736, 704, 736, 352)
+region = Rect2(736, 832, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_move_0"]
 atlas = ExtResource("2_boss_zhumei_move_08f")
-region = Rect2(0, 0, 736, 352)
+region = Rect2(0, 0, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_move_1"]
 atlas = ExtResource("2_boss_zhumei_move_08f")
-region = Rect2(736, 0, 736, 352)
+region = Rect2(736, 0, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_move_2"]
 atlas = ExtResource("2_boss_zhumei_move_08f")
-region = Rect2(0, 352, 736, 352)
+region = Rect2(0, 416, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_move_3"]
 atlas = ExtResource("2_boss_zhumei_move_08f")
-region = Rect2(736, 352, 736, 352)
+region = Rect2(736, 416, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_move_4"]
 atlas = ExtResource("2_boss_zhumei_move_08f")
-region = Rect2(0, 704, 736, 352)
+region = Rect2(0, 832, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_move_5"]
 atlas = ExtResource("2_boss_zhumei_move_08f")
-region = Rect2(736, 704, 736, 352)
+region = Rect2(736, 832, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_move_6"]
 atlas = ExtResource("2_boss_zhumei_move_08f")
-region = Rect2(0, 1056, 736, 352)
+region = Rect2(0, 1248, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_move_7"]
 atlas = ExtResource("2_boss_zhumei_move_08f")
-region = Rect2(736, 1056, 736, 352)
+region = Rect2(736, 1248, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_attack_0"]
 atlas = ExtResource("3_boss_zhumei_attack_08f")
-region = Rect2(0, 0, 736, 352)
+region = Rect2(0, 0, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_attack_1"]
 atlas = ExtResource("3_boss_zhumei_attack_08f")
-region = Rect2(736, 0, 736, 352)
+region = Rect2(736, 0, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_attack_2"]
 atlas = ExtResource("3_boss_zhumei_attack_08f")
-region = Rect2(0, 352, 736, 352)
+region = Rect2(0, 416, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_attack_3"]
 atlas = ExtResource("3_boss_zhumei_attack_08f")
-region = Rect2(736, 352, 736, 352)
+region = Rect2(736, 416, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_attack_4"]
 atlas = ExtResource("3_boss_zhumei_attack_08f")
-region = Rect2(0, 704, 736, 352)
+region = Rect2(0, 832, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_attack_5"]
 atlas = ExtResource("3_boss_zhumei_attack_08f")
-region = Rect2(736, 704, 736, 352)
+region = Rect2(736, 832, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_attack_6"]
 atlas = ExtResource("3_boss_zhumei_attack_08f")
-region = Rect2(0, 1056, 736, 352)
+region = Rect2(0, 1248, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_attack_7"]
 atlas = ExtResource("3_boss_zhumei_attack_08f")
-region = Rect2(736, 1056, 736, 352)
+region = Rect2(736, 1248, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_thorn_0"]
 atlas = ExtResource("4_boss_zhumei_skill_thorn_08f")
-region = Rect2(0, 0, 736, 352)
+region = Rect2(0, 0, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_thorn_1"]
 atlas = ExtResource("4_boss_zhumei_skill_thorn_08f")
-region = Rect2(736, 0, 736, 352)
+region = Rect2(736, 0, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_thorn_2"]
 atlas = ExtResource("4_boss_zhumei_skill_thorn_08f")
-region = Rect2(0, 352, 736, 352)
+region = Rect2(0, 416, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_thorn_3"]
 atlas = ExtResource("4_boss_zhumei_skill_thorn_08f")
-region = Rect2(736, 352, 736, 352)
+region = Rect2(736, 416, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_thorn_4"]
 atlas = ExtResource("4_boss_zhumei_skill_thorn_08f")
-region = Rect2(0, 704, 736, 352)
+region = Rect2(0, 832, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_thorn_5"]
 atlas = ExtResource("4_boss_zhumei_skill_thorn_08f")
-region = Rect2(736, 704, 736, 352)
+region = Rect2(736, 832, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_thorn_6"]
 atlas = ExtResource("4_boss_zhumei_skill_thorn_08f")
-region = Rect2(0, 1056, 736, 352)
+region = Rect2(0, 1248, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_thorn_7"]
 atlas = ExtResource("4_boss_zhumei_skill_thorn_08f")
-region = Rect2(736, 1056, 736, 352)
+region = Rect2(736, 1248, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_leaf_0"]
 atlas = ExtResource("5_boss_zhumei_skill_leaf_08f")
-region = Rect2(0, 0, 736, 352)
+region = Rect2(0, 0, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_leaf_1"]
 atlas = ExtResource("5_boss_zhumei_skill_leaf_08f")
-region = Rect2(736, 0, 736, 352)
+region = Rect2(736, 0, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_leaf_2"]
 atlas = ExtResource("5_boss_zhumei_skill_leaf_08f")
-region = Rect2(0, 352, 736, 352)
+region = Rect2(0, 416, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_leaf_3"]
 atlas = ExtResource("5_boss_zhumei_skill_leaf_08f")
-region = Rect2(736, 352, 736, 352)
+region = Rect2(736, 416, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_leaf_4"]
 atlas = ExtResource("5_boss_zhumei_skill_leaf_08f")
-region = Rect2(0, 704, 736, 352)
+region = Rect2(0, 832, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_leaf_5"]
 atlas = ExtResource("5_boss_zhumei_skill_leaf_08f")
-region = Rect2(736, 704, 736, 352)
+region = Rect2(736, 832, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_leaf_6"]
 atlas = ExtResource("5_boss_zhumei_skill_leaf_08f")
-region = Rect2(0, 1056, 736, 352)
+region = Rect2(0, 1248, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_skill_leaf_7"]
 atlas = ExtResource("5_boss_zhumei_skill_leaf_08f")
-region = Rect2(736, 1056, 736, 352)
+region = Rect2(736, 1248, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_hit_0"]
 atlas = ExtResource("6_boss_zhumei_hit_03f")
-region = Rect2(0, 0, 736, 352)
+region = Rect2(0, 0, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_hit_1"]
 atlas = ExtResource("6_boss_zhumei_hit_03f")
-region = Rect2(736, 0, 736, 352)
+region = Rect2(736, 0, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_hit_2"]
 atlas = ExtResource("6_boss_zhumei_hit_03f")
-region = Rect2(0, 352, 736, 352)
+region = Rect2(0, 416, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_death_0"]
 atlas = ExtResource("7_boss_zhumei_death_08f")
-region = Rect2(0, 0, 736, 352)
+region = Rect2(0, 0, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_death_1"]
 atlas = ExtResource("7_boss_zhumei_death_08f")
-region = Rect2(736, 0, 736, 352)
+region = Rect2(736, 0, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_death_2"]
 atlas = ExtResource("7_boss_zhumei_death_08f")
-region = Rect2(0, 352, 736, 352)
+region = Rect2(0, 416, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_death_3"]
 atlas = ExtResource("7_boss_zhumei_death_08f")
-region = Rect2(736, 352, 736, 352)
+region = Rect2(736, 416, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_death_4"]
 atlas = ExtResource("7_boss_zhumei_death_08f")
-region = Rect2(0, 704, 736, 352)
+region = Rect2(0, 832, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_death_5"]
 atlas = ExtResource("7_boss_zhumei_death_08f")
-region = Rect2(736, 704, 736, 352)
+region = Rect2(736, 832, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_death_6"]
 atlas = ExtResource("7_boss_zhumei_death_08f")
-region = Rect2(0, 1056, 736, 352)
+region = Rect2(0, 1248, 736, 416)
 
 [sub_resource type="AtlasTexture" id="A_death_7"]
 atlas = ExtResource("7_boss_zhumei_death_08f")
-region = Rect2(736, 1056, 736, 352)
+region = Rect2(736, 1248, 736, 416)
 
 [resource]
 animations = [{

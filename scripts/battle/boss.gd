@@ -115,8 +115,20 @@ func play_skill(a: BossAttackDef) -> void:
 		name = &"attack"
 	_strike_t = -1.0
 	_play_once(String(name))
+	if not anim.animation_finished.is_connected(_on_skill_anim_finished):
+		anim.animation_finished.connect(_on_skill_anim_finished)
 	var warn := a.warn_s if a.warn_s > 0.0 else GameData.const_f("BOSS_WARN_TIME", 0.8)
 	anim.speed_scale = CreatureArt.BOSS_SKILL_WINDUP_S / maxf(warn, 0.05)
+
+## 岩魔冲撞：出手帧在画内前冲 charge_dx（112px）；动画结束切回 idle 前把节点沿朝向挪同样距离，避免“弹回原地”
+func _on_skill_anim_finished() -> void:
+	if anim == null or not alive:
+		return
+	var dx := CreatureArt.skill_end_dx(def, anim.animation)
+	if dx > 0.0:
+		var vr := battle.view_rect() if battle else Rect2(-1e6, 0, 2e6, 1)
+		position.x = clampf(position.x + dx * float(facing), vr.position.x + 60.0, vr.end.x - 60.0)
+		_last_x = position.x   # 不算作“移动”
 
 ## 死亡：播 death 并停在最后一帧（随后 battle 整体淡出）
 func play_death() -> void:

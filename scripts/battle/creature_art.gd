@@ -13,14 +13,31 @@ const META := {
 	"thunder_toad": [256, 160, 128, 152, 3, 122, false],
 	"cave_bat": [192, 224, 72, 216, 3, 180, true],
 	"rock_golem": [320, 288, 160, 280, 3, 236, false],
-	"zhumei": [736, 352, 352, 330, 2, 290, false],
+	"zhumei": [736, 416, 352, 394, 2, 290, false],   # 第 2.1 批：格子 736×416
 	"kuiniu": [384, 480, 192, 466, 2, 268, false],
-	"yanmo": [352, 480, 200, 472, 3, 318, false],
+	"yanmo": [448, 480, 296, 472, 3, 318, false],    # 第 2.1 批：格子 448×480
 }
 ## 雷蟾雷球生成点（相对锚点，朝左）
 const TOAD_ORB_OFFSET := Vector2(-52, -68)
 ## 首领危险技能：前摇 4 帧合计 0.8s（索引 3 定格），索引 4 为出手判定帧
 const BOSS_SKILL_WINDUP_S := 0.8
+
+## 美术构建报告（art/final/src/_enemy_build_report.json 的副本）：岩魔 skill_charge 出手帧的画内前冲位移等
+const BUILD_REPORT := "res://art/bosses/enemy_build_report.json"
+static var _report: Dictionary = {}
+
+static func build_report() -> Dictionary:
+	if _report.is_empty() and FileAccess.file_exists(BUILD_REPORT):
+		var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(BUILD_REPORT))
+		_report = d if d is Dictionary else {"_": 0}
+	return _report
+
+## 技能动画结束时的画内位移（像素，朝左为正向）：yanmo.charge_dx 末值的绝对值；无数据返回 0
+static func skill_end_dx(d: EnemyDef, anim: StringName) -> float:
+	var r: Dictionary = build_report().get(art_key(d), {})
+	var key := String(anim).trim_prefix("skill_") + "_dx"
+	var arr: Array = r.get(key, [])
+	return absf(float(arr.back())) if not arr.is_empty() else 0.0
 
 static func art_key(d: EnemyDef) -> String:
 	return d.id.to_lower().trim_prefix("boss_").trim_prefix("en_")
