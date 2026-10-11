@@ -18,6 +18,7 @@ var _empty: Label
 var _key: Label   # 快捷键数字（缺按键图标时显示；QA TC_SB_01 读取 _key.text）
 var _key_tex: TextureRect
 var _auto: Button
+var _name: Label   # 技能名（v2 效果图不在格上显示，作为悬停提示来源；保留节点供 QA 读取）
 var _ready_flash := 0.0
 var _was_cd := false
 
@@ -78,6 +79,8 @@ func _ready() -> void:
 	_auto.pressed.connect(func() -> void: auto_toggled.emit(slot))
 	UiStyle.add_press_fx(_auto)
 	row.add_child(_auto)
+	_name = UiStyle.label("", 12, UiStyle.GOLD_TEXT); _name.visible = false
+	add_child(_name)
 
 func _on_gui_input(ev: InputEvent) -> void:
 	if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_RIGHT:
@@ -105,11 +108,13 @@ func refresh(skill: SkillDef, auto_on: bool, cd_left: float, cd_total: float) ->
 		_auto.visible = false
 		_shade.size = Vector2.ZERO
 		_btn.tooltip_text = UiText.t("TIP_EMPTY_SLOT")
+		_name.text = UiText.t("LABEL_EMPTY_SLOT")
 		return
 	_empty.visible = false
 	if _icon.texture == null or _icon.texture.resource_path != skill.icon_path():
 		_icon.texture = load(skill.icon_path()) if ResourceLoader.exists(skill.icon_path()) else null
 	_btn.tooltip_text = skill.name
+	_name.text = skill.name
 	_auto.visible = true
 	var t := UiText.t("SLOT_AUTO" if auto_on else "SLOT_MANUAL")
 	if _auto.text != t:
