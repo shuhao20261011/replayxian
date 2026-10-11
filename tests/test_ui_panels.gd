@@ -123,21 +123,21 @@ func test_bug015_telegraphs_readable_above_hud() -> void:
 	check(b.telegraph_over_layer.visible, "关闭面板后恢复")
 	_end(r[0])
 
-func test_bug016_white_toggle_hidden_by_default() -> void:
+## BUG-016（阶段6 更新）：“统一预警白”不再隐藏，常显于设置页（右上【存】圆章进入）；地图面板不再放设置开关
+func test_bug016_white_toggle_in_settings() -> void:
 	var r: Array = await _main()
 	var hud: Hud = r[1]
-	check(not Hud.telegraph_white_toggle_enabled(), "默认不显示统一预警白开关")
 	hud.open_panel("map")
 	check(hud.panel_body.find_children("*", "CheckButton", true, false).is_empty(), "地图面板里没有设置开关")
-	ProjectSettings.set_setting(Hud.TELEGRAPH_WHITE_TOGGLE_SETTING, true)
-	hud.open_panel("map")
-	var cbs := hud.panel_body.find_children("*", "CheckButton", true, false)
-	check(cbs.size() == 1, "打开开关后地图面板出现“统一预警白”")
-	if cbs.size() == 1:
-		(cbs[0] as CheckButton).button_pressed = true
-		check(PlayerState.telegraph_alt, "切换后 PlayerState.telegraph_alt=true")
-	ProjectSettings.set_setting(Hud.TELEGRAPH_WHITE_TOGGLE_SETTING, false)
-	PlayerState.telegraph_alt = false
+	hud.close_panel()
+	hud.open_settings()
+	check(hud.settings_panel.visible and runner.get_tree().paused, "设置页打开并暂停")
+	var cb := hud.settings_panel.telegraph_toggle
+	check(cb.is_visible_in_tree(), "统一预警白开关默认可见（无需隐藏开关）")
+	eq(cb.text, UiText.t("SETTING_TELEGRAPH_WHITE"), "开关文案")
+	cb.button_pressed = true
+	check(PlayerState.telegraph_alt, "切换后 PlayerState.telegraph_alt=true")
+	PlayerState.set_telegraph_alt(false)
 	hud.close_panel()
 	_end(r[0])
 

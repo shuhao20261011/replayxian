@@ -42,6 +42,7 @@ func _off() -> void:
 	SaveSystem._web_mirror_override = null
 	SaveSystem._pending_reasons.clear()
 	SaveSystem._flush_queued = false
+	SaveSystem._set_status("off")
 
 func _write(p: String, text: String) -> void:
 	var f := FileAccess.open(p, FileAccess.WRITE); f.store_string(text); f.close()

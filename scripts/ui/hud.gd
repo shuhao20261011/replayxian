@@ -25,12 +25,15 @@ var gongfa_dot: TextureRect
 var _loot_t := 0.0
 var _top_left: Control
 var _top_center: Control
-## BUG-016：“统一预警白”设置入口，等制作人定稿前默认隐藏。开启：项目设置 xxhbgj/ui/show_telegraph_white_toggle=true 或命令行 -- --telegraph-white-toggle
-const TELEGRAPH_WHITE_TOGGLE_SETTING := "xxhbgj/ui/show_telegraph_white_toggle"
+## BUG-016：“统一预警白”开关阶段6 起常显于设置页（右上【存】圆章进入），不再需要隐藏开关。
 var lingshi_label: Label
 var xiuwei_label: Label
 var level_label: Label
 var save_label: Label
+var save_badge: Control                     # 阶段6：右上【存】圆章 = 设置页入口
+var settings_panel: SettingsPanel           # 阶段6：设置页（存档管理 + 显示）
+var offline_panel: OfflinePanel             # 阶段6：闭关收益领取页
+var confirm_dialog: ConfirmDialog           # 阶段6：两步确认 / 存档提示（最上层）
 var wave_label: Label
 var wave_box: PanelContainer
 var mode_label: Label
@@ -102,6 +105,9 @@ func bind(b: Battle) -> void:
 	PlayerState.realm_broken.connect(_on_realm_broken)
 	_refresh_top()
 	_refresh_auto()
+	_on_save_status(SaveSystem.status)
+	if SaveSystem.booted:
+		_show_boot_notices.call_deferred(SaveSystem.boot_result)
 
 ## 放到 root 上并按锚点定位：底部锚点向上长，右侧锚点向左长，居中锚点两侧对称长（BUG-008：不写死尺寸）
 func _anchored(c: Control, preset: int, pos: Vector2) -> Control:
@@ -210,9 +216,16 @@ func _build() -> void:
 	trh.add_child(lp)
 	var sv := VBoxContainer.new(); sv.add_theme_constant_override("separation", 0); sv.alignment = BoxContainer.ALIGNMENT_BEGIN
 	var sbadge := _round_badge(UiText.t("HUD_SAVE_SHORT"), Vector2(62, 58), 28)
-	sbadge.tooltip_text = UiText.t("HUD_SAVE_PENDING"); sbadge.mouse_filter = Control.MOUSE_FILTER_PASS
+	sbadge.name = "SaveBadge"
+	sbadge.tooltip_text = UiText.t("TIP_SAVE_BADGE"); sbadge.mouse_filter = Control.MOUSE_FILTER_STOP
+	sbadge.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	sbadge.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+			open_settings())
+	UiStyle.add_press_fx(sbadge)
+	save_badge = sbadge
 	sv.add_child(sbadge)
-	save_label = UiStyle.label(UiText.t("HUD_SAVE_PENDING"), 12, UiStyle.GOLD_TEXT); save_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	save_label = UiStyle.label(save_status_text(SaveSystem.status), 12, UiStyle.GOLD_TEXT); save_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	save_label.theme_type_variation = &"DimLabel"
 	sv.add_child(save_label)
 	trh.add_child(sv)
@@ -431,6 +444,9 @@ func _build() -> void:
 	break_panel = BreakPanel.new(); break_panel.visible = false; root.add_child(break_panel)
 	break_panel.closed.connect(close_panel)
 	break_panel.go_map.connect(_go_map)
+	settings_panel = SettingsPanel.new(); settings_panel.visible = false; root.add_child(settings_panel)
+	settings_panel.closed.connect(close_panel)
+	settings_panel.progress_replaced.connect(_on_progress_replaced)
 	# ---- 首通奖励卡片（不暂停）/ 三选一对话框（暂停，最上层） ----
 	first_clear_card = FirstClearCard.new()
 	_anchored(first_clear_card, Control.PRESET_CENTER_TOP, Vector2(0, 168))
@@ -445,6 +461,11 @@ func _build() -> void:
 	orange_dialog.chosen.connect(func(bid: String) -> void:
 		var base := GameData.get_base(bid)
 		show_banner(UiText.t("TOAST_ORANGE_GOT", {"equip_name": base.name if base else ""})))
+	offline_panel = OfflinePanel.new(); root.add_child(offline_panel)
+	offline_panel.claimed.connect(_on_offline_claimed)
+	confirm_dialog = ConfirmDialog.new(); root.add_child(confirm_dialog)
+	settings_panel.dialog = confirm_dialog
+	SaveSystem.status_changed.connect(_on_save_status)
 
 func _bar_text(bar: Control, size: int, color: Color) -> Label:
 	var l := UiStyle.label("", size, color)
@@ -487,6 +508,13 @@ func safe_rect() -> Rect2:
 
 ## Esc（ui_cancel）关闭养成面板；HUD 为 PROCESS_MODE_ALWAYS，暂停中也能响应（Web 同样走 ui_cancel）
 func _input(ev: InputEvent) -> void:
+	if ev.is_action_pressed("ui_cancel") and confirm_dialog and confirm_dialog.visible:
+		confirm_dialog.escape()
+		get_viewport().set_input_as_handled()
+		return
+	if ev.is_action_pressed("ui_cancel") and offline_panel and offline_panel.visible:
+		get_viewport().set_input_as_handled()   # 闭关收益只能“收下”
+		return
 	if ev.is_action_pressed("ui_cancel") and is_panel_open():
 		if break_panel.visible and break_panel.unlock_card:
 			break_panel._close_unlock_card()   # 先收地图开放卡片
@@ -494,18 +522,15 @@ func _input(ev: InputEvent) -> void:
 			close_panel()
 		get_viewport().set_input_as_handled()
 
-static func telegraph_white_toggle_enabled() -> bool:
-	return bool(ProjectSettings.get_setting(TELEGRAPH_WHITE_TOGGLE_SETTING, false)) or "--telegraph-white-toggle" in OS.get_cmdline_user_args()
-
 func is_panel_open() -> bool:
-	return panel.visible or gear_panel.visible or gongfa_panel.visible or break_panel.visible or orange_dialog.visible
+	return panel.visible or gear_panel.visible or gongfa_panel.visible or break_panel.visible or orange_dialog.visible or settings_panel.visible or offline_panel.visible
 
 func open_panel(id: String) -> void:
 	var pid := nav_id(id)
 	if pid == "":
 		push_warning("Hud.open_panel: 未知面板 %s" % id)
 		return
-	panel.visible = false; gear_panel.visible = false; gongfa_panel.visible = false; break_panel.visible = false; orange_dialog.visible = false
+	panel.visible = false; gear_panel.visible = false; gongfa_panel.visible = false; break_panel.visible = false; orange_dialog.visible = false; settings_panel.visible = false
 	open_id = pid
 	dim.visible = true
 	if battle:
@@ -525,14 +550,6 @@ func open_panel(id: String) -> void:
 			for l in GameData.levels_ordered:
 				if l.map_id == m.id:
 					panel_body.add_child(_map_row(l))
-		if telegraph_white_toggle_enabled():
-			panel_body.add_child(UiStyle.hsep())
-			var cb := CheckButton.new()
-			cb.text = UiText.t("SETTING_TELEGRAPH_WHITE")
-			cb.tooltip_text = UiText.t("TIP_TELEGRAPH_WHITE")
-			cb.button_pressed = PlayerState.telegraph_alt
-			cb.toggled.connect(func(on: bool) -> void: PlayerState.telegraph_alt = on)
-			panel_body.add_child(cb)
 	panel.visible = true
 	UiStyle.pop_in(panel)
 
@@ -599,6 +616,7 @@ func close_panel() -> void:
 	gongfa_panel.visible = false
 	break_panel.visible = false
 	orange_dialog.visible = false
+	settings_panel.visible = false
 	dim.visible = false
 	open_id = ""
 	get_tree().paused = false
@@ -685,7 +703,7 @@ func open_orange_choice() -> bool:
 	orange_card.visible = false
 	if PlayerState.pending_orange_choices.is_empty():
 		return false
-	panel.visible = false; gear_panel.visible = false; gongfa_panel.visible = false; break_panel.visible = false
+	panel.visible = false; gear_panel.visible = false; gongfa_panel.visible = false; break_panel.visible = false; settings_panel.visible = false
 	open_id = "orange"
 	dim.visible = true
 	if battle:
@@ -849,3 +867,77 @@ func _process(delta: float) -> void:
 		banner_label.modulate.a = minf(banner_label.modulate.a, clampf(_banner_t / 0.5, 0.0, 1.0))
 		if _banner_t <= 0.0:
 			banner_label.text = ""
+
+# ---------- 阶段6：存档状态 / 设置页 / 闭关收益 / 启动提示 ----------
+static func save_status_text(st: String) -> String:
+	match st:
+		"saved": return UiText.t("HUD_SAVE_OK")
+		"dirty": return UiText.t("HUD_SAVE_DIRTY")
+		"error": return UiText.t("HUD_SAVE_ERROR")
+		"blocked": return UiText.t("HUD_SAVE_BLOCKED")
+	return UiText.t("HUD_SAVE_PENDING")
+
+## unix 秒 → 本地“时:分:秒”
+static func clock_text(unix_s: int) -> String:
+	return Time.get_time_string_from_unix_time(unix_s + SaveSystem._tz_bias_s())
+
+func _on_save_status(st: String) -> void:
+	if save_label == null:
+		return
+	save_label.text = save_status_text(st)
+	save_label.tooltip_text = UiText.t("TIP_SAVE_LAST", {"time": clock_text(SaveSystem.last_saved_at)}) if SaveSystem.last_saved_at > 0 else ""
+	save_label.add_theme_color_override("font_color", UiStyle.BAD if st in ["error", "blocked"] else UiStyle.GOLD_TEXT)
+
+## 设置页（右上【存】圆章）：暂停战斗
+func open_settings() -> void:
+	if offline_panel.visible or orange_dialog.visible:
+		return
+	panel.visible = false; gear_panel.visible = false; gongfa_panel.visible = false; break_panel.visible = false
+	open_id = "settings"
+	dim.visible = true
+	if battle:
+		battle.set_telegraph_overlay_visible(false)
+	get_tree().paused = true
+	settings_panel.open()
+	UiStyle.pop_in(settings_panel)
+
+## 闭关收益：有 pending 时弹出（暂停）
+func open_offline() -> bool:
+	if PlayerState.pending_offline.is_empty():
+		return false
+	close_panel()
+	open_id = "offline"
+	dim.visible = true
+	if battle:
+		battle.set_telegraph_overlay_visible(false)
+	get_tree().paused = true
+	return offline_panel.open()
+
+func _on_offline_claimed(r: Dictionary) -> void:
+	close_panel()
+	if str(r.get("code", "")) == "ok":
+		queue_banner(UiText.t("OFFLINE_CLAIMED"))
+
+## 导入 / 重置后：按新进度重开战斗，刷新界面
+func _on_progress_replaced(_kind: String) -> void:
+	if battle:
+		battle.start_default_run()
+		battle.refresh_player_stats()
+	_refresh_top(); _refresh_auto()
+
+## 启动提示：存档损坏 / 已恢复 / 版本过新 / 未知内容被移除 / 时钟回拨；随后弹闭关收益
+func _show_boot_notices(r: Dictionary) -> void:
+	var notes: Array[String] = []
+	match str(r.get("code", "")):
+		"recovered": notes.append(UiText.t("SAVE_MSG_RECOVERED"))
+		"corrupt": notes.append(UiText.t("SAVE_MSG_CORRUPT", {"file": "、".join(PackedStringArray(r.get("corrupt_files", [])))}))
+		"too_new": notes.append(UiText.t("SAVE_MSG_TOO_NEW"))
+	var dropped: Array = r.get("dropped", [])
+	if not dropped.is_empty():
+		notes.append(UiText.t("SAVE_MSG_DROPPED", {"count": dropped.size()}))
+	if str((r.get("offline", {}) as Dictionary).get("code", "")) == "rollback":
+		queue_banner(UiText.t("OFFLINE_ROLLBACK"))
+	for n in notes:
+		confirm_dialog.info(UiText.t("TITLE_SAVE_NOTICE"), n)
+	if not PlayerState.pending_offline.is_empty():
+		open_offline()

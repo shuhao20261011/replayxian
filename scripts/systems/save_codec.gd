@@ -2,7 +2,7 @@ class_name SaveCodec
 extends RefCounted
 ## 存档编解码（阶段6，纯函数，无文件读写）：信封 / 校验和 / 链式迁移 / 严格校验。规则全文：docs/SAVE_FORMAT.md。
 ## 信封：{save_version:int, game_version:String, saved_at:int(unix秒), checksum:"sha256:<hex>", data:{PlayerState.to_dict()}}
-## checksum = sha256(canonical_json(data))，canonical = 整数值的浮点转 int + 键排序 + 全精度；只用于发现损坏，不是防作弊。
+## checksum = sha256(canonical_json(data))，canonical = 整数值的浮点转 int + 键排序 + 默认精度（Godot JSON 读回 17 位浮点不精确，故不用 full_precision）；只用于发现损坏，不是防作弊。
 ## 迁移：migrations() = {n: Callable(data)->data}，把版本 n 升到 n+1，逐级执行，每步纯函数；高于 SAVE_VERSION 的存档拒读。
 ## v0 = 阶段1-5 的裸 PlayerState.to_dict()（无信封，调试导出 / 测试夹具），由 _v0_to_v1 补离线字段。
 

@@ -27,7 +27,7 @@ godot --path . -- --level=LV_1_3    # 调试：直接挑战某关；可加 --bos
 # 只跑名字包含某串的用例：godot --headless --path . res://tests/test_runner.tscn -- --only=skyfall
 ```
 
-`tests/` 下 130 个用例（以 `./run_tests.sh` 输出为准；另有 `tests/test_art.gd` 正式美术接入：图集/锚点、命中帧结算、首领技能动画、预警参数读表、岩魔冲撞位移）：配置加载与数据驱动、技能栏规则与冷却、自动/手动切换、闪避免伤、伤害规则（防御、真实伤害、护盾、反伤、护体反震内置间隔）、首领预警与闪避判定、自动护盾AI、天坠情境引导、刷怪→首领→胜利/失败→挂机循环、v3 自动挂机失败回退、面板暂停、默认配置 10 分钟挂机稳定性，以及 QA 第一轮缺陷回归（`tests/test_regressions.gd`：首领节点释放、天坠引导中途结算复位、标记清除后回到最高关、闪避位移/冷却精确、全场预警铺满视口、坐标归零、底栏不裁切等）。运行期出现任何脚本错误都会判该用例失败。战斗逻辑由 `Battle.tick(delta)` 驱动，测试以固定步长确定性推进。
+`tests/` 下 163 个用例（以 `./run_tests.sh` 输出为准；另有 `tests/test_art.gd` 正式美术接入：图集/锚点、命中帧结算、首领技能动画、预警参数读表、岩魔冲撞位移）：配置加载与数据驱动、技能栏规则与冷却、自动/手动切换、闪避免伤、伤害规则（防御、真实伤害、护盾、反伤、护体反震内置间隔）、首领预警与闪避判定、自动护盾AI、天坠情境引导、刷怪→首领→胜利/失败→挂机循环、v3 自动挂机失败回退、面板暂停、默认配置 10 分钟挂机稳定性，以及 QA 第一轮缺陷回归（`tests/test_regressions.gd`：首领节点释放、天坠引导中途结算复位、标记清除后回到最高关、闪避位移/冷却精确、全场预警铺满视口、坐标归零、底栏不裁切等）。运行期出现任何脚本错误都会判该用例失败。战斗逻辑由 `Battle.tick(delta)` 驱动，测试以固定步长确定性推进。
 
 ## 文案与配置要点（策划表 v5.5）
 
@@ -36,13 +36,22 @@ godot --path . -- --level=LV_1_3    # 调试：直接挑战某关；可加 --bos
 - **引导文字**直接读 `tutorial_steps.hint_text / sub_text / success_text`（自动模式追加 sub_text，并显示空格键图标）。
 - **硬规则：相邻两次危险招式判定间隔 ≥ `DODGE_COOLDOWN + DANGER_MIN_GAP_MARGIN_S`（当前 3.0 + 0.5 = 3.5 秒）**，即后一招首个判定 − 前一招末个判定。节拍由 `boss_attacks.csv` 决定；运行时首领起手前检查“现在 + 预警时长 − 上次危险判定”，不足则推迟释放（掌心雷眩晕等会压缩节拍），首领战剩余时间不足一招预警时不再起手。回归：`test_bug005_danger_gap_guard_after_stun`、QA `qa_bug005`。
 - **预警时长**：预警从首领起手的下一帧开始计时，`warn_s`（默认 0.8 秒）在 60 帧/秒下恰好显示 48 帧后判定（BUG-014）。
-- **预警取色**：`boss_attacks.telegraph_color` → `maps.telegraph_color` → `TELEGRAPH_DEFAULT_COLOR`；玩家设置“统一预警白”（`PlayerState.telegraph_alt`，写存档）时一律 `TELEGRAPH_ALT_COLOR`。绘制参数全部读 `constants.csv`（v5.4/v5.5，README 3.7）：普通预警主线 `TELEGRAPH_LINE_PX` 虚线 `DASH_PX`/`GAP_PX`、外描边 `OUTLINE_PX`×`OUTLINE_ALPHA`、填充 `FILL_ALPHA`、进度内圈 `PROGRESS_FILL_ALPHA`；全场预警 `ARENA_LINE_PX`/`ARENA_DASH_PX`/`ARENA_GAP_PX`/`ARENA_OUTLINE_PX`×`ARENA_OUTLINE_ALPHA`，底色中心 `ARENA_FILL_ALPHA_CENTER`→四边 `ARENA_FILL_ALPHA_EDGE`；闪烁 1.0↔`TELEGRAPH_BLINK_MIN_ALPHA`（0.8 秒 3 次）。地面预警画在 HUD 之上的跟随视口图层，全场预警框内收到 HUD 让出的可见战场区（BUG-015）。“统一预警白”开关在地图面板，默认隐藏，待制作人定稿（项目设置 `xxhbgj/ui/show_telegraph_white_toggle` 或 `-- --telegraph-white-toggle` 打开，BUG-016）。
+- **预警取色**：`boss_attacks.telegraph_color` → `maps.telegraph_color` → `TELEGRAPH_DEFAULT_COLOR`；玩家设置“统一预警白”（`PlayerState.telegraph_alt`，写存档）时一律 `TELEGRAPH_ALT_COLOR`。绘制参数全部读 `constants.csv`（v5.4/v5.5，README 3.7）：普通预警主线 `TELEGRAPH_LINE_PX` 虚线 `DASH_PX`/`GAP_PX`、外描边 `OUTLINE_PX`×`OUTLINE_ALPHA`、填充 `FILL_ALPHA`、进度内圈 `PROGRESS_FILL_ALPHA`；全场预警 `ARENA_LINE_PX`/`ARENA_DASH_PX`/`ARENA_GAP_PX`/`ARENA_OUTLINE_PX`×`ARENA_OUTLINE_ALPHA`，底色中心 `ARENA_FILL_ALPHA_CENTER`→四边 `ARENA_FILL_ALPHA_EDGE`；闪烁 1.0↔`TELEGRAPH_BLINK_MIN_ALPHA`（0.8 秒 3 次）。地面预警画在 HUD 之上的跟随视口图层，全场预警框内收到 HUD 让出的可见战场区（BUG-015）。“统一预警白”开关在设置页（右上【存】圆章进入），阶段6 起常显并写存档（BUG-016）。
 - **阶段5 境界突破**（`realms.csv`）：下一境界 = `prev_realm_id` 为当前境界的那一行；条件为 `xiuwei_cost` / `lingshi_cost` / `material_id`×`material_count`（x-5 首领首通给的突破材料），成功率 100%、不自动突破；成功后扣除消耗，属性直接替换为新境界基础值，并开放 `unlock_map_id`（关卡另受 `levels.unlock_level_id`/`unlock_realm_id` 约束）。`PlayerState.breakthrough_status()` / `breakthrough()`，结果码 `ok / no_xiuwei / no_lingshi / no_material / max_realm`。“破”面板（`scripts/ui/break_panel.gd`）：当前 / 下一境界属性与增量、条件持有／需要、突破后开放的地图预览；成功后横幅“突破成功·晋入…”→“…已开启”，并弹出地图开放卡片（前往 / 稍后）。可突破时“破”入口亮红点。地图面板按地图分组，未开放标“需某境界”，刚开放且未通关标“新开”。
 - **首通奖励**（`first_clear_rewards.csv`）：首通结算时在横幅下弹出首通卡片（`FirstClearCard`，逐项图标 + 品质框，不暂停）。终关首通的 `orange_choice` 行生成三选一。**手动模式**：卡片亮相 1.5 秒后弹出“核心橙装　三选一”（`OrangeChoiceDialog`，暂停；“稍后再选”保留在装备面板）。**自动战斗模式**（制作人决定，不打断挂机）：首通卡片收起后弹非阻塞提示卡片（`OrangeRewardCard`：三件图标、倒计时、“现在选择”打开上述模态 / “稍后再选”），`ORANGE_CHOICE_AUTO_LATER_SEC` 秒（代码默认 8，`tools/local_constants.csv`，待策划收编）后自动“稍后再选”收起；有待选时【装】按钮红点一直亮到选完。
 - **暗图描边**：`CreatureArt.RIM_MAP_KEYS`（雷泽谷 leize、玄岩洞 xuanyan）上的怪物与首领挂 `shaders/creature_rim_dark.tres`：剪影外缘一圈淡纸白描边 + 朝左上光源的轮廓提亮，按 `alpha_threshold` 把半透明笔触转成剪影遮罩，只作用于外缘。可调参数：`outline_color`、`outline_alpha`（0.45）、`outline_width_px`（2，贴图像素）、`rim_color`、`rim_strength`（0.3）、`rim_width_px`（3）、`light_dir`（-0.6,-0.8）、`alpha_threshold`（0.25）。
 - **全场预警框让开 HUD**：HUD 每帧把可见的拾取提示、挑战按钮与模式小字、波次/首领名/横幅、引导文字、首通卡片的矩形写入 `Battle.hud_avoid_rects`；全场预警描边在这些矩形（外扩 `Telegraph.AVOID_PAD`=8px）处断开，虚线相位按沿线距离连续。
 - 占位符另支持 `{f:raw}`：原样输出、不按数字格式化（版本号里的提交号如 `1234567`、`12e4567`）；策划工具 `render_tpl()` 待同步。
 - 颜色分工：`gongfa.color`/`qualities.color` 是文字色，技能特效用 `gongfa.fx_color`，掉落光柱/品质框用 `qualities.beam_color`；图标按各表 `icon` 键加载；`note` 列只给策划看，不上屏。
+
+## 阶段6 存档与离线收益
+
+格式、迁移、校验与恢复规则全文见 **`docs/SAVE_FORMAT.md`**（供后端复审）。概要：
+- **存档**：`user://save.json`（Web 为 IndexedDB，另同步镜像到 localStorage `replayxian.save.v1`）。信封 `{save_version, game_version, saved_at, checksum, data}`；链式纯函数迁移，版本过新拒读且本次不写盘；原子写入 tmp→校验→bak→改名；读档 save.json→.bak→.tmp，全坏则隔离为 `save.corrupt.<时间>.json` 并开新档，均有提示、不崩溃。
+- **自动保存**：每 `AUTOSAVE_INTERVAL` 秒 + 重要操作（`PlayerState.important_change`：突破、换装、学习/升级、首通、三选一、离线领取、设置…）防抖到帧末；Web 切后台 / pagehide 立即保存。右上【存】圆章下显示 已保存 / 待保存 / 保存失败 / 存档只读。
+- **离线收益**（`offline_rewards.csv`，按最近已通关关卡）：启动时结算为 pending（随机在此时确定）并立即保存，闭关页“收下”后清空；8 小时上限读表；时钟回拨本次为 0；背包满时装备按在线规则转炼器材料。
+- **设置页**（点击【存】圆章，暂停战斗）：导出 / 导入（Web 浏览器下载 / 选文件；桌面文件对话框 + 剪贴板存档码兜底）、重置（两次确认，先备份）、统一预警白。
+- **测试 / QA 不碰真实存档**：无头运行或测试 / QA / 截图场景不启用存档系统；`-- --no-save` 关闭、`-- --save` 强制启用、`-- --save-dir=<目录>` 改目录。
 
 ## Web 导出
 
@@ -79,7 +88,8 @@ project.godot             Input Map（move_left/right、dodge、skill_1..4、tog
 scenes/main.tscn          入口：Battle + HUD
 scenes/battle/            battle.tscn（战斗主场景）、player.tscn、enemy.tscn、boss.tscn
 scenes/ui/                hud.tscn、skill_slot.tscn
-scripts/autoload/         GameData（读 CSV → Resource）、PlayerState（成长/技能栏/进度/回退标记）
+scripts/autoload/         GameData（读 CSV → Resource）、PlayerState（成长/技能栏/进度/回退标记）、SaveSystem（存档读写/自动保存）
+scripts/systems/          SaveCodec（存档编解码/迁移/校验）、OfflineSystem（离线收益）及装备/掉落/功法等规则
 scripts/resources/        每张核心表一个 Resource：SkillDef(+SkillLevelDef)、SkillBookDef、GongfaDef、EnemyDef、
                           BossAttackDef、LevelDef(+WaveDef)、MapDef、RealmDef、EquipBaseDef、QualityDef
 scripts/battle/           Battle（状态机/伤害结算）、Player、Enemy、Boss、Telegraph、SkillSystem、

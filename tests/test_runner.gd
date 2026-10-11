@@ -17,6 +17,7 @@ const SUITES := [
 	"res://tests/test_art.gd",
 	"res://tests/test_stage5.gd",
 	"res://tests/test_save.gd",
+	"res://tests/test_settings.gd",
 ]
 
 ## 记录运行期脚本错误：测试过程中出现任何 SCRIPT ERROR 都算该测试失败（避免错误被静默吞掉）

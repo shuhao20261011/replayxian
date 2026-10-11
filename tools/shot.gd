@@ -21,6 +21,10 @@ func _ready() -> void:
 	add_child(m)
 	var b: Battle = m.get_node("Battle")
 	var hud: Hud = m.get_node("HUD")
+	if shot_set == "stage6":
+		await _stage6(b, hud)
+		get_tree().quit(0)
+		return
 	if shot_set == "stage5" or shot_set == "orange_auto":
 		await _stage5(b, hud) if shot_set == "stage5" else await _final_orange(b, hud, true)
 		get_tree().quit(0)
@@ -139,6 +143,53 @@ func _final_orange(b: Battle, hud: Hud, auto: bool) -> void:
 	hud.first_clear_card._t = 0.0
 	await _wait(1.0)
 	await _shot("%s_orange_auto_card" % prefix)
+
+## 阶段6：设置页 / 闭关收益 / 重置二次确认 / 存档损坏提示。存档写到 user://shot_saves/（不碰真实存档）
+func _stage6(b: Battle, hud: Hud) -> void:
+	var d := "user://shot_saves"
+	DirAccess.make_dir_recursive_absolute(d)
+	var da := DirAccess.open(d)
+	for f in da.get_files():
+		da.remove(f)
+	SaveSystem.dir = d
+	SaveSystem.enabled = true
+	b.start_run(GameData.get_level("LV_1_3"), Battle.RunMode.FARM)
+	await _wait(3.0)
+	SaveSystem.save_now("shot")
+	await _wait(0.3)
+	# 1) 设置页（【存】圆章进入）
+	hud.open_settings()
+	await _wait(0.6)
+	await _shot("%s_settings" % prefix)
+	# 2) 重置：第二次确认（确认键延迟可点）
+	hud.settings_panel.do_reset()
+	hud.confirm_dialog.confirm()
+	await _wait(0.3)
+	await _shot("%s_reset_confirm2" % prefix)
+	hud.confirm_dialog.cancel()
+	hud.close_panel()
+	# 3) 闭关收益：按 1-3 结算 8 小时以上（封顶）
+	PlayerState.pending_offline = {}
+	for id in ["LV_1_1", "LV_1_2", "LV_1_3"]:
+		PlayerState.cleared_levels[id] = true
+	PlayerState.last_settle_at = SaveSystem.now() - 9 * 3600
+	PlayerState.max_seen_at = PlayerState.last_settle_at
+	var rng := RandomNumberGenerator.new(); rng.seed = 11
+	print("offline settle: ", OfflineSystem.settle(SaveSystem.now(), rng))
+	hud.open_offline()
+	await _wait(0.6)
+	await _shot("%s_offline_claim" % prefix)
+	hud.offline_panel.do_claim()
+	await _wait(0.4)
+	# 4) 启动时存档损坏且无法恢复
+	hud._show_boot_notices({"code": "corrupt", "corrupt_files": ["save.corrupt.20261011_093000.json"], "dropped": [], "offline": {}})
+	await _wait(0.5)
+	await _shot("%s_save_corrupt_notice" % prefix)
+	hud.confirm_dialog.confirm()
+	hud._show_boot_notices({"code": "recovered", "corrupt_files": [], "dropped": [], "offline": {}})
+	await _wait(0.5)
+	await _shot("%s_save_recovered_notice" % prefix)
+	SaveSystem.enabled = false
 
 func _wait(sec: float) -> void:
 	var t := 0.0
