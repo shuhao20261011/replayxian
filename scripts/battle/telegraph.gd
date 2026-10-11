@@ -117,7 +117,11 @@ func _draw() -> void:
 			var vr := battle.view_rect().grow(40.0)
 			rect = Rect2(x0, vr.position.y - position.y, x1 - x0, vr.size.y)
 		draw_rect(rect, fill)
-		var pts := PackedVector2Array([rect.position, rect.position + Vector2(rect.size.x, 0), rect.end, rect.position + Vector2(0, rect.size.y), rect.position])
+		var orect := rect
+		if arena:   # 全场预警：填充铺满视口外沿，描边内收到屏幕边缘内侧，像一圈屏幕警示框
+			var vr2 := battle.view_rect().grow(-(LINE_PX + 2.0 * GameData.const_f("TELEGRAPH_OUTLINE_PX", 2.0)))
+			orect = Rect2(vr2.position - Vector2(0, position.y), vr2.size)
+		var pts := PackedVector2Array([orect.position, orect.position + Vector2(orect.size.x, 0), orect.end, orect.position + Vector2(0, orect.size.y), orect.position])
 		_outline(pts)
 		var bar := Rect2(x0, 14, (x1 - x0) * progress(), 6)
 		draw_rect(bar.grow(GameData.const_f("TELEGRAPH_OUTLINE_PX", 2.0)), outline_color())
