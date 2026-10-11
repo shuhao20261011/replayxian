@@ -173,6 +173,8 @@ func _build() -> void:
 	version_label = UiStyle.label(BuildInfo.label_text(), 12, DIM_GOLD)
 	version_label.name = "BuildVersion"
 	version_label.theme_type_variation = &"DimLabel"
+	version_label.add_theme_color_override("font_outline_color", Color(0.05, 0.06, 0.05, 0.85))   # 亮背景（青竹山）上也能读
+	version_label.add_theme_constant_override("outline_size", 4)
 	version_label.position = Vector2(60, 62); version_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tl.add_child(version_label)
 	var rpill := PanelContainer.new(); rpill.theme_type_variation = &"PillPanel"
@@ -253,7 +255,7 @@ func _build() -> void:
 	boss_name = UiStyle.title("", 24, Color("#E8B0A0")); bnr.add_child(boss_name)
 	boss_stun = UiStyle.label(UiText.t("FLOAT_STUN"), 15, Color("#FFE08A")); boss_stun.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	boss_stun.visible = false; bnr.add_child(boss_stun)
-	# 宽 420：不伸到右上挑战按钮下。（4e2970d 把 add_child 写进了行尾注释，首领血条从未上屏且每次实例化留一个孤儿节点）
+	# 宽 420：不伸到右上挑战按钮下。（阶段3-4 4e2970d 把 add_child 写进了行尾注释，首领血条从未上屏且每局留一个孤儿节点；阶段5 修复）
 	boss_bar = UiStyle.bar(UiStyle.HP.lightened(0.15)); boss_bar.custom_minimum_size = Vector2(420, 14)
 	boss_box.add_child(boss_bar)
 	banner_label = UiStyle.label("", 18, UiStyle.GOLD_TEXT); banner_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

@@ -283,3 +283,4 @@ func test_build_info_label() -> void:
 	var hud: Hud = r[1]
 	check(hud.version_label != null and hud.version_label.is_visible_in_tree() and hud.version_label.text != "", "HUD 显示版本小字")
 	_free_main(r[0])
+
