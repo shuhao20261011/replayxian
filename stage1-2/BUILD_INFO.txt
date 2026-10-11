@@ -1,4 +1,4 @@
 重走修仙路 阶段1-2 Web 版
-源提交：feat/stage1-2-skeleton-combat @ 233c8d6 (polish: 波次/模式加半透明墨色底牌（亮色地图)
+源提交：feat/stage1-2-skeleton-combat @ 83d6b9a (fix(BUG-014): 首领自然起手的预�)
 引擎：Godot 4.7.2 stable，Web 导出（单线程 nothreads，无需 COOP/COEP）
-构建时间：2026-10-11 15:20 HKT
+构建时间：2026-10-11 15:28 HKT
