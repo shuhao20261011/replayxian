@@ -7,7 +7,7 @@ extends RefCounted
 
 const PENDING_PATH := "res://data/ui_texts_pending.csv"
 ## 模板渲染与 design/tools/common.py 的 render_tpl() 一致：
-##   {f} / {f:num} 数值保留至多2位小数并去掉末尾0；{f:pct} ×100 后至多1位小数加 %；{f:int} 四舍五入取整（与 Python round 一致：恰好一半时取偶）。
+##   {f} / {f:num} 数值保留至多2位小数并去掉末尾0；{f:pct} ×100 后至多1位小数加 %；{f:int} 四舍五入取整（与 Python round 一致：恰好一半时取偶）；{f:raw} 原样输出（阶段5，待策划工具同步）。
 ##   非数值（关卡名等字符串）原样代入；字段缺失时保留占位符原文并告警。
 
 static var _rows: Dictionary = {}
@@ -45,7 +45,7 @@ static func row(key: String) -> Dictionary:
 static func render(tpl: String, data: Dictionary) -> String:
 	if _re == null:
 		_re = RegEx.new()
-		_re.compile("\\{([a-z_][a-z0-9_]*)(?::(pct|num|int))?\\}")
+		_re.compile("\\{([a-z_][a-z0-9_]*)(?::(pct|num|int|raw))?\\}")
 	var out := ""
 	var pos := 0
 	for m in _re.search_all(tpl):
@@ -67,7 +67,7 @@ static func _is_number(v: Variant) -> bool:
 	return false
 
 static func fmt(v: Variant, f: String = "") -> String:
-	if not _is_number(v):
+	if f == "raw" or not _is_number(v):   # {f:raw}：原样输出（如提交号 1234567 / 12e4567 不得被当作数字格式化）
 		return str(v)
 	var x := float(v)
 	match f:

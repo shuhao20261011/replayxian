@@ -49,6 +49,27 @@ static func frames_path(d: EnemyDef) -> String:
 static func meta(d: EnemyDef) -> Array:
 	return META.get(art_key(d), [])
 
+## 暗图描边（阶段5）：这些地图（MapDef.art_key）上的怪物与首领加 shaders/creature_rim_dark.tres。
+## 参数（美术可调，见 .tres / .gdshader 注释）：outline_color / outline_alpha / outline_width_px / rim_color / rim_strength / rim_width_px / light_dir / alpha_threshold。
+const RIM_MAP_KEYS := ["leize", "xuanyan"]
+const RIM_MATERIAL := "res://shaders/creature_rim_dark.tres"
+
+static func wants_rim(m: MapDef) -> bool:
+	return m != null and m.art_key() in RIM_MAP_KEYS
+
+## 给怪物节点（AnimatedSprite2D 动画或占位 Sprite2D）挂描边材质；返回是否挂上
+static func apply_rim(e: Node, m: MapDef) -> bool:
+	if not wants_rim(m) or not ResourceLoader.exists(RIM_MATERIAL):
+		return false
+	var mat := load(RIM_MATERIAL) as Material
+	var done := false
+	for n in ["Anim", "Sprite2D"]:
+		var c := e.get_node_or_null(n) as CanvasItem
+		if c and c.visible:
+			c.material = mat
+			done = true
+	return done
+
 static func make_sprite(d: EnemyDef) -> AnimatedSprite2D:
 	var p := frames_path(d)
 	if not ResourceLoader.exists(p) or meta(d).is_empty():

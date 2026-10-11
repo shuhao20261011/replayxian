@@ -9,6 +9,7 @@ signal progress_changed
 signal auto_battle_changed(enabled: bool)
 signal inventory_changed
 signal loot_notice(text: String)
+signal realm_broken(realm_id: String, unlock_map_id: String)   # 阶段5：突破成功（HUD 横幅 / 地图开放提示）
 
 var realm_id := ""
 var lingshi := 0
@@ -564,6 +565,54 @@ func set_realm(id: String) -> void:
 	if realm_order() > old:
 		clear_unstable_marks("realm_up")
 	progress_changed.emit()
+
+## 下一境界（realms.prev_realm_id == 当前境界）；已至最高境界返回 null
+func next_realm() -> RealmDef:
+	for rl in GameData.realms_ordered:
+		if rl.prev_realm_id == realm_id and rl.prev_realm_id != "":
+			return rl
+	return null
+
+## 突破条件一览（破面板与测试共用）。
+## 返回 {ok, code, realm: RealmDef|null, reqs: [{id, kind(xiuwei/lingshi/material), have, need, met}]}
+## code：ok / max_realm / no_xiuwei / no_lingshi / no_material（按 reqs 顺序取第一个未满足项）
+func breakthrough_status() -> Dictionary:
+	var nx := next_realm()
+	if nx == null:
+		return {"ok": false, "code": "max_realm", "realm": null, "reqs": []}
+	var reqs: Array = []
+	if nx.xiuwei_cost > 0:
+		reqs.append({"id": "CUR_XIUWEI", "kind": "xiuwei", "have": xiuwei, "need": nx.xiuwei_cost, "met": xiuwei >= nx.xiuwei_cost})
+	if nx.lingshi_cost > 0:
+		reqs.append({"id": "CUR_LINGSHI", "kind": "lingshi", "have": lingshi, "need": nx.lingshi_cost, "met": lingshi >= nx.lingshi_cost})
+	if nx.material_id != "" and nx.material_count > 0:
+		var have := item_count(nx.material_id)
+		reqs.append({"id": nx.material_id, "kind": "material", "have": have, "need": nx.material_count, "met": have >= nx.material_count})
+	var code := "ok"
+	for r in reqs:
+		if not r.met:
+			code = "no_" + str(r.kind)
+			break
+	return {"ok": code == "ok", "code": code, "realm": nx, "reqs": reqs}
+
+## 境界突破：成功率 100%（v5.x 规则），不自动突破；消耗修为/灵石/突破材料，属性直接替换为新境界基础值，
+## 并开放 unlock_map_id 指向的地图。返回结果码（同 breakthrough_status.code）。
+func breakthrough() -> String:
+	var st := breakthrough_status()
+	if not st.ok:
+		return str(st.code)
+	var nx: RealmDef = st.realm
+	xiuwei -= nx.xiuwei_cost
+	lingshi -= nx.lingshi_cost
+	if nx.material_id != "" and nx.material_count > 0:
+		items[nx.material_id] = item_count(nx.material_id) - nx.material_count
+		if int(items[nx.material_id]) <= 0:
+			items.erase(nx.material_id)
+		inventory_changed.emit()
+	currencies_changed.emit()
+	set_realm(nx.id)
+	realm_broken.emit(nx.id, nx.unlock_map_id)
+	return "ok"
 
 func is_unstable(level_id: String) -> bool:
 	return unstable_levels.has(level_id)

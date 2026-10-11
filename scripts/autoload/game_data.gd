@@ -304,6 +304,14 @@ func get_enemy(id: String) -> EnemyDef:
 func get_level(id: String) -> LevelDef:
 	return levels.get(id) as LevelDef
 
+## 阶段5：按 maps.order 排序
+func maps_ordered() -> Array[MapDef]:
+	var out: Array[MapDef] = []
+	for m: MapDef in maps.values():
+		out.append(m)
+	out.sort_custom(func(a: MapDef, b: MapDef) -> bool: return a.order < b.order)
+	return out
+
 func get_map(id: String) -> MapDef:
 	return maps.get(id) as MapDef
 

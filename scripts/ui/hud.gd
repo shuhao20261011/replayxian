@@ -57,6 +57,15 @@ var panel_title: Label
 var panel_body: VBoxContainer
 var gear_panel: GearPanel
 var gongfa_panel: GongfaPanel
+var break_panel: BreakPanel                 # 阶段5：突破面板
+var orange_dialog: OrangeChoiceDialog       # 阶段5：终关首通核心橙装三选一
+var first_clear_card: FirstClearCard        # 阶段5：首通奖励卡片
+var break_dot: TextureRect                  # 阶段5：可突破时“破”入口红点
+var version_label: Label                    # 阶段5：构建版本小字（BuildInfo）
+var _top_right: Control
+var _mid_col: Control
+var _banner_queue: Array[String] = []
+var _orange_open_t := -1.0                  # >0：首通卡片弹出后倒计时打开三选一
 var dim: ColorRect
 var open_id := ""
 var _banner_t := 0.0
@@ -86,6 +95,8 @@ func bind(b: Battle) -> void:
 	PlayerState.auto_battle_changed.connect(func(_e: bool) -> void: _refresh_auto())
 	PlayerState.loot_notice.connect(show_banner)
 	b.loot_dropped.connect(_on_loot)
+	b.first_clear_loot.connect(_on_first_clear)
+	PlayerState.realm_broken.connect(_on_realm_broken)
 	_refresh_top()
 	_refresh_auto()
 
@@ -158,6 +169,12 @@ func _build() -> void:
 	tl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_anchored(tl, Control.PRESET_TOP_LEFT, Vector2(14, 10))
 	_top_left = tl
+	# 构建版本小字（阶段5）：境界药丸下方，导出时由 tools/build_web.sh 写入 build_info.json
+	version_label = UiStyle.label(BuildInfo.label_text(), 12, DIM_GOLD)
+	version_label.name = "BuildVersion"
+	version_label.theme_type_variation = &"DimLabel"
+	version_label.position = Vector2(60, 62); version_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tl.add_child(version_label)
 	var rpill := PanelContainer.new(); rpill.theme_type_variation = &"PillPanel"
 	rpill.add_theme_stylebox_override("panel", ArtUi.box("ui_pill_9p", [52, 6, 22, 6]))
 	rpill.position = Vector2(44, 13); rpill.custom_minimum_size = Vector2(250, 50)
@@ -177,6 +194,7 @@ func _build() -> void:
 	# ---- 右上：祥云横幅关卡名 + 存档圆章；模式小字；挑战按钮 ----
 	var tr := VBoxContainer.new(); tr.add_theme_constant_override("separation", 4)
 	_anchored(tr, Control.PRESET_TOP_RIGHT, Vector2(-12, 10))
+	_top_right = tr
 	var trh := HBoxContainer.new(); trh.add_theme_constant_override("separation", 8); tr.add_child(trh)
 	var lp := PanelContainer.new(); lp.theme_type_variation = &"TitleBanner"
 	lp.add_theme_stylebox_override("panel", ArtUi.box("ui_banner_9p", [40, 10, 40, 12]))
@@ -223,6 +241,7 @@ func _build() -> void:
 	mid.offset_top = 66; mid.offset_left = -230; mid.offset_right = 230
 	mid.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(mid)
+	_mid_col = mid
 	wave_box = PanelContainer.new()
 	var wsb := UiStyle.pill_box(34); wsb.content_margin_left = 24; wsb.content_margin_right = 24
 	wave_box.add_theme_stylebox_override("panel", wsb)
@@ -366,6 +385,11 @@ func _build() -> void:
 			# style_guide 5.4：红点在按钮右上角外 4px（22×22）
 			gongfa_dot.position = Vector2(b.custom_minimum_size.x - 22 + 4, -4); gongfa_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			b.add_child(gongfa_dot)
+		if id == "break":
+			break_dot = TextureRect.new(); break_dot.texture = ArtUi.tex("ui_reddot"); break_dot.name = "BreakDot"
+			break_dot.position = Vector2(b.custom_minimum_size.x - 22 + 4, -4); break_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			break_dot.visible = false
+			b.add_child(break_dot)
 	# ---- 面板遮罩（打开养成面板时压暗战斗画面） ----
 	dim = ColorRect.new(); dim.color = Color(0.03, 0.04, 0.03, 0.55)
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -394,6 +418,18 @@ func _build() -> void:
 	gear_panel.closed.connect(close_panel)
 	gongfa_panel = GongfaPanel.new(); gongfa_panel.visible = false; root.add_child(gongfa_panel)
 	gongfa_panel.closed.connect(close_panel)
+	break_panel = BreakPanel.new(); break_panel.visible = false; root.add_child(break_panel)
+	break_panel.closed.connect(close_panel)
+	break_panel.go_map.connect(_go_map)
+	# ---- 首通奖励卡片（不暂停）/ 三选一对话框（暂停，最上层） ----
+	first_clear_card = FirstClearCard.new()
+	_anchored(first_clear_card, Control.PRESET_CENTER_TOP, Vector2(0, 168))
+	root.move_child(first_clear_card, dim.get_index())   # 在面板遮罩之下
+	orange_dialog = OrangeChoiceDialog.new(); orange_dialog.visible = false; root.add_child(orange_dialog)
+	orange_dialog.closed.connect(close_panel)
+	orange_dialog.chosen.connect(func(bid: String) -> void:
+		var base := GameData.get_base(bid)
+		show_banner(UiText.t("TOAST_ORANGE_GOT", {"equip_name": base.name if base else ""})))
 
 func _bar_text(bar: Control, size: int, color: Color) -> Label:
 	var l := UiStyle.label("", size, color)
@@ -437,28 +473,31 @@ func safe_rect() -> Rect2:
 ## Esc（ui_cancel）关闭养成面板；HUD 为 PROCESS_MODE_ALWAYS，暂停中也能响应（Web 同样走 ui_cancel）
 func _input(ev: InputEvent) -> void:
 	if ev.is_action_pressed("ui_cancel") and is_panel_open():
-		close_panel()
+		if break_panel.visible and break_panel.unlock_card:
+			break_panel._close_unlock_card()   # 先收地图开放卡片
+		else:
+			close_panel()
 		get_viewport().set_input_as_handled()
 
 static func telegraph_white_toggle_enabled() -> bool:
 	return bool(ProjectSettings.get_setting(TELEGRAPH_WHITE_TOGGLE_SETTING, false)) or "--telegraph-white-toggle" in OS.get_cmdline_user_args()
 
 func is_panel_open() -> bool:
-	return panel.visible or gear_panel.visible or gongfa_panel.visible
+	return panel.visible or gear_panel.visible or gongfa_panel.visible or break_panel.visible or orange_dialog.visible
 
 func open_panel(id: String) -> void:
 	var pid := nav_id(id)
 	if pid == "":
 		push_warning("Hud.open_panel: 未知面板 %s" % id)
 		return
-	panel.visible = false; gear_panel.visible = false; gongfa_panel.visible = false
+	panel.visible = false; gear_panel.visible = false; gongfa_panel.visible = false; break_panel.visible = false; orange_dialog.visible = false
 	open_id = pid
 	dim.visible = true
 	if battle:
 		battle.set_telegraph_overlay_visible(false)
 	get_tree().paused = true
-	if pid == "gear" or pid == "gongfa":
-		var pc: Control = gear_panel if pid == "gear" else gongfa_panel
+	if pid == "gear" or pid == "gongfa" or pid == "break":
+		var pc: Control = gear_panel if pid == "gear" else (gongfa_panel if pid == "gongfa" else break_panel)
 		pc.call("open")
 		UiStyle.pop_in(pc)
 		return
@@ -466,8 +505,11 @@ func open_panel(id: String) -> void:
 	for c in panel_body.get_children():
 		panel_body.remove_child(c); c.queue_free()
 	if pid == "map":
-		for l in GameData.levels_ordered:
-			panel_body.add_child(_map_row(l))
+		for m in GameData.maps_ordered():
+			panel_body.add_child(_map_header(m))
+			for l in GameData.levels_ordered:
+				if l.map_id == m.id:
+					panel_body.add_child(_map_row(l))
 		if telegraph_white_toggle_enabled():
 			panel_body.add_child(UiStyle.hsep())
 			var cb := CheckButton.new()
@@ -476,14 +518,35 @@ func open_panel(id: String) -> void:
 			cb.button_pressed = PlayerState.telegraph_alt
 			cb.toggled.connect(func(on: bool) -> void: PlayerState.telegraph_alt = on)
 			panel_body.add_child(cb)
-	else:
-		var l := UiStyle.subtitle(UiText.t("PANEL_BREAK_SOON"), 26, UiStyle.GOLD_TEXT)
-		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		l.custom_minimum_size = Vector2(600, 120)
-		l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		panel_body.add_child(l)
 	panel.visible = true
 	UiStyle.pop_in(panel)
+
+## 地图面板：每张地图一个小标题（地图名 + 未开放时“需某境界” / 刚开放时“新开”）
+func _map_header(m: MapDef) -> Control:
+	var h := HBoxContainer.new(); h.add_theme_constant_override("separation", 10); h.name = "MapHeader_" + m.id
+	var open := PlayerState.map_unlocked(m.id)
+	h.add_child(UiStyle.subtitle(m.name, 22, UiStyle.GOLD_TEXT if open else Color(0.6, 0.58, 0.52)))
+	var tag := map_tag(m)
+	if tag != "":
+		var t := _tag(UiText.t(tag, {"realm_name": _realm_name(m.realm_required)}), Color("#E9C46A") if tag == "MAP_TAG_NEW" else Color(0.6, 0.58, 0.52))
+		t.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		h.add_child(t)
+	return h
+
+## 地图标签 key：未开放 → MAP_TAG_NEED_REALM；已开放、非首图且本图尚无通关 → MAP_TAG_NEW；否则空
+static func map_tag(m: MapDef) -> String:
+	if not PlayerState.map_unlocked(m.id):
+		return "MAP_TAG_NEED_REALM"
+	if m.order > 1:
+		for l in GameData.levels_ordered:
+			if l.map_id == m.id and PlayerState.is_cleared(l.id):
+				return ""
+		return "MAP_TAG_NEW"
+	return ""
+
+static func _realm_name(id: String) -> String:
+	var rl := GameData.get_realm(id)
+	return rl.name if rl else ""
 
 ## 地图面板一行：按钮文字为关卡名（HUD_LEVEL），状态用右侧小签显示（不在代码里拼接文案）
 func _map_row(l: LevelDef) -> Button:
@@ -519,6 +582,8 @@ func close_panel() -> void:
 	panel.visible = false
 	gear_panel.visible = false
 	gongfa_panel.visible = false
+	break_panel.visible = false
+	orange_dialog.visible = false
 	dim.visible = false
 	open_id = ""
 	get_tree().paused = false
@@ -561,6 +626,83 @@ func _on_challenge_next() -> void:
 	else:
 		show_banner(UiText.t("BANNER_NO_NEW_LEVEL"))
 
+## 横幅排队：当前横幅已显示至少 2 秒后再换下一条（突破成功 → 地图开放）
+func queue_banner(text: String) -> void:
+	if _banner_t <= 0.0:
+		show_banner(text)
+	else:
+		_banner_queue.append(text)
+
+func _on_realm_broken(realm_id: String, unlock_map_id: String) -> void:
+	var rl := GameData.get_realm(realm_id)
+	show_banner(UiText.t("BANNER_REALM_UP", {"realm_name": rl.name if rl else ""}))
+	var m := GameData.get_map(unlock_map_id)
+	if m:
+		queue_banner(UiText.t("BANNER_MAP_UNLOCK", {"map_name": m.name}))
+	_refresh_top()
+
+## 地图开放卡片“前往”：关面板，挑战该图第一个可挑战的未通关关卡（没有则第一关）
+func _go_map(map_id: String) -> void:
+	close_panel()
+	var target: LevelDef = null
+	for l in GameData.levels_ordered:
+		if l.map_id == map_id and PlayerState.can_challenge(l.id):
+			if target == null or (not PlayerState.is_cleared(l.id) and PlayerState.is_cleared(target.id)):
+				target = l
+			if not PlayerState.is_cleared(l.id):
+				break
+	if target and battle:
+		battle.challenge(target.id)
+
+func _on_first_clear(level_id: String, entries: Array) -> void:
+	var l := GameData.get_level(level_id)
+	first_clear_card.show_rewards(l.name if l else "", entries)
+	if not PlayerState.pending_orange_choices.is_empty():
+		_orange_open_t = 1.5   # 先让首通卡片亮相，再弹三选一
+
+## 打开核心橙装三选一（暂停战斗）；没有待选时返回 false
+func open_orange_choice() -> bool:
+	_orange_open_t = -1.0
+	if PlayerState.pending_orange_choices.is_empty():
+		return false
+	panel.visible = false; gear_panel.visible = false; gongfa_panel.visible = false; break_panel.visible = false
+	open_id = "orange"
+	dim.visible = true
+	if battle:
+		battle.set_telegraph_overlay_visible(false)
+	get_tree().paused = true
+	return orange_dialog.open(0)
+
+## 全场预警描边需要让开的 HUD 控件（屏幕坐标，仅可见且有内容者）。描边在这些矩形处断开（阶段5 已知问题修复）
+func avoid_rects() -> Array[Rect2]:
+	var out: Array[Rect2] = []
+	var cands: Array = [loot_toast, challenge_btn, mode_label, wave_box, boss_box, banner_label, hint_label, hint_sub, hint_key, first_clear_card]
+	for c in cands:
+		var ctl := c as Control
+		if ctl == null or not ctl.is_visible_in_tree() or ctl.modulate.a <= 0.01:
+			continue
+		if ctl is Label and (ctl as Label).text == "":
+			continue
+		var r := ctl.get_global_rect()
+		if ctl is Label:   # 文字行按实际文字宽度收窄（Label 常被拉满整列）
+			var lb := ctl as Label
+			var font := lb.get_theme_font("font")
+			var fs := lb.get_theme_font_size("font_size")
+			if font:
+				var tw := 0.0
+				for line in lb.text.split("\n"):
+					tw = maxf(tw, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x)
+				tw = minf(tw + 8.0, r.size.x)
+				var x0 := r.position.x
+				if lb.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER:
+					x0 = r.get_center().x - tw * 0.5
+				elif lb.horizontal_alignment == HORIZONTAL_ALIGNMENT_RIGHT:
+					x0 = r.end.x - tw
+				r = Rect2(x0, r.position.y, tw, r.size.y)
+		if r.size.x > 0.0 and r.size.y > 0.0:
+			out.append(r)
+	return out
+
 func show_banner(text: String) -> void:
 	banner_label.text = text
 	_banner_t = 5.0
@@ -599,6 +741,7 @@ func _refresh_top() -> void:
 	# 圆章单字取境界名首字（效果图“炼”）；待策划在 realms 表加 badge 列后改读表
 	(realm_badge.get_node("Glyph") as Label).text = rl.name.left(1) if rl else ""
 	gongfa_dot.visible = has_learnable_book()
+	break_dot.visible = PlayerState.breakthrough_status().ok
 	lingshi_label.text = UiText.t("HUD_LINGSHI", {"value": PlayerState.lingshi})
 	xiuwei_label.text = UiText.t("HUD_XIUWEI", {"value": PlayerState.xiuwei})
 	var nxt := PlayerState.next_challenge_level()
@@ -635,6 +778,13 @@ func _process(delta: float) -> void:
 	if battle == null:
 		return
 	battle.hud_safe_rect = safe_rect()
+	battle.hud_avoid_rects = avoid_rects()
+	if not _banner_queue.is_empty() and _banner_t < 3.0:
+		show_banner(_banner_queue.pop_front())
+	if _orange_open_t > 0.0:
+		_orange_open_t -= delta
+		if _orange_open_t <= 0.0:
+			open_orange_choice()
 	_key_state(dodge_plaque); _key_state(auto_key)
 	var p := battle.phase
 	if p == Battle.Phase.BOSS and battle.boss:

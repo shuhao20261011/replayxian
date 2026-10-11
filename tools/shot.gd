@@ -4,11 +4,13 @@ extends Node
 
 var out := "/tmp"
 var prefix := "stage3-4"
+var shot_set := ""
 
 func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="): out = a.split("=")[1]
 		if a.begins_with("--prefix="): prefix = a.split("=")[1]
+		if a.begins_with("--set="): shot_set = a.split("=")[1]
 	get_window().size = Vector2i(1280, 720)
 	PlayerState.reset_new_game()
 	PlayerState.debug_fill_demo()
@@ -19,6 +21,10 @@ func _ready() -> void:
 	add_child(m)
 	var b: Battle = m.get_node("Battle")
 	var hud: Hud = m.get_node("HUD")
+	if shot_set == "stage5":
+		await _stage5(b, hud)
+		get_tree().quit(0)
+		return
 	var cases := [["LV_1_3", "qingzhu", "BA_ZHUMEI_THORN"], ["LV_2_3", "leize", "BA_KUINIU_BOLTS"], ["LV_3_4", "xuanyan", "BA_YANMO_SKYFALL"]]
 	for c in cases:
 		b.start_run(GameData.get_level(c[0]), Battle.RunMode.FARM)
@@ -48,6 +54,77 @@ func _ready() -> void:
 	await _wait(0.6)
 	await _shot("%s_panel_map" % prefix)
 	get_tree().quit(0)
+
+## 阶段5：破面板 / 地图开放 / 首通奖励 / 三选一 / 暗图描边（含无描边对照）/ 全场描边让开 HUD / 地图面板标签
+func _stage5(b: Battle, hud: Hud) -> void:
+	PlayerState.reset_new_game()
+	PlayerState.debug_fill_demo()
+	PlayerState.realm_id = "RL_LIANQI"
+	PlayerState.debug_atk_mult = 1.0
+	PlayerState.debug_hp_mult = 50.0
+	for id in ["LV_1_1", "LV_1_2", "LV_1_3", "LV_1_4"]:
+		PlayerState.mark_cleared(id)
+	# 1) 首通奖励：竹魅幽谷（1-5）首通
+	b.start_run(GameData.get_level("LV_1_5"), Battle.RunMode.CHALLENGE)
+	await _wait(3.0)
+	b._finish("victory")
+	await _wait(0.5)
+	await _shot("%s_first_clear_reward" % prefix)
+	await _wait(6.0)
+	# 2) 破面板（条件齐全）
+	var nx := PlayerState.next_realm()
+	PlayerState.xiuwei = maxi(PlayerState.xiuwei, nx.xiuwei_cost + 320)
+	PlayerState.lingshi = maxi(PlayerState.lingshi, nx.lingshi_cost + 860)
+	hud.open_panel("break")
+	await _wait(0.6)
+	await _shot("%s_panel_break" % prefix)
+	# 3) 突破 → 地图开放卡片
+	hud.break_panel.do_breakthrough()
+	await _wait(0.6)
+	await _shot("%s_map_unlock" % prefix)
+	hud.close_panel()
+	await _wait(0.3)
+	hud.open_panel("map")
+	await _wait(0.5)
+	await _shot("%s_panel_map_tags" % prefix)
+	hud.close_panel()
+	# 4) 暗图描边：雷泽谷 / 玄岩洞，各截有描边与无描边对照
+	for c in [["LV_2_3", "leize"], ["LV_3_3", "xuanyan"]]:
+		PlayerState.realm_id = "RL_JINDAN"
+		b.start_run(GameData.get_level(c[0]), Battle.RunMode.FARM)
+		await _wait(7.0)
+		get_tree().paused = true   # 同一冻结帧上对照（受击闪白等 modulate 不变）
+		await _wait(0.1)
+		await _shot("%s_dark_%s_rim" % [prefix, c[1]])
+		for e in b.enemies:
+			var a := e.get_node_or_null("Anim") as CanvasItem
+			if a: a.material = null
+		await _wait(0.1)
+		await _shot("%s_dark_%s_norim" % [prefix, c[1]])
+		get_tree().paused = false
+	# 5) 全场预警描边在拾取提示 / 挑战按钮 / 引导文字处断开
+	PlayerState.reset_new_game(); PlayerState.debug_fill_demo(); PlayerState.debug_hp_mult = 50.0
+	b.start_run(GameData.get_level("LV_3_4"), Battle.RunMode.FARM)
+	await _wait(2.0)
+	var bs := b.debug_force_boss()
+	await _wait(2.0)
+	var loot := LootSystem.apply([{"type": "equipment", "item": GearSystem.make_item(GearSystem.normal_bases(1, "SLOT_WEAPON")[0].id, "Q_PURPLE", b.rng)}])
+	b._show_loot(loot, b.player.position + Vector2(160, 0))
+	bs.stun_t = 3.0
+	b.start_boss_attack(bs, GameData.get_boss_attack("BA_YANMO_SKYFALL"))
+	await _wait(0.55)
+	await _shot("%s_arena_frame_avoid_hud" % prefix)
+	# 6) 终关首通 → 首通卡片 → 三选一
+	for l in GameData.levels_ordered:
+		PlayerState.mark_cleared(l.id) if l.id != "LV_3_5" else null
+	PlayerState.realm_id = "RL_JINDAN"
+	b.start_run(GameData.get_level("LV_3_5"), Battle.RunMode.CHALLENGE)
+	await _wait(2.0)
+	b._finish("victory")
+	await _wait(0.5)
+	await _shot("%s_first_clear_final" % prefix)
+	await _wait(1.6)
+	await _shot("%s_orange_choice" % prefix)
 
 func _wait(sec: float) -> void:
 	var t := 0.0

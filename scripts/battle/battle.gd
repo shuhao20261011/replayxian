@@ -13,6 +13,7 @@ signal run_finished(result: String, level_id: String, first_clear: bool)
 signal banner(text: String)
 signal telegraph_started(tg: Telegraph)
 signal loot_dropped(entries: Array)   # [{text, color, beam}]
+signal first_clear_loot(level_id: String, entries: Array)   # 阶段5：首通奖励显示条目（HUD 首通卡片 / 三选一）
 
 enum Phase { NONE, WALK, WAVE, BOSS_INTRO, BOSS, VICTORY, DEFEAT }
 enum RunMode { CHALLENGE, FARM, FARM_NORMALS }
@@ -76,6 +77,7 @@ var telegraph_over_layer: CanvasLayer
 var telegraph_over_root: Node2D
 ## HUD 每帧上报的可见战场区（屏幕坐标：顶栏下沿～底栏上沿）；空 = 整个视口
 var hud_safe_rect := Rect2()
+var hud_avoid_rects: Array[Rect2] = []   # 阶段5：全场预警描边要让开的 HUD 控件（屏幕坐标，HUD 每帧写入）
 
 func safe_view_rect() -> Rect2:
 	var vr := view_rect()
@@ -305,6 +307,7 @@ func spawn_enemy(d: EnemyDef, x: float) -> Enemy:
 	enemies_root.add_child(e)
 	e.position = Vector2(x, ground_y)
 	e.setup(d, level.enemy_hp_mult, level.enemy_atk_mult, self)
+	CreatureArt.apply_rim(e, GameData.get_map(level.map_id))
 	e.died.connect(_on_enemy_died)
 	enemies.append(e)
 	return e
@@ -315,6 +318,7 @@ func _spawn_boss() -> void:
 	enemies_root.add_child(b)
 	b.position = Vector2(player.position.x + GameData.const_f("BOSS_SPAWN_DISTANCE_PX", 560.0), ground_y)
 	b.setup_boss(d, level, self)
+	CreatureArt.apply_rim(b, GameData.get_map(level.map_id))
 	b.died.connect(_on_enemy_died)
 	enemies.append(b)
 	boss = b
@@ -350,7 +354,9 @@ func _finish(result: String) -> void:
 	if result == "victory":
 		first_clear = PlayerState.mark_cleared(level.id)
 		if first_clear and drops_enabled:
-			_show_loot(LootSystem.apply(LootSystem.roll_first_clear(level, rng)), player.position + Vector2(160, 0))
+			var fc := LootSystem.apply(LootSystem.roll_first_clear(level, rng))
+			_show_loot(fc, player.position + Vector2(160, 0))
+			first_clear_loot.emit(level.id, fc)
 		PlayerState.record_level_success(level.id, player_initiated)
 	tutorial.cancel_active()   # BUG-002：预警期间结算，收起引导并恢复速度
 	stop_slowmo()

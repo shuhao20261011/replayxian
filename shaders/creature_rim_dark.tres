@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/creature_rim.gdshader" id="1"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/outline_color = Color(0.91, 0.87, 0.77, 1)
+shader_parameter/outline_alpha = 0.45
+shader_parameter/outline_width_px = 2.0
+shader_parameter/rim_color = Color(0.96, 0.9, 0.75, 1)
+shader_parameter/rim_strength = 0.3
+shader_parameter/rim_width_px = 3.0
+shader_parameter/light_dir = Vector2(-0.6, -0.8)
+shader_parameter/alpha_threshold = 0.25

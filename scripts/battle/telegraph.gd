@@ -126,7 +126,7 @@ func _draw() -> void:
 			var vr2 := battle.safe_view_rect().grow(-(line_px() + 2.0 * outline_px()))   # BUG-015：内收到 HUD 让出的可见战场区
 			orect = Rect2(vr2.position - Vector2(0, position.y), vr2.size)
 		var pts := PackedVector2Array([orect.position, orect.position + Vector2(orect.size.x, 0), orect.end, orect.position + Vector2(0, orect.size.y), orect.position])
-		_outline(pts)
+		_outline(pts, avoid_rects_local() if arena else [])
 		var bar := Rect2(x0, 14, (x1 - x0) * progress(), 6)
 		draw_rect(bar.grow(outline_px()), outline_color(arena))
 		draw_rect(bar, color)
@@ -170,18 +170,90 @@ func _radial_fill(rect: Rect2, fill: Color) -> void:
 		var a: Vector2 = ring[i]; var b: Vector2 = ring[(i + 1) % ring.size()]
 		draw_polygon(PackedVector2Array([c, a, b]), PackedColorArray([fill, edge, edge]))
 
-## 主描边（预警色，虚线/实线）外侧加一圈外描边（连续实线，亮背景与熔岩高光上也能分辨）
-func _outline(pts: PackedVector2Array) -> void:
+## 全场描边在 HUD 控件处断开时，控件四周再留的空隙（px）
+const AVOID_PAD := 8.0
+
+## HUD 控件矩形（屏幕坐标，battle.hud_avoid_rects）→ 本节点坐标（与描边 orect 同一换算）
+func avoid_rects_local() -> Array:
+	var out: Array = []
+	if battle == null:
+		return out
+	var vr := battle.view_rect()
+	for r: Rect2 in battle.hud_avoid_rects:
+		out.append(Rect2(vr.position + r.position - Vector2(0, position.y), r.size).grow(AVOID_PAD))
+	return out
+
+## 线段 a→b 去掉与 rects（按线宽 half_w 加粗判断）相交的部分，返回保留区间 [[d0, d1], ...]（沿线距离）
+static func clip_segment(a: Vector2, b: Vector2, rects: Array, half_w: float) -> Array:
+	var len := a.distance_to(b)
+	var keep: Array = [[0.0, len]]
+	if len <= 0.0:
+		return []
+	var dir := (b - a) / len
+	for r: Rect2 in rects:
+		var g := r.grow(half_w)
+		# Liang–Barsky：线段与矩形相交的距离区间
+		var t0 := 0.0; var t1 := len
+		var ok := true
+		for ax in 2:
+			var p0 := a[ax]; var dv := dir[ax]
+			var lo := g.position[ax]; var hi := g.end[ax]
+			if absf(dv) < 1e-6:
+				if p0 < lo or p0 > hi:
+					ok = false
+					break
+			else:
+				var ta := (lo - p0) / dv; var tb := (hi - p0) / dv
+				t0 = maxf(t0, minf(ta, tb)); t1 = minf(t1, maxf(ta, tb))
+		if not ok or t1 <= t0:
+			continue
+		var nk: Array = []
+		for iv in keep:
+			if t1 <= iv[0] or t0 >= iv[1]:
+				nk.append(iv)
+				continue
+			if t0 > iv[0]:
+				nk.append([iv[0], t0])
+			if t1 < iv[1]:
+				nk.append([t1, iv[1]])
+		keep = nk
+	return keep
+
+## 主描边（预警色，虚线/实线）外侧加一圈外描边（连续实线，亮背景与熔岩高光上也能分辨）。
+## avoid：要让开的矩形（全场预警让开 HUD 控件），描边在其中断开；虚线相位按沿线距离连续，断口两侧花纹对齐。
+func _outline(pts: PackedVector2Array, avoid: Array = []) -> void:
 	var lw := line_px()
-	draw_polyline(pts, outline_color(arena), lw + 2.0 * outline_px(), true)
+	var ow := lw + 2.0 * outline_px()
 	var on := GameData.const_f("TELEGRAPH_ARENA_DASH_PX", 24.0) if arena else GameData.const_f("TELEGRAPH_DASH_PX", 12.0)
 	var off := GameData.const_f("TELEGRAPH_ARENA_GAP_PX", 16.0) if arena else GameData.const_f("TELEGRAPH_GAP_PX", 12.0)
-	var carry := 0.0   # 虚线相位跨线段连续，拐角处不重新起笔
+	if avoid.is_empty():
+		draw_polyline(pts, outline_color(arena), ow, true)
+		var carry := 0.0   # 虚线相位跨线段连续，拐角处不重新起笔
+		for i in pts.size() - 1:
+			if style == "dashed":
+				carry = _dash(pts[i], pts[i + 1], lw, on, off, carry)
+			else:
+				draw_line(pts[i], pts[i + 1], color, lw)
+		return
+	var period := on + maxf(off, 0.0)
+	var base_phase := 0.0
 	for i in pts.size() - 1:
-		if style == "dashed":
-			carry = _dash(pts[i], pts[i + 1], lw, on, off, carry)
-		else:
-			draw_line(pts[i], pts[i + 1], color, lw)
+		var a := pts[i]; var b := pts[i + 1]
+		var len := a.distance_to(b)
+		if len <= 0.0:
+			continue
+		var dir := (b - a) / len
+		for iv in clip_segment(a, b, avoid, ow * 0.5):
+			var p0: Vector2 = a + dir * float(iv[0]); var p1: Vector2 = a + dir * float(iv[1])
+			# 外描边两端各延半个线宽，拐角处与相邻边接上
+			var ext0 := ow * 0.5 if float(iv[0]) <= 0.0 else 0.0
+			var ext1 := ow * 0.5 if float(iv[1]) >= len else 0.0
+			draw_line(p0 - dir * ext0, p1 + dir * ext1, outline_color(arena), ow)
+			if style == "dashed":
+				_dash(p0, p1, lw, on, off, fposmod(base_phase + float(iv[0]), period) if period > 0.0 else 0.0)
+			else:
+				draw_line(p0, p1, color, lw)
+		base_phase += len
 
 ## 划 on / 空 off 的虚线；phase 为本段起点已走过的周期长度，返回终点相位
 func _dash(a: Vector2, b: Vector2, lw: float, on: float, off: float, phase: float) -> float:
